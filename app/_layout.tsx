@@ -14,7 +14,6 @@ import { db } from '@/drizzle/db'
 SplashScreen.preventAutoHideAsync()
 
 const RootLayout = () => {
-  const { success, error: migrationError } = useMigrations(db, migrations)
   const [loaded, error] = useFonts({
     ' SpaceMono': require('../assets/fonts/SpaceMono-Regular.ttf'),
     'IBM-Italic': require('../assets/fonts/IBMPlexSans-Italic.ttf'),
@@ -25,6 +24,7 @@ const RootLayout = () => {
     'IBM-SemiBoldItalic': require('../assets/fonts/IBMPlexSans-SemiBoldItalic.ttf'),
     'IBM-Bold': require('../assets/fonts/IBMPlexSans-Bold.ttf'),
   })
+  const { success, error: migrationError } = useMigrations(db, migrations)
 
   useEffect(() => {
     if (loaded || error) {

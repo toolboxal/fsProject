@@ -59,7 +59,7 @@ export default function CustomRadioButtons({
 const styles = StyleSheet.create({
   radioContainer: {
     flexDirection: 'row',
-    gap: 10,
+    gap: 5,
     marginTop: 12,
     marginBottom: 15,
   },

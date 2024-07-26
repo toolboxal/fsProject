@@ -64,6 +64,7 @@ const EditPage = () => {
 
   const submitPressed = async (data: TFormData) => {
     const { name, contact, remarks, date } = data
+
     // await extendedClient.person.update({
     //   where: {
     //     id: selectedPerson.id,
@@ -85,14 +86,14 @@ const EditPage = () => {
         date: date,
         category: category,
       })
-      .where(eq(Person.name, data.name === null ? '' : data.name))
+      .where(eq(Person.id, selectedPerson.id))
     console.log('edit done')
     reset()
     showToast(data.name === null ? '' : data.name)
     router.navigate('/(tabs)/recordsPage')
   }
 
-  console.log('edit Page', selectedPerson)
+  // console.log('edit Page', selectedPerson)
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
