@@ -61,16 +61,18 @@ const DropdownMenu = ({
         <Text style={styles.optionText}>Upload file</Text>
       </TouchableOpacity>
       <View style={styles.divider}></View>
-      <TouchableOpacity
-        style={styles.optionBox}
-        activeOpacity={0.9}
-        onPress={() => {
-          handleGeneratePDF()
-          handleMenuOpen()
-        }}
-      >
-        <Text style={styles.optionText}>Generate pdf</Text>
-      </TouchableOpacity>
+      {existingRecords && (
+        <TouchableOpacity
+          style={styles.optionBox}
+          activeOpacity={0.9}
+          onPress={() => {
+            handleGeneratePDF()
+            handleMenuOpen()
+          }}
+        >
+          <Text style={styles.optionText}>Generate pdf</Text>
+        </TouchableOpacity>
+      )}
       <View style={styles.divider}></View>
       <TouchableOpacity
         style={styles.optionBox}
