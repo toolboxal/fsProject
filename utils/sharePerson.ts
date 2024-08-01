@@ -3,14 +3,12 @@ import * as FileSystem from 'expo-file-system'
 
 import { Alert } from 'react-native'
 
-
 import { Person } from '@/drizzle/schema'
 import { db } from '@/drizzle/db'
 import { eq } from 'drizzle-orm'
 
 const sharePerson = async (personId: number) => {
   try {
- 
     const person = await db.select().from(Person).where(eq(Person.id, personId))
     const { id, ...dataWithoutId } = person[0]
     const jsonData = JSON.stringify(dataWithoutId)

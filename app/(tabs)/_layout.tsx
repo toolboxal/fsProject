@@ -9,8 +9,10 @@ const TabsLayout = () => {
     <Tabs
       screenOptions={{
         headerShown: false,
+
         unmountOnBlur: true,
         // tabBarShowLabel: false,
+        tabBarHideOnKeyboard: true,
         tabBarStyle: {
           backgroundColor: Colors.primary700,
           height: Platform.OS === 'android' ? 70 : 90,
@@ -22,6 +24,7 @@ const TabsLayout = () => {
         name="index"
         options={{
           title: 'Map',
+
           tabBarIcon: ({ focused }) => (
             <FontAwesome5
               size={25}

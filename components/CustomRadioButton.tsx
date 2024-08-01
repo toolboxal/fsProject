@@ -65,7 +65,7 @@ const styles = StyleSheet.create({
   },
   radioButton: {
     padding: 9,
-    paddingHorizontal: 14,
+    paddingHorizontal: 12,
     borderColor: Colors.emerald800,
     borderWidth: 1,
     borderRadius: 20,

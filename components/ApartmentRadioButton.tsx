@@ -14,12 +14,12 @@ export default function ApartmentRadioButtons({
   const radioOptions = [
     {
       id: 'publicHouse', // acts as primary key, should be unique and non-empty string
-      label: 'Public Apartments',
+      label: 'Apartments',
       value: false,
     },
     {
       id: 'privateHouse', // acts as primary key, should be unique and non-empty string
-      label: 'Private Homes',
+      label: 'Single Homes',
       value: true,
     },
   ]
