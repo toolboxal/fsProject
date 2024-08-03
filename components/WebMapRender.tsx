@@ -36,23 +36,17 @@ const WebMapRender = () => {
       category,
       latitude,
       longitude,
-      isPrivate: isPrivate,
+      remarks,
     } = person
 
-    const publicResident = `<h3 style='color:#065f46;font-size:15px;line-height:0.1; display:inline-block;padding:0;margin:0'>${name}</h3>
-    <p style='color:#065f46;font-size:14px;font-weight:bold; display:inline-block;padding:0;margin:0' >| ${category}</p>
+    const popUpContent = `<h3 style='color:#6ee7b7;font-size:15px;line-height:0.1; display:inline-block;padding:0;margin:0'>${name}</h3>
+    <p style='color:#6ee7b7;font-size:14px;font-weight:bold; display:inline-block;padding:0;margin:0' >| ${category}</p>
     <hr>
-    <p style='color:#065f46;font-size:15px;font-weight:bold; display:inline-block;padding:0;margin:0;line-height:0.5' >Blk${block}</p>
-    <p style='color:#065f46;font-size:15px;font-style:italic; display:inline-block;padding:0;margin:0;line-height:0.5'>#${unit}</p>
+    <p style='color:#6ee7b7;font-size:15px;font-style:italic; display:inline-block;padding:0;margin:0;line-height:0.5'>#${unit}</p>
+    <p style='color:#6ee7b7;font-size:15px;font-style:italic; display:inline-block;padding:0;margin:0;line-height:0.5'>${block}</p>
+     <p style='color:#6ee7b7;font-size:15px;font-style:italic; display:inline-block;padding:0;margin:0;line-height:0.5'>${street}</p>
+     <p style='color:#fff;font-size:15px; display:block;margin-top:0.5;background-color:#262626;'>${remarks}</p>
     `
-    const privateResidence = `<h3 style='color:#065f46;font-size:15px;line-height:0.1; display:inline-block;padding:0;margin:0'>${name}</h3>
-    <p style='color:#065f46;font-size:14px;font-weight:bold; display:inline-block;padding:0;margin:0' >| ${category}</p>
-    <hr>
-    <p style='color:#065f46;font-size:15px;font-style:italic; display:inline-block;padding:0;margin:0;line-height:0.5'>${unit}</p>
-    <p style='color:#065f46;font-size:15px;font-style:italic; display:inline-block;padding:0;margin:0;line-height:0.5'>${street}</p>
-    `
-
-    const popUpContent = isPrivate ? privateResidence : publicResident
 
     return { popUpContent, latitude, longitude }
   })
@@ -76,13 +70,14 @@ const WebMapRender = () => {
     <style>
         body, html, #map { height: 100%; margin: 0; padding: 0; }
         .leaflet-popup-content-wrapper {
-        background: #ecfdf5; 
-        color: #333; 
+        background: #262626; 
+        color: #fff; 
         border-radius: 8px; 
-        padding: 1px; 
+        padding: 1px;
+        max-width: 280px; 
         }
         .leaflet-popup-tip {
-        background: #ecfdf5; 
+        background: #262626; 
         }
     </style>
 </head>

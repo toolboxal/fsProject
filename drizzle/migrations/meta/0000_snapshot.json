@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "3404a6e8-fd44-44af-be4a-095a881fecf1",
+  "id": "9e4a8f00-bbac-4ce2-8830-83e96fe7e514",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "person": {
@@ -89,14 +89,6 @@
           "notNull": false,
           "autoincrement": false,
           "default": 0
-        },
-        "isPrivate": {
-          "name": "isPrivate",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": false
         }
       },
       "indexes": {},

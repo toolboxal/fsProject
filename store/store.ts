@@ -53,7 +53,6 @@ const initialPerson = {
   remarks: '',
   category: '',
   date: '',
-  isPrivate: false,
   latitude: 0,
   longitude: 0,
 }

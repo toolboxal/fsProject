@@ -35,7 +35,7 @@ const TabsLayout = () => {
           tabBarActiveTintColor: Colors.emerald500,
         }}
       />
-      <Tabs.Screen
+      {/* <Tabs.Screen
         name="editPage"
         options={{
           title: 'EditPage',
@@ -53,11 +53,11 @@ const TabsLayout = () => {
               size={28}
               color="black"
               style={{ paddingHorizontal: 10 }}
-              onPress={() => router.navigate('/(tabs)/recordsPage')}
+              onPress={() => router.navigate('/recordsPage')}
             />
           ),
         }}
-      />
+      /> */}
 
       <Tabs.Screen
         name="recordsPage"

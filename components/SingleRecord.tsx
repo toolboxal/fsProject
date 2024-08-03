@@ -15,7 +15,7 @@ const SingleRecord = (prop: TProps) => {
   const setSelectedPerson = useMyStore((state) => state.setSelectedPerson)
 
   const { item, handleOpenBtmSheet, handleActionSheet } = prop
-  const { name, unit, isPrivate: isPrivate, remarks, id } = item
+  const { name, block, unit, remarks, id } = item
   let formattedRemarks = ''
   if (remarks === null) {
     return
@@ -33,7 +33,7 @@ const SingleRecord = (prop: TProps) => {
       }}
     >
       <Text style={styles.houseUnit}>
-        {!isPrivate ? `# ${unit}` : `house no. ${unit}`}
+        {block ? `# ${unit}` : `house no. ${unit}`}
       </Text>
       <Text style={styles.textName}>{name}</Text>
       <Text style={styles.textRemarks}>{formattedRemarks}</Text>

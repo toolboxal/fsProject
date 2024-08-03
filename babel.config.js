@@ -4,6 +4,7 @@ module.exports = function (api) {
     presets: ['babel-preset-expo'],
     plugins: [
       ['inline-import', { extensions: ['.sql'] }],
+      'react-native-paper/babel',
       'react-native-reanimated/plugin',
     ],
   }

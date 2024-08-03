@@ -52,6 +52,7 @@ const styles = StyleSheet.create({
     fontFamily: 'IBM-SemiBold',
     fontSize: 18,
     color: Colors.primary900,
+    backgroundColor: Colors.emerald50,
   },
   label: {
     fontFamily: 'IBM-Regular',

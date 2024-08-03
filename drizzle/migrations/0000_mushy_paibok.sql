@@ -9,6 +9,5 @@ CREATE TABLE `person` (
 	`remarks` text,
 	`date` text,
 	`latitude` real DEFAULT 0,
-	`longitude` real DEFAULT 0,
-	`isPrivate` integer DEFAULT false
+	`longitude` real DEFAULT 0
 );

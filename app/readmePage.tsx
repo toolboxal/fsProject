@@ -10,10 +10,9 @@ const readmePage = () => {
       <Text style={styles.body}>
         The primary design of this app is to use your current geolocation. When
         geolocation permission is granted, each new record created will have its
-        geolocation stored in the background. Hence, it is vital that you create
-        the record near or at the location you would like to return to. The
-        records will then show up on the map as markers. You can refresh
-        navigation button to see which record is closest to you in the ministry.
+        geolocation stored in the background. The records will then show up on
+        the map as markers. You can refresh the map to see which record is
+        closest to you in the ministry.
       </Text>
       <Text style={styles.subheader}>Are the records stored in the cloud?</Text>
       <Text style={styles.body}>

@@ -1,0 +1,437 @@
+import { Colors } from '@/constants/Colors'
+import {
+  View,
+  Text,
+  KeyboardAvoidingView,
+  Platform,
+  StatusBar,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  SafeAreaView,
+  ActivityIndicator,
+  Alert,
+} from 'react-native'
+import * as Location from 'expo-location'
+import useMyStore from '@/store/store'
+import { useForm, Controller } from 'react-hook-form'
+import TextInputComponent from '@/components/TextInputComponent'
+import { useState } from 'react'
+import FontAwesome6 from '@expo/vector-icons/FontAwesome6'
+import { router } from 'expo-router'
+import Toast from 'react-native-root-toast'
+
+import { db } from '@/drizzle/db'
+import { Person, TPerson } from '@/drizzle/schema'
+import { eq } from 'drizzle-orm'
+import { SegmentedButtons } from 'react-native-paper'
+import WebView from 'react-native-webview'
+
+type TFormData = Omit<TPerson, 'id' | 'category' | 'latitude' | 'longitude'>
+type TGeoCoords = {
+  latitude: number
+  longitude: number
+}
+
+const EditPage = () => {
+  const selectedPerson = useMyStore((state) => state.selectedPerson)
+  const [category, setCategory] = useState(selectedPerson.category!)
+
+  const [updatedLat, setUpdatedLat] = useState(selectedPerson.latitude)
+  const [updatedLng, setUpdatedLng] = useState(selectedPerson.longitude)
+
+  const { control, handleSubmit, reset, getValues } = useForm({
+    defaultValues: {
+      block: selectedPerson.block || '',
+      unit: selectedPerson.unit || '',
+      street: selectedPerson.street || '',
+      name: selectedPerson.name || '',
+      contact: selectedPerson.contact || '',
+      date: selectedPerson.date || '',
+      remarks: selectedPerson.remarks || '',
+    },
+  })
+
+  const showToast = () => {
+    Toast.show(`Edit saved 💾`, {
+      duration: 5000,
+      position: 60,
+      shadow: true,
+      animation: true,
+      hideOnPress: true,
+      delay: 0,
+      backgroundColor: Colors.emerald100,
+      textColor: Colors.primary900,
+      opacity: 1,
+    })
+  }
+
+  const submitPressed = async (data: TFormData) => {
+    const { name, contact, remarks, date, block, unit, street } = data
+    const toUpperBlock = block === null ? '' : block.toUpperCase()
+    await db
+      .update(Person)
+      .set({
+        block: toUpperBlock,
+        unit: unit,
+        street: street,
+        name: name,
+        contact: contact,
+        remarks: remarks,
+        date: date,
+        category: category,
+        latitude: updatedLat,
+        longitude: updatedLng,
+      })
+      .where(eq(Person.id, selectedPerson.id))
+    console.log('edit done')
+    reset()
+    showToast()
+    router.navigate('/recordsPage')
+  }
+
+  const handleNewAddress = async () => {
+    try {
+      const [block, unit, street] = getValues(['block', 'unit', 'street'])
+      console.log(block, unit, street)
+      const addressString = block ? `${block} ${street}` : `${unit} ${street}`
+      const newGeoCode = await Location.geocodeAsync(addressString)
+      const lat = newGeoCode[0].latitude
+      const lng = newGeoCode[0].longitude
+      setUpdatedLat(lat)
+      setUpdatedLng(lng)
+    } catch (error) {
+      Alert.alert("This address doesn't exist")
+    }
+  }
+
+  const htmlContent = `
+    <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leaflet Map</title>
+   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
+
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        body, html, #map { height: 100%; margin: 0; padding: 0; }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <script>
+        (function() {
+            const map = L.map('map',{zoomControl:false}).setView([${updatedLat}, ${updatedLng}], 18);
+            
+            L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+
+           
+            const currentLocIcon = L.divIcon({
+            className: 'custom-div-icon',
+            html: "<span class='material-icons' style='font-size:35px;color:#5d3ff4;'>location_on</span>",
+            iconSize: [10, 10],
+            iconAnchor: null,
+            popupAnchor: [0,-20]
+            });
+
+            L.marker([${updatedLat}, ${updatedLng}], {icon:currentLocIcon}).addTo(map)
+                .bindPopup('You are here')
+
+        })();
+    </script>
+</body>
+</html>
+  `
+
+  // console.log('edit Page', selectedPerson)
+
+  return (
+    <SafeAreaView style={{ flex: 1 }}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={{
+          flex: 1,
+          backgroundColor: Colors.primary50,
+        }}
+      >
+        <StatusBar barStyle={'dark-content'} />
+
+        <View
+          style={{
+            flex: 1,
+            backgroundColor: Colors.primary50,
+            paddingTop: 20,
+          }}
+        >
+          <ScrollView style={styles.scrollViewContainer}>
+            <View style={styles.twoColumnsContainer}>
+              <Controller
+                control={control}
+                name="unit"
+                render={({ field: { value, onChange, onBlur } }) => (
+                  <TextInputComponent
+                    value={value.toUpperCase()}
+                    onChangeText={onChange}
+                    onBlur={onBlur}
+                    label="house no."
+                    placeholderText="unit"
+                    extraStyles={{
+                      width: 110,
+                    }}
+                  />
+                )}
+              />
+              <Controller
+                control={control}
+                name="block"
+                render={({ field: { value, onChange, onBlur } }) => (
+                  <TextInputComponent
+                    value={value.toUpperCase()}
+                    onChangeText={onChange}
+                    onBlur={onBlur}
+                    label="apartment"
+                    placeholderText="blk no."
+                    extraStyles={{
+                      width: 110,
+                    }}
+                  />
+                )}
+              />
+
+              <TouchableOpacity
+                activeOpacity={0.8}
+                style={{
+                  padding: 6,
+                  paddingHorizontal: 10,
+                  backgroundColor: Colors.primary900,
+                  borderRadius: 10,
+                  alignSelf: 'flex-end',
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  gap: 3,
+                  shadowColor: '#000',
+                  shadowOffset: { width: 2, height: 2 },
+                  shadowOpacity: 0.3,
+                  shadowRadius: 5,
+                  elevation: 5,
+                }}
+                onPress={handleNewAddress}
+              >
+                <FontAwesome6
+                  name="location-arrow"
+                  size={22}
+                  color={Colors.primary100}
+                />
+                <Text
+                  style={{
+                    fontFamily: 'IBM-SemiBold',
+                    fontSize: 14,
+                    color: Colors.primary100,
+                    textAlign: 'center',
+                  }}
+                >
+                  {` Update\n Map`}
+                </Text>
+              </TouchableOpacity>
+            </View>
+            <Controller
+              control={control}
+              name="street"
+              render={({ field: { value, onChange, onBlur } }) => (
+                <TextInputComponent
+                  value={value}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  label="street"
+                  placeholderText="kingdom ave."
+                  extraStyles={{
+                    width: '100%',
+                  }}
+                />
+              )}
+            />
+            <View
+              style={{
+                height: 250,
+                marginTop: 20,
+                borderRadius: 10,
+                overflow: 'hidden',
+                pointerEvents: 'none',
+              }}
+            >
+              <WebView
+                style={{ height: '100%' }}
+                originWhitelist={['*']}
+                source={{ html: htmlContent }}
+                startInLoadingState
+                renderLoading={() => (
+                  <View style={{ height: '100%' }}>
+                    <ActivityIndicator
+                      size={'small'}
+                      color={Colors.emerald500}
+                      style={{ height: '100%' }}
+                    />
+                  </View>
+                )}
+              />
+            </View>
+            <View style={styles.twoColumnsContainer}>
+              <Controller
+                control={control}
+                name="name"
+                render={({ field: { value, onChange, onBlur } }) => (
+                  <TextInputComponent
+                    value={value}
+                    onChangeText={onChange}
+                    onBlur={onBlur}
+                    label="name"
+                    placeholderText="nicodemus"
+                    extraStyles={{
+                      width: 175,
+                    }}
+                  />
+                )}
+              />
+              <Controller
+                control={control}
+                name="contact"
+                render={({ field: { value, onChange, onBlur } }) => (
+                  <TextInputComponent
+                    value={value}
+                    onChangeText={onChange}
+                    onBlur={onBlur}
+                    label="contact"
+                    placeholderText="hp no."
+                    extraStyles={{
+                      width: 140,
+                    }}
+                  />
+                )}
+              />
+            </View>
+            <Controller
+              control={control}
+              name="remarks"
+              render={({ field: { value, onChange, onBlur } }) => (
+                <TextInputComponent
+                  value={value}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  label="remarks"
+                  placeholderText="....."
+                  extraStyles={{
+                    width: '100%',
+                    height: 140,
+                  }}
+                  multiline={true}
+                />
+              )}
+            />
+            <View style={styles.twoColumnsContainer}>
+              <Controller
+                control={control}
+                name="date"
+                render={({ field: { value, onChange, onBlur } }) => (
+                  <TextInputComponent
+                    value={value}
+                    onChangeText={onChange}
+                    onBlur={onBlur}
+                    label="date"
+                    placeholderText=""
+                    extraStyles={{
+                      width: 130,
+                    }}
+                  />
+                )}
+              />
+            </View>
+            <SegmentedButtons
+              value={category}
+              onValueChange={setCategory}
+              density="regular"
+              style={{ marginVertical: 10 }}
+              buttons={[
+                {
+                  value: 'CA',
+                  label: 'Call Again',
+                },
+                {
+                  value: 'RV',
+                  label: 'Return Visit',
+                },
+                {
+                  value: 'BS',
+                  label: 'Bible Study',
+                },
+              ]}
+            />
+            <TouchableOpacity
+              style={styles.buttonStyle}
+              onPress={handleSubmit(submitPressed)}
+              activeOpacity={0.8}
+            >
+              <FontAwesome6
+                name="pen-to-square"
+                size={22}
+                color={Colors.white}
+              />
+              <Text style={styles.buttonText}>Save Edit</Text>
+            </TouchableOpacity>
+          </ScrollView>
+        </View>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
+  )
+}
+export default EditPage
+
+const styles = StyleSheet.create({
+  scrollViewContainer: {
+    flex: 1,
+    paddingHorizontal: 20,
+  },
+  headerContainer: {
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 10,
+    paddingHorizontal: 15,
+    backgroundColor: Colors.primary50,
+  },
+  twoColumnsContainer: {
+    flexDirection: 'row',
+    gap: 20,
+    marginVertical: 7,
+    width: '100%',
+    // borderWidth: 1,
+    // borderColor: 'red',
+  },
+  buttonStyle: {
+    width: '100%',
+    padding: 15,
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 8,
+    borderRadius: 10,
+    marginTop: 18,
+    marginBottom: 130,
+    backgroundColor: Colors.primary900,
+  },
+  buttonText: {
+    fontFamily: 'IBM-SemiBold',
+    fontSize: 18,
+    color: Colors.white,
+  },
+})

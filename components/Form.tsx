@@ -4,36 +4,33 @@ import {
   ScrollView,
   StyleSheet,
   TouchableOpacity,
+  ActivityIndicator,
+  Alert,
 } from 'react-native'
 import { router } from 'expo-router'
+import * as Location from 'expo-location'
 import { useForm, Controller } from 'react-hook-form'
 import { Colors } from '@/constants/Colors'
-import ApartmentRadioButtons from './ApartmentRadioButton'
 import { useEffect, useState } from 'react'
-import { defaultStyles } from '@/constants/Styles'
 import TextInputComponent from './TextInputComponent'
 import FontAwesome from '@expo/vector-icons/FontAwesome6'
-
+import FontAwesome6 from '@expo/vector-icons/FontAwesome6'
 import useMyStore from '@/store/store'
 import getTimeDate from '../utils/getTimeDate'
-
-import CustomRadioButtons from './CustomRadioButton'
-
 import Toast from 'react-native-root-toast'
-import getCurrentLocation from '@/utils/getCurrentLoc'
 import { db } from '@/drizzle/db'
 import { Person, TPerson } from '@/drizzle/schema'
+import WebView from 'react-native-webview'
+import { SegmentedButtons } from 'react-native-paper'
 
-type TFormData = Omit<
-  TPerson,
-  'id' | 'category' | 'isPrivate' | 'latitude' | 'longitude'
->
+type TFormData = Omit<TPerson, 'id' | 'category' | 'latitude' | 'longitude'>
 
 const Form = () => {
-  const [isPrivate, setIsPrivate] = useState(false)
   const [category, setCategory] = useState('CA')
   const geoCoords = useMyStore((state) => state.geoCoords)
+  const setGeoCoords = useMyStore((state) => state.setGeoCoords)
   const address = useMyStore((state) => state.address)
+  let { latitude, longitude } = geoCoords
 
   const { todayDate } = getTimeDate()
 
@@ -46,7 +43,7 @@ const Form = () => {
     setValue('date', todayDate)
   }, [address])
 
-  const { control, handleSubmit, reset, setValue } = useForm({
+  const { control, handleSubmit, reset, setValue, getValues } = useForm({
     defaultValues: {
       block: '',
       unit: '',
@@ -57,8 +54,6 @@ const Form = () => {
       remarks: '',
     },
   })
-  // console.log('private-->', isPrivate)
-  // console.log('type -->', category)
 
   const showToast = (name: string) => {
     Toast.show(`Record ${name} has been created 👍`, {
@@ -85,22 +80,80 @@ const Form = () => {
       street: street,
       remarks: remarks,
       contact: contact,
-      block: isPrivate ? '' : toUpperBlock,
-      isPrivate: isPrivate,
+      block: toUpperBlock,
       date: date,
       latitude: geoCoords.latitude,
       longitude: geoCoords.longitude,
+      category: category,
     })
     console.log('submitted new user')
     reset()
     showToast(data.name === null ? '' : data.name)
-    router.navigate('/(tabs)/recordsPage')
+
+    router.navigate('/recordsPage')
   }
 
-  const handleSetPrivate = () => {
-    setIsPrivate(!isPrivate)
+  const handleNewAddress = async () => {
+    try {
+      const [block, unit, street] = getValues(['block', 'unit', 'street'])
+      console.log(block, unit, street)
+      const addressString = block ? `${block} ${street}` : `${unit} ${street}`
+      const newGeoCode = await Location.geocodeAsync(addressString)
+      const lat = newGeoCode[0].latitude
+      const lng = newGeoCode[0].longitude
+      setGeoCoords({ latitude: lat, longitude: lng })
+    } catch (error) {
+      Alert.alert("This address doesn't exist")
+    }
   }
 
+  const htmlContent = `
+    <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leaflet Map</title>
+   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
+
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        body, html, #map { height: 100%; margin: 0; padding: 0; }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <script>
+        (function() {
+            const map = L.map('map',{zoomControl:false}).setView([${latitude}, ${longitude}], 18);
+            
+            L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+
+           
+            const currentLocIcon = L.divIcon({
+            className: 'custom-div-icon',
+            html: "<span class='material-icons' style='font-size:35px;color:#5d3ff4;'>location_on</span>",
+            iconSize: [10, 10],
+            iconAnchor: null,
+            popupAnchor: [0,-20]
+            });
+
+            L.marker([${latitude}, ${longitude}], {icon:currentLocIcon}).addTo(map)
+                .bindPopup('You are here')
+
+        })();
+    </script>
+</body>
+</html>
+  `
+  console.log('category-->', category)
   return (
     <View
       style={{
@@ -108,35 +161,8 @@ const Form = () => {
         backgroundColor: Colors.primary50,
       }}
     >
-      <View style={styles.apartmentBtnsContainer}>
-        <Text style={[defaultStyles.textH2, { color: Colors.primary900 }]}>
-          Choose type of residence
-        </Text>
-        <ApartmentRadioButtons
-          isPrivate={isPrivate}
-          handleSetPrivate={handleSetPrivate}
-        />
-      </View>
-
       <ScrollView style={styles.scrollViewContainer}>
         <View style={styles.twoColumnsContainer}>
-          {!isPrivate && (
-            <Controller
-              control={control}
-              name="block"
-              render={({ field: { value, onChange, onBlur } }) => (
-                <TextInputComponent
-                  value={value.toUpperCase()}
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                  label="blk"
-                  placeholderText="blk no."
-                  extraStyles={{ width: 110 }}
-                />
-              )}
-            />
-          )}
-
           <Controller
             control={control}
             name="unit"
@@ -145,12 +171,62 @@ const Form = () => {
                 value={value.toUpperCase()}
                 onChangeText={onChange}
                 onBlur={onBlur}
-                label={`${!isPrivate ? 'unit' : 'house no.'}`}
-                placeholderText="house no."
+                label="house no."
+                placeholderText="unit"
                 extraStyles={{ width: 110 }}
               />
             )}
           />
+          <Controller
+            control={control}
+            name="block"
+            render={({ field: { value, onChange, onBlur } }) => (
+              <TextInputComponent
+                value={value.toUpperCase()}
+                onChangeText={onChange}
+                onBlur={onBlur}
+                label="apartment"
+                placeholderText="blk no."
+                extraStyles={{ width: 110 }}
+              />
+            )}
+          />
+
+          <TouchableOpacity
+            activeOpacity={0.8}
+            style={{
+              padding: 6,
+              paddingHorizontal: 10,
+              backgroundColor: Colors.primary900,
+              borderRadius: 10,
+              alignSelf: 'flex-end',
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 3,
+              shadowColor: '#000',
+              shadowOffset: { width: 2, height: 2 },
+              shadowOpacity: 0.3,
+              shadowRadius: 5,
+              elevation: 5,
+            }}
+            onPress={handleNewAddress}
+          >
+            <FontAwesome6
+              name="location-arrow"
+              size={22}
+              color={Colors.primary100}
+            />
+            <Text
+              style={{
+                fontFamily: 'IBM-SemiBold',
+                fontSize: 14,
+                color: Colors.primary100,
+                textAlign: 'center',
+              }}
+            >
+              {` Update\n Map`}
+            </Text>
+          </TouchableOpacity>
         </View>
         <Controller
           control={control}
@@ -166,6 +242,31 @@ const Form = () => {
             />
           )}
         />
+        <View
+          style={{
+            height: 250,
+            marginTop: 20,
+            borderRadius: 10,
+            overflow: 'hidden',
+            pointerEvents: 'none',
+          }}
+        >
+          <WebView
+            style={{ height: '100%' }}
+            originWhitelist={['*']}
+            source={{ html: htmlContent }}
+            startInLoadingState
+            renderLoading={() => (
+              <View style={{ height: '100%' }}>
+                <ActivityIndicator
+                  size={'small'}
+                  color={Colors.emerald500}
+                  style={{ height: '100%' }}
+                />
+              </View>
+            )}
+          />
+        </View>
         <View style={styles.twoColumnsContainer}>
           <Controller
             control={control}
@@ -230,7 +331,27 @@ const Form = () => {
             )}
           />
         </View>
-        <CustomRadioButtons setSelected={setCategory} selected={category} />
+
+        <SegmentedButtons
+          value={category}
+          onValueChange={setCategory}
+          density="regular"
+          style={{ marginVertical: 10 }}
+          buttons={[
+            {
+              value: 'CA',
+              label: 'Call Again',
+            },
+            {
+              value: 'RV',
+              label: 'Return Visit',
+            },
+            {
+              value: 'BS',
+              label: 'Bible Study',
+            },
+          ]}
+        />
         <TouchableOpacity
           style={styles.buttonStyle}
           onPress={handleSubmit(submitPressed)}
@@ -266,6 +387,7 @@ const styles = StyleSheet.create({
     gap: 20,
     marginVertical: 7,
     width: '100%',
+    alignItems: 'center',
     // borderWidth: 1,
     // borderColor: 'red',
   },

@@ -46,7 +46,6 @@ const restoreRecord = async () => {
         unit,
         street,
         block,
-        isPrivate,
         remarks,
         contact,
         latitude,
@@ -64,7 +63,6 @@ const restoreRecord = async () => {
         remarks: remarks,
         contact: contact,
         date: date,
-        isPrivate: isPrivate,
         latitude: latitude,
         longitude: longitude,
       })

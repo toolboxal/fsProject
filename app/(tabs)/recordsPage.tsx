@@ -1,7 +1,6 @@
 import {
   View,
   Text,
-  Button,
   SafeAreaView,
   StatusBar,
   StyleSheet,
@@ -12,7 +11,6 @@ import {
 import { router } from 'expo-router'
 import { Colors } from '@/constants/Colors'
 import { defaultStyles } from '@/constants/Styles'
-import ApartmentRadioButtons from '@/components/ApartmentRadioButton'
 import { useMemo, useRef, useState } from 'react'
 import { FlashList } from '@shopify/flash-list'
 import SingleRecord from '@/components/SingleRecord'
@@ -31,22 +29,15 @@ import { eq } from 'drizzle-orm'
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite'
 
 const RecordsPage = () => {
-  const [isPrivate, setIsPrivate] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const selectedPerson = useMyStore((state) => state.selectedPerson)
 
   const snapPoints = useMemo(() => ['10%', '45%'], [])
   const bottomSheetRef = useRef<BottomSheet>(null)
 
-
   const { data: persons } = useLiveQuery(db.select().from(Person))
 
   const { showActionSheetWithOptions } = useActionSheet()
-
-  const handleSetPrivate = () => {
-    setIsPrivate(!isPrivate)
-    bottomSheetRef.current?.close()
-  }
 
   const handleOpenBtmSheet = (
     action: 'close' | 'expand' | 'snapPoint',
@@ -60,6 +51,8 @@ const RecordsPage = () => {
       bottomSheetRef.current?.snapToIndex(index)
     }
   }
+
+  // handleOpenBtmSheet('close')
 
   const showToast = (name?: string) => {
     Toast.show(`Record has been deleted 🔥`, {
@@ -80,9 +73,6 @@ const RecordsPage = () => {
       {
         text: 'Confirm',
         onPress: async () => {
-          // await extendedClient.person.delete({
-          //   where: { id: personId },
-          // })
           await db.delete(Person).where(eq(Person.id, personId))
           handleOpenBtmSheet('close')
           showToast()
@@ -119,8 +109,8 @@ const RecordsPage = () => {
             sharePerson(personId)
             break
           case 2:
-            // console.log('to edit', personId)
-            router.navigate('/(tabs)/editPage')
+            console.log('to edit', personId)
+            router.push('/editPage')
             break
           case cancelButtonIndex:
             console.log('canceled', personId)
@@ -138,15 +128,11 @@ const RecordsPage = () => {
   }
 
   // --------data formatting----------
-  const selectedGroup = persons.filter(
-    (person) => person.isPrivate === isPrivate
-  )
-  // console.log('selected Group:   ', selectedGroup)
 
   const categoryMap: { [key: string]: TPerson[] } = {}
 
-  selectedGroup?.forEach((person) => {
-    const place = !isPrivate ? person.block : person.street
+  persons?.forEach((person) => {
+    const place = person.block || person.street
     if (!categoryMap[place ?? '']) {
       categoryMap[place ?? ''] = []
     }
@@ -305,14 +291,6 @@ const RecordsPage = () => {
           width: '100%',
         }}
       >
-        <View style={styles.apartmentBtnsContainer}>
-          {/* <Text style={defaultStyles.textH2}>Select residence</Text> */}
-          <ApartmentRadioButtons
-            isPrivate={isPrivate}
-            handleSetPrivate={handleSetPrivate}
-          />
-        </View>
-
         <FlashList
           contentContainerStyle={{ paddingBottom: 100 }}
           data={flatMapped}
@@ -333,7 +311,6 @@ const RecordsPage = () => {
           }}
           stickyHeaderIndices={stickyHeaderIndices}
           getItemType={(item) => {
-            // To achieve better performance, specify the type based on the item
             return typeof item === 'string' ? 'sectionHeader' : 'row'
           }}
           estimatedItemSize={50}
@@ -353,7 +330,20 @@ const RecordsPage = () => {
             }}
           >
             <Text style={styles.btmSheetHeader}>{selectedPerson.name}</Text>
-            <View style={styles.categoryCircle}>
+            <View
+              style={[
+                styles.categoryCircle,
+                {
+                  backgroundColor: `${
+                    selectedPerson.category === 'RV'
+                      ? Colors.rose400
+                      : selectedPerson.category === 'BS'
+                      ? Colors.emerald700
+                      : Colors.sky600
+                  }`,
+                },
+              ]}
+            >
               <Text style={styles.categoryText}>{selectedPerson.category}</Text>
             </View>
           </View>
@@ -371,38 +361,14 @@ const RecordsPage = () => {
           </TouchableOpacity>
         </View>
         <BottomSheetScrollView style={styles.btmSheetScrollView}>
-          {!isPrivate ? (
-            <>
-              <View style={styles.btmSheetAddContainer}>
-                <Text
-                  style={[defaultStyles.textH1, { color: Colors.emerald200 }]}
-                >
-                  {selectedPerson.block}
-                </Text>
-                <Text
-                  style={[defaultStyles.textH2, { color: Colors.emerald200 }]}
-                >{`# ${selectedPerson.unit}`}</Text>
-              </View>
-              <Text
-                style={[defaultStyles.textH2, { color: Colors.emerald200 }]}
-              >
-                {selectedPerson.street}
-              </Text>
-            </>
-          ) : (
-            <View style={styles.btmSheetAddContainer}>
-              <Text
-                style={[defaultStyles.textH2, { color: Colors.emerald200 }]}
-              >
-                {selectedPerson.unit}
-              </Text>
-              <Text
-                style={[defaultStyles.textH2, { color: Colors.emerald200 }]}
-              >
-                {selectedPerson.street}
-              </Text>
-            </View>
-          )}
+          <View style={styles.btmSheetAddContainer}>
+            <Text style={[defaultStyles.textH2, { color: Colors.emerald200 }]}>
+              {selectedPerson.unit}
+            </Text>
+            <Text style={[defaultStyles.textH2, { color: Colors.emerald200 }]}>
+              {selectedPerson.street}
+            </Text>
+          </View>
           <Text
             style={[
               defaultStyles.textH2,
@@ -424,6 +390,7 @@ const RecordsPage = () => {
                 color: Colors.primary300,
                 top: -20,
                 right: 5,
+                letterSpacing: 0.5,
               }}
             >
               {selectedPerson.date}
@@ -515,7 +482,7 @@ const styles = StyleSheet.create({
   categoryText: {
     fontFamily: 'IBM-Bold',
     fontSize: 15,
-    color: Colors.sky100,
+    color: Colors.white,
   },
   btmSheetScrollView: {
     padding: 20,
