@@ -1,7 +1,6 @@
 import { Stack } from 'expo-router'
-import { useFonts } from 'expo-font'
 import { useCallback, useEffect, useState } from 'react'
-import { Text, View } from 'react-native'
+import { View } from 'react-native'
 import { Colors } from '@/constants/Colors'
 import { RootSiblingParent } from 'react-native-root-siblings'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'

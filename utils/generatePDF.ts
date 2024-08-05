@@ -1,4 +1,3 @@
-import { Colors } from '@/constants/Colors'
 import { printToFileAsync } from 'expo-print'
 import * as Sharing from 'expo-sharing'
 import { Alert } from 'react-native'
@@ -45,7 +44,7 @@ const generatePDF = async () => {
     const tableHTML = `
     <html>
     <head>
-      <title>RVPal Records PDF</title>
+      <title>FsPal Records PDF</title>
     </head>
       <body>
         <h1 style="color:#047857;" >All Records</h1>

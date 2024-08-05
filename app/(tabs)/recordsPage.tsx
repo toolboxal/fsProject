@@ -52,8 +52,6 @@ const RecordsPage = () => {
     }
   }
 
-  // handleOpenBtmSheet('close')
-
   const showToast = (name?: string) => {
     Toast.show(`Record has been deleted 🔥`, {
       duration: 5000,

@@ -5,7 +5,7 @@ import { ScrollView } from 'react-native-gesture-handler'
 const readmePage = () => {
   return (
     <ScrollView style={{ flex: 1, padding: 15 }}>
-      <Text style={styles.header}>Welcome to RVPal 👋</Text>
+      <Text style={styles.header}>Welcome to FsPal 👋</Text>
       <Text style={styles.subheader}>Purpose</Text>
       <Text style={styles.body}>
         The primary design of this app is to use your current geolocation. When
@@ -28,7 +28,7 @@ const readmePage = () => {
       <Text style={styles.subheader}>Is sharing available?</Text>
       <Text style={styles.body}>
         Yes. You can transfer a record to another person who is also using
-        RVPal.
+        FsPal.
       </Text>
     </ScrollView>
   )

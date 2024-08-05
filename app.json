@@ -2,7 +2,7 @@
   "expo": {
     "name": "FsPal",
     "slug": "fsProject",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
@@ -41,7 +41,7 @@
       [
         "expo-location",
         {
-          "locationAlwaysAndWhenInUsePermission": "Allow RVPal to use your location.",
+          "locationAlwaysAndWhenInUsePermission": "Your current location will be used to locate the nearest records you store on your phone.",
           "isAndroidForegroundServiceEnabled": true
         }
       ]

@@ -14,7 +14,7 @@ const createBackup = async () => {
     })
     const jsonData = JSON.stringify(dataWithoutId)
 
-    const fileUri = FileSystem.documentDirectory + 'rvPalBackup.json'
+    const fileUri = FileSystem.documentDirectory + 'fspalbackup.json'
     await FileSystem.writeAsStringAsync(fileUri, jsonData)
 
     if (await Sharing.isAvailableAsync()) {

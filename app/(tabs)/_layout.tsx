@@ -1,7 +1,6 @@
-import { router, Tabs } from 'expo-router'
+import { Tabs } from 'expo-router'
 import { Colors } from '@/constants/Colors'
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5'
-import { MaterialIcons } from '@expo/vector-icons'
 import { Platform } from 'react-native'
 
 const TabsLayout = () => {
@@ -35,29 +34,6 @@ const TabsLayout = () => {
           tabBarActiveTintColor: Colors.emerald500,
         }}
       />
-      {/* <Tabs.Screen
-        name="editPage"
-        options={{
-          title: 'EditPage',
-          href: null,
-          headerTitle: 'Edit Record',
-          headerShown: true,
-          headerTitleStyle: {
-            fontFamily: 'IBM-Regular',
-            color: Colors.primary600,
-            fontSize: 22,
-          },
-          headerLeft: () => (
-            <MaterialIcons
-              name="arrow-back"
-              size={28}
-              color="black"
-              style={{ paddingHorizontal: 10 }}
-              onPress={() => router.navigate('/recordsPage')}
-            />
-          ),
-        }}
-      /> */}
 
       <Tabs.Screen
         name="recordsPage"
