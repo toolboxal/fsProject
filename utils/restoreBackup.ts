@@ -33,7 +33,7 @@ const restoreRecord = async () => {
       throw new Error('failed to open file')
     } else if (!result.assets[0].name.includes('fspalbackup')) {
       throw new Error(
-        'This is not the correct file. File name must be rvPalBackup.json'
+        'This is not the correct file. File name must be fspalbackup.json'
       )
     }
 

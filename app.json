@@ -2,7 +2,7 @@
   "expo": {
     "name": "FsPal",
     "slug": "fsProject",
-    "version": "1.0.3",
+    "version": "1.0.4",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
@@ -14,7 +14,12 @@
     },
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.toolboxal.fsProject"
+      "bundleIdentifier": "com.toolboxal.fsProject",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "Your current location will be used to locate the nearest records you create on your phone",
+        "NSLocationAlwaysUsageDescription": "Your current location will be used to locate the nearest records you create on your phone",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "Your current location will be used to locate the nearest records you create on your phone"
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -41,7 +46,7 @@
       [
         "expo-location",
         {
-          "locationAlwaysAndWhenInUsePermission": "Your current location will be used to locate the nearest records you store on your phone.",
+          "locationAlwaysAndWhenInUsePermission": "Allow FsPal to use your location.",
           "isAndroidForegroundServiceEnabled": true
         }
       ]

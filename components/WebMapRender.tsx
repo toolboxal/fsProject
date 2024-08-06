@@ -95,7 +95,7 @@ const WebMapRender = () => {
            
             const currentLocIcon = L.divIcon({
             className: 'custom-div-icon',
-            html: "<span class='material-icons' style='font-size:35px;color:#f43f5e;'>my_location</span>",
+            html: "<span class='material-icons' style='font-size:30px;color:#f43f5e;'>my_location</span>",
             iconSize: [30, 30],
             iconAnchor: null,
             popupAnchor: [0,-20]
