@@ -1,19 +1,14 @@
 function getTimeDate() {
-  const timeNow = new Date().toLocaleTimeString('en-US', {
+  const timeNow = new Date().toLocaleTimeString('en-GB', {
     hour: '2-digit',
     minute: '2-digit',
   })
-  const todayDate = new Date().toLocaleDateString()
+  const todayDate = new Date().toLocaleDateString('en-GB', {
+    day: '2-digit',
+    month: '2-digit',
+    year: '2-digit',
+  })
 
-  let greeting = ''
-  const hour = new Date().getHours()
-  if (hour < 12) {
-    greeting = 'good morning 👋'
-  } else if (hour < 18) {
-    greeting = 'good afternoon 🌤️😎'
-  } else {
-    greeting = 'good evening 🌘'
-  }
-  return { timeNow, todayDate, greeting }
+  return { timeNow, todayDate }
 }
 export default getTimeDate

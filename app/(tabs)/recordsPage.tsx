@@ -172,7 +172,7 @@ const RecordsPage = () => {
           justifyContent: 'center',
           alignItems: 'center',
           backgroundColor: Colors.primary50,
-          paddingTop: Platform.OS === 'android' ? 35 : 0,
+          paddingTop: Platform.OS === 'android' ? 40 : 0,
         }}
       >
         <StatusBar barStyle={'dark-content'} />
@@ -240,7 +240,7 @@ const RecordsPage = () => {
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: Colors.primary50,
-        paddingTop: Platform.OS === 'android' ? 30 : 0,
+        paddingTop: Platform.OS === 'android' ? 40 : 0,
       }}
     >
       <StatusBar barStyle={'dark-content'} />

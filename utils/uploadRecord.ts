@@ -29,6 +29,12 @@ const uploadRecord = async () => {
     })
     if (result.assets === null) {
       throw new Error('failed to open file')
+    } else if (result.assets[0].name.includes('fspalbackup')) {
+      throw new Error(
+        "Use 'Restore backup' function for fspalbackup.json file."
+      )
+    } else if (!result.assets[0].name.includes('json')) {
+      throw new Error('Wrong type of file')
     }
     const uri = result.assets[0].uri
     const fileContent = await FileSystem.readAsStringAsync(uri)
