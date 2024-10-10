@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Alert,
   Platform,
+  TouchableWithoutFeedback,
 } from 'react-native'
 import { router } from 'expo-router'
 import { Colors } from '@/constants/Colors'
@@ -125,6 +126,12 @@ const RecordsPage = () => {
     setMenuOpen(!menuOpen)
   }
 
+  const handleOutsidePress = () => {
+    if (menuOpen) {
+      setMenuOpen(false)
+    }
+  }
+
   // --------data formatting----------
 
   const categoryMap: { [key: string]: TPerson[] } = {}
@@ -166,6 +173,77 @@ const RecordsPage = () => {
   // JSX when there no existing records
   if (persons.length === 0)
     return (
+      <TouchableWithoutFeedback onPress={handleOutsidePress}>
+        <SafeAreaView
+          style={{
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: Colors.primary50,
+            paddingTop: Platform.OS === 'android' ? 40 : 0,
+          }}
+        >
+          <StatusBar barStyle={'dark-content'} />
+          <View style={styles.headerContainer}>
+            <TouchableOpacity
+              style={styles.addBtn}
+              onPress={() => {
+                router.navigate('/formPage')
+                if (menuOpen === true) {
+                  setMenuOpen(false)
+                }
+              }}
+            >
+              <Ionicons
+                name="create-outline"
+                size={20}
+                color={Colors.emerald900}
+              />
+              <Text
+                style={{
+                  fontFamily: 'IBM-Bold',
+                  fontSize: 16,
+                  color: Colors.emerald900,
+                }}
+              >
+                Create
+              </Text>
+            </TouchableOpacity>
+            <Text style={styles.headerText}>Records</Text>
+            <TouchableOpacity
+              style={styles.burgerContainer}
+              onPress={() => setMenuOpen(!menuOpen)}
+              activeOpacity={0.8}
+            >
+              <Ionicons name="menu" size={30} color={Colors.primary100} />
+            </TouchableOpacity>
+            {menuOpen && (
+              <DropdownMenu
+                handleMenuOpen={handleMenuOpen}
+                existingRecords={false}
+              />
+            )}
+          </View>
+          <View
+            style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
+          >
+            <Text
+              style={{
+                fontFamily: 'IBM-SemiBold',
+                fontSize: 22,
+                color: Colors.primary300,
+              }}
+            >
+              No Records
+            </Text>
+          </View>
+        </SafeAreaView>
+      </TouchableWithoutFeedback>
+    )
+
+  // JSX when there are records
+  return (
+    <TouchableWithoutFeedback onPress={handleOutsidePress}>
       <SafeAreaView
         style={{
           flex: 1,
@@ -176,6 +254,7 @@ const RecordsPage = () => {
         }}
       >
         <StatusBar barStyle={'dark-content'} />
+
         <View style={styles.headerContainer}>
           <TouchableOpacity
             style={styles.addBtn}
@@ -212,191 +291,133 @@ const RecordsPage = () => {
           {menuOpen && (
             <DropdownMenu
               handleMenuOpen={handleMenuOpen}
-              existingRecords={false}
+              existingRecords={true}
             />
           )}
         </View>
+
         <View
-          style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
-        >
-          <Text
-            style={{
-              fontFamily: 'IBM-SemiBold',
-              fontSize: 22,
-              color: Colors.primary300,
-            }}
-          >
-            No Records
-          </Text>
-        </View>
-      </SafeAreaView>
-    )
-
-  // JSX when there are records
-  return (
-    <SafeAreaView
-      style={{
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: Colors.primary50,
-        paddingTop: Platform.OS === 'android' ? 40 : 0,
-      }}
-    >
-      <StatusBar barStyle={'dark-content'} />
-
-      <View style={styles.headerContainer}>
-        <TouchableOpacity
-          style={styles.addBtn}
-          onPress={() => {
-            router.navigate('/formPage')
-            if (menuOpen === true) {
-              setMenuOpen(false)
-            }
+          style={{
+            flex: 1,
+            backgroundColor: Colors.primary300,
+            width: '100%',
           }}
         >
-          <Ionicons name="create-outline" size={20} color={Colors.emerald900} />
-          <Text
-            style={{
-              fontFamily: 'IBM-Bold',
-              fontSize: 16,
-              color: Colors.emerald900,
+          <FlashList
+            contentContainerStyle={{ paddingBottom: 100 }}
+            data={flatMapped}
+            renderItem={({ item }) => {
+              if (typeof item === 'string') {
+                // Rendering header
+                return <Text style={styles.header}>{item}</Text>
+              } else {
+                // Render item
+                return (
+                  <SingleRecord
+                    item={item}
+                    handleOpenBtmSheet={handleOpenBtmSheet}
+                    handleActionSheet={handleActionSheet}
+                  />
+                )
+              }
             }}
-          >
-            Create
-          </Text>
-        </TouchableOpacity>
-        <Text style={styles.headerText}>Records</Text>
-        <TouchableOpacity
-          style={styles.burgerContainer}
-          onPress={() => setMenuOpen(!menuOpen)}
-          activeOpacity={0.8}
-        >
-          <Ionicons name="menu" size={30} color={Colors.primary100} />
-        </TouchableOpacity>
-        {menuOpen && (
-          <DropdownMenu
-            handleMenuOpen={handleMenuOpen}
-            existingRecords={true}
+            stickyHeaderIndices={stickyHeaderIndices}
+            getItemType={(item) => {
+              return typeof item === 'string' ? 'sectionHeader' : 'row'
+            }}
+            estimatedItemSize={50}
           />
-        )}
-      </View>
-
-      <View
-        style={{
-          flex: 1,
-          backgroundColor: Colors.primary300,
-          width: '100%',
-        }}
-      >
-        <FlashList
-          contentContainerStyle={{ paddingBottom: 100 }}
-          data={flatMapped}
-          renderItem={({ item }) => {
-            if (typeof item === 'string') {
-              // Rendering header
-              return <Text style={styles.header}>{item}</Text>
-            } else {
-              // Render item
-              return (
-                <SingleRecord
-                  item={item}
-                  handleOpenBtmSheet={handleOpenBtmSheet}
-                  handleActionSheet={handleActionSheet}
-                />
-              )
-            }
-          }}
-          stickyHeaderIndices={stickyHeaderIndices}
-          getItemType={(item) => {
-            return typeof item === 'string' ? 'sectionHeader' : 'row'
-          }}
-          estimatedItemSize={50}
-        />
-      </View>
-      <BottomSheet
-        ref={bottomSheetRef}
-        snapPoints={snapPoints}
-        index={-1}
-        backgroundStyle={{ backgroundColor: Colors.primary800 }}
-        handleIndicatorStyle={{ backgroundColor: Colors.primary100 }}
-      >
-        <View style={styles.btmSheetHeaderContainer}>
-          <View
-            style={{
-              position: 'relative',
-            }}
-          >
-            <Text style={styles.btmSheetHeader}>{selectedPerson.name}</Text>
+        </View>
+        <BottomSheet
+          ref={bottomSheetRef}
+          snapPoints={snapPoints}
+          index={-1}
+          backgroundStyle={{ backgroundColor: Colors.primary800 }}
+          handleIndicatorStyle={{ backgroundColor: Colors.primary100 }}
+        >
+          <View style={styles.btmSheetHeaderContainer}>
             <View
+              style={{
+                position: 'relative',
+              }}
+            >
+              <Text style={styles.btmSheetHeader}>{selectedPerson.name}</Text>
+              <View
+                style={[
+                  styles.categoryCircle,
+                  {
+                    backgroundColor: `${
+                      selectedPerson.category === 'RV'
+                        ? Colors.rose400
+                        : selectedPerson.category === 'BS'
+                        ? Colors.emerald700
+                        : Colors.sky600
+                    }`,
+                  },
+                ]}
+              >
+                <Text style={styles.categoryText}>
+                  {selectedPerson.category}
+                </Text>
+              </View>
+            </View>
+            <TouchableOpacity
+              onPress={() => handleActionSheet(selectedPerson.id)}
+              style={{
+                position: 'absolute',
+                top: 10,
+                right: 20,
+                alignItems: 'center',
+              }}
+            >
+              <FontAwesome name="grip" size={22} color={Colors.sky100} />
+              <Text style={{ color: Colors.sky100 }}>menu</Text>
+            </TouchableOpacity>
+          </View>
+          <BottomSheetScrollView style={styles.btmSheetScrollView}>
+            <View style={styles.btmSheetAddContainer}>
+              <Text
+                style={[defaultStyles.textH2, { color: Colors.emerald200 }]}
+              >
+                {selectedPerson.unit}
+              </Text>
+              <Text
+                style={[defaultStyles.textH2, { color: Colors.emerald200 }]}
+              >
+                {selectedPerson.street}
+              </Text>
+            </View>
+            <Text
               style={[
-                styles.categoryCircle,
+                defaultStyles.textH2,
                 {
-                  backgroundColor: `${
-                    selectedPerson.category === 'RV'
-                      ? Colors.rose400
-                      : selectedPerson.category === 'BS'
-                      ? Colors.emerald700
-                      : Colors.sky600
-                  }`,
+                  marginVertical: 10,
+                  fontFamily: 'IBM-MediumItalic',
+                  fontSize: 18,
+                  color: Colors.emerald200,
                 },
               ]}
             >
-              <Text style={styles.categoryText}>{selectedPerson.category}</Text>
+              {`contact: ${selectedPerson.contact}`}
+            </Text>
+            <View style={styles.remarksBox}>
+              <Text style={styles.remarksText}>{selectedPerson.remarks}</Text>
+              <Text
+                style={{
+                  position: 'absolute',
+                  color: Colors.primary300,
+                  top: -20,
+                  right: 5,
+                  letterSpacing: 0.5,
+                }}
+              >
+                {selectedPerson.date}
+              </Text>
             </View>
-          </View>
-          <TouchableOpacity
-            onPress={() => handleActionSheet(selectedPerson.id)}
-            style={{
-              position: 'absolute',
-              top: 10,
-              right: 20,
-              alignItems: 'center',
-            }}
-          >
-            <FontAwesome name="grip" size={22} color={Colors.sky100} />
-            <Text style={{ color: Colors.sky100 }}>menu</Text>
-          </TouchableOpacity>
-        </View>
-        <BottomSheetScrollView style={styles.btmSheetScrollView}>
-          <View style={styles.btmSheetAddContainer}>
-            <Text style={[defaultStyles.textH2, { color: Colors.emerald200 }]}>
-              {selectedPerson.unit}
-            </Text>
-            <Text style={[defaultStyles.textH2, { color: Colors.emerald200 }]}>
-              {selectedPerson.street}
-            </Text>
-          </View>
-          <Text
-            style={[
-              defaultStyles.textH2,
-              {
-                marginVertical: 10,
-                fontFamily: 'IBM-MediumItalic',
-                fontSize: 18,
-                color: Colors.emerald200,
-              },
-            ]}
-          >
-            {`contact: ${selectedPerson.contact}`}
-          </Text>
-          <View style={styles.remarksBox}>
-            <Text style={styles.remarksText}>{selectedPerson.remarks}</Text>
-            <Text
-              style={{
-                position: 'absolute',
-                color: Colors.primary300,
-                top: -20,
-                right: 5,
-                letterSpacing: 0.5,
-              }}
-            >
-              {selectedPerson.date}
-            </Text>
-          </View>
-        </BottomSheetScrollView>
-      </BottomSheet>
-    </SafeAreaView>
+          </BottomSheetScrollView>
+        </BottomSheet>
+      </SafeAreaView>
+    </TouchableWithoutFeedback>
   )
 }
 export default RecordsPage
