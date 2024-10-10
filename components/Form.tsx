@@ -174,6 +174,7 @@ const Form = () => {
                 label="house no."
                 placeholderText="unit"
                 extraStyles={{ width: 110 }}
+                autoFocus={true}
               />
             )}
           />

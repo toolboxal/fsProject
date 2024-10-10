@@ -9,6 +9,7 @@ type TInputProps = {
   extraStyles?: {}
   placeholderText?: string
   multiline?: boolean
+  autoFocus?: boolean
 }
 
 const TextInputComponent = ({
@@ -19,6 +20,7 @@ const TextInputComponent = ({
   extraStyles = {},
   placeholderText,
   multiline = false,
+  autoFocus = false,
 }: TInputProps) => {
   return (
     <View>
@@ -30,12 +32,13 @@ const TextInputComponent = ({
         autoComplete="off"
         autoCorrect={false}
         autoCapitalize="sentences"
-        selectionColor={Colors.primary200}
+        selectionColor={Colors.primary700}
         placeholder={placeholderText}
         placeholderTextColor={Colors.primary300}
         multiline={multiline}
         style={[styles.inputStyle, extraStyles]}
         textAlignVertical="top"
+        autoFocus={autoFocus}
       />
     </View>
   )
