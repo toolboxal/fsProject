@@ -1,6 +1,6 @@
 import { Stack } from 'expo-router'
 import { useCallback, useEffect, useState } from 'react'
-import { View } from 'react-native'
+import { View, Text, TextInput } from 'react-native'
 import { Colors } from '@/constants/Colors'
 import { RootSiblingParent } from 'react-native-root-siblings'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
@@ -41,6 +41,15 @@ const RootLayout = () => {
           'IBM-Bold': require('../assets/fonts/IBMPlexSans-Bold.ttf'),
         })
         await migrate(db, migrations)
+
+        // Disable font scaling
+        if ((Text as any).defaultProps == null) (Text as any).defaultProps = {}
+        ;(Text as any).defaultProps.allowFontScaling = false
+
+        if ((TextInput as any).defaultProps == null)
+          (TextInput as any).defaultProps = {}
+        ;(TextInput as any).defaultProps.allowFontScaling = false
+
         await new Promise((resolve) => setTimeout(resolve, 3000))
       } catch (error) {
         console.warn(error)
@@ -48,6 +57,7 @@ const RootLayout = () => {
         setAppIsReady(true)
       }
     }
+
     prepare()
   }, [])
 
