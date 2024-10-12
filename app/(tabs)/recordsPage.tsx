@@ -9,10 +9,10 @@ import {
   Platform,
   TouchableWithoutFeedback,
 } from 'react-native'
-import { router } from 'expo-router'
+import { router, useFocusEffect } from 'expo-router'
 import { Colors } from '@/constants/Colors'
 import { defaultStyles } from '@/constants/Styles'
-import { useMemo, useRef, useState } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
 import { FlashList } from '@shopify/flash-list'
 import SingleRecord from '@/components/SingleRecord'
 import BottomSheet, { BottomSheetScrollView } from '@gorhom/bottom-sheet'
@@ -52,6 +52,12 @@ const RecordsPage = () => {
       bottomSheetRef.current?.snapToIndex(index)
     }
   }
+
+  useFocusEffect(
+    useCallback(() => {
+      handleOpenBtmSheet('close')
+    }, [])
+  )
 
   const showToast = (name?: string) => {
     Toast.show(`Record has been deleted 🔥`, {
@@ -213,7 +219,7 @@ const RecordsPage = () => {
             <TouchableOpacity
               style={styles.burgerContainer}
               onPress={() => setMenuOpen(!menuOpen)}
-              activeOpacity={0.8}
+              activeOpacity={0.6}
             >
               <Ionicons name="menu" size={30} color={Colors.primary100} />
             </TouchableOpacity>

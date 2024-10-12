@@ -42,8 +42,11 @@ const WebMapRender = () => {
     const popUpContent = `<h3 style='color:#6ee7b7;font-size:15px;line-height:0.1; display:inline-block;padding:0;margin:0'>${name}</h3>
     <p style='color:#6ee7b7;font-size:14px;font-weight:bold; display:inline-block;padding:0;margin:0' >| ${category}</p>
     <hr>
+    
+    <p style='color:#6ee7b7;font-size:15px;font-style:italic; display:inline-block;padding:0;margin:0;line-height:0.5; font-weight:bold'>${
+      block ? 'Apt.' + block : ''
+    }</p>
     <p style='color:#6ee7b7;font-size:15px;font-style:italic; display:inline-block;padding:0;margin:0;line-height:0.5'>#${unit}</p>
-    <p style='color:#6ee7b7;font-size:15px;font-style:italic; display:inline-block;padding:0;margin:0;line-height:0.5'>${block}</p>
      <p style='color:#6ee7b7;font-size:15px;font-style:italic; display:inline-block;padding:0;margin:0;line-height:0.5'>${street}</p>
      <p style='color:#fff;font-size:15px; display:block;margin-top:0.5;background-color:#262626;'>${remarks}</p>
     `

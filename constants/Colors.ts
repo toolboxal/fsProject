@@ -28,6 +28,7 @@ export const Colors = {
   emerald700: '#047857',
   emerald800: '#065f46',
   emerald900: '#064e3b',
+  emerald950: '#022c22',
   sky100: '#e0f2fe',
   sky200: '#bae6fd',
   sky300: '#7dd3fc',

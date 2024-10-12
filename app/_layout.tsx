@@ -1,5 +1,5 @@
-import { Stack } from 'expo-router'
-import { useCallback, useEffect, useState } from 'react'
+import { Stack, useRouter } from 'expo-router'
+import { useEffect, useState } from 'react'
 import { View, Text, TextInput } from 'react-native'
 import { Colors } from '@/constants/Colors'
 import { RootSiblingParent } from 'react-native-root-siblings'
@@ -12,8 +12,9 @@ import { PaperProvider } from 'react-native-paper'
 import { migrate } from 'drizzle-orm/expo-sqlite/migrator'
 import migrations from '../drizzle/migrations/migrations'
 import { db } from '@/drizzle/db'
+import AnimatedSplashScreen from '@/components/AnimatedSplashScreen'
 
-SplashScreen.preventAutoHideAsync()
+// SplashScreen.preventAutoHideAsync()
 
 const theme = {
   colors: {
@@ -27,6 +28,8 @@ const theme = {
 
 const RootLayout = () => {
   const [appIsReady, setAppIsReady] = useState(false)
+  const [splashAnimationComplete, setSplashAnimationComplete] = useState(false)
+  const router = useRouter()
 
   useEffect(() => {
     async function prepare() {
@@ -41,16 +44,6 @@ const RootLayout = () => {
           'IBM-Bold': require('../assets/fonts/IBMPlexSans-Bold.ttf'),
         })
         await migrate(db, migrations)
-
-        // Disable font scaling
-        if ((Text as any).defaultProps == null) (Text as any).defaultProps = {}
-        ;(Text as any).defaultProps.allowFontScaling = false
-
-        if ((TextInput as any).defaultProps == null)
-          (TextInput as any).defaultProps = {}
-        ;(TextInput as any).defaultProps.allowFontScaling = false
-
-        await new Promise((resolve) => setTimeout(resolve, 3000))
       } catch (error) {
         console.warn(error)
       } finally {
@@ -61,14 +54,24 @@ const RootLayout = () => {
     prepare()
   }, [])
 
-  const onLayoutRootView = useCallback(async () => {
-    if (appIsReady) {
-      await SplashScreen.hideAsync()
-    }
-  }, [appIsReady])
+  useEffect(() => {
+    if (appIsReady && splashAnimationComplete) {
+      // Disable font scaling after splash screen is complete
+      if ((Text as any).defaultProps == null) (Text as any).defaultProps = {}
+      ;(Text as any).defaultProps.allowFontScaling = false
 
-  if (!appIsReady) {
-    return null
+      if ((TextInput as any).defaultProps == null)
+        (TextInput as any).defaultProps = {}
+      ;(TextInput as any).defaultProps.allowFontScaling = false
+    }
+  }, [appIsReady, splashAnimationComplete])
+
+  if (!appIsReady || !splashAnimationComplete) {
+    return (
+      <AnimatedSplashScreen
+        setSplashAnimationComplete={() => setSplashAnimationComplete(true)}
+      />
+    )
   }
 
   return (
@@ -76,7 +79,7 @@ const RootLayout = () => {
       <ActionSheetProvider>
         <RootSiblingParent>
           <PaperProvider theme={theme}>
-            <View onLayout={onLayoutRootView} style={{ flex: 1 }}>
+            <View style={{ flex: 1 }}>
               <Stack screenOptions={{ headerShown: false }}>
                 <Stack.Screen name="(tabs)" />
                 <Stack.Screen
@@ -119,6 +122,7 @@ const RootLayout = () => {
                       fontFamily: 'Roboto-Regular',
                       fontSize: 18,
                     },
+
                     headerStyle: {
                       backgroundColor: Colors.primary50,
                     },

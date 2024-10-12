@@ -6,6 +6,7 @@ import getCurrentLocation from '@/utils/getCurrentLoc'
 import useMyStore from '@/store/store'
 import WebMapRender from '@/components/WebMapRender'
 import { Colors } from '@/constants/Colors'
+import AnimatedSplashScreen from '@/components/AnimatedSplashScreen'
 
 const MapsPage = () => {
   const setAddress = useMyStore((state) => state.setAddress)
