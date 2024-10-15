@@ -1,7 +1,6 @@
 import {
   View,
   Text,
-  // SafeAreaView,
   StyleSheet,
   TouchableOpacity,
   Alert,
@@ -28,7 +27,7 @@ import DropdownMenu from '@/components/DropdownMenu'
 import { db } from '@/drizzle/db'
 import { Person, TPerson } from '@/drizzle/schema'
 import { eq } from 'drizzle-orm'
-import { useLiveQuery } from 'drizzle-orm/expo-sqlite'
+// import { useLiveQuery } from 'drizzle-orm/expo-sqlite'
 import { useQuery, QueryClient, useQueryClient } from '@tanstack/react-query'
 
 const RecordsPage = () => {
@@ -362,7 +361,11 @@ const RecordsPage = () => {
                 position: 'relative',
               }}
             >
-              <Text style={styles.btmSheetHeader}>{selectedPerson.name}</Text>
+              <Text style={styles.btmSheetHeader}>
+                {selectedPerson.name?.length! > 15
+                  ? selectedPerson.name?.slice(0, 12) + '...'
+                  : selectedPerson.name}
+              </Text>
               <View
                 style={[
                   styles.categoryCircle,
@@ -405,7 +408,9 @@ const RecordsPage = () => {
               <Text
                 style={[defaultStyles.textH2, { color: Colors.emerald200 }]}
               >
-                {selectedPerson.street}
+                {selectedPerson.street?.length! > 25
+                  ? selectedPerson.street?.slice(0, 25) + '...'
+                  : selectedPerson.street}
               </Text>
             </View>
             <Text

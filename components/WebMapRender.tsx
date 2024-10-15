@@ -16,9 +16,8 @@ import { useRef, useMemo } from 'react'
 
 import { db } from '@/drizzle/db'
 import { Person, TPerson } from '@/drizzle/schema'
-import { useLiveQuery } from 'drizzle-orm/expo-sqlite'
+// import { useLiveQuery } from 'drizzle-orm/expo-sqlite'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { getWeather } from '@/utils/getWeather'
 import { useQuery } from '@tanstack/react-query'
 
 const WebMapRender = () => {
@@ -185,11 +184,6 @@ const WebMapRender = () => {
     }
   }
 
-  // getWeather(
-  //   latitude,
-  //   longitude,
-  //   Intl.DateTimeFormat().resolvedOptions().timeZone
-  // )
   console.log('webMap render')
 
   return (
