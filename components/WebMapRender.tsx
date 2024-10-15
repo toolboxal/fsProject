@@ -1,5 +1,6 @@
 import { WebView } from 'react-native-webview'
 import useMyStore from '@/store/store'
+import { Platform } from 'react-native'
 
 import {
   ActivityIndicator,
@@ -74,7 +75,6 @@ const WebMapRender = () => {
   const markersJSON = JSON.stringify(markers)
 
   const htmlContent = useMemo(() => {
-    // console.log('inside html')
     return `
     <!DOCTYPE html>
 <html lang="en">
@@ -109,12 +109,12 @@ const WebMapRender = () => {
     <div id="map"></div>
     <script>
         (function() {
-            const map = L.map('map', {zoomControl:false}).setView([${latitude}, ${longitude}], 18);
+            window.map = L.map('map', {zoomControl:false}).setView([${latitude}, ${longitude}], 18);
             
             L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 maxZoom: 19,
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            }).addTo(map);
+            }).addTo(window.map);
 
            
             const currentLocIcon = L.divIcon({
@@ -133,7 +133,7 @@ const WebMapRender = () => {
             popupAnchor: [0,-20]
             });
 
-            L.marker([${latitude}, ${longitude}], {icon:currentLocIcon}).addTo(map)
+            L.marker([${latitude}, ${longitude}], {icon:currentLocIcon}).addTo(window.map)
                 .bindPopup('You are here')
 
             const markers = ${markersJSON};
@@ -148,20 +148,18 @@ const WebMapRender = () => {
               }).bindPopup(marker.popUpContent)
               markersGroup.addLayer(mark)
             })
-            map.addLayer(markersGroup)
+            window.map.addLayer(markersGroup)
 
             function refocusMap(latitude, longitude) {
-            map.setView([latitude, longitude], 18);
+              window.map.setView([latitude, longitude], 18);
             }
 
             window.addEventListener('message', function(event) {
-            var data = JSON.parse(event.data);
-            if (data.type === 'REFOCUS') {
+              var data = JSON.parse(event.data);
+              if (data.type === 'REFOCUS') {
                 refocusMap(data.lat, data.lng);
-            }
+              }
             });
-
-            
         })();
     </script>
 </body>
@@ -174,13 +172,12 @@ const WebMapRender = () => {
     setGeoCoords({ latitude, longitude })
     setAddress(getAddress[0])
     if (webRef.current) {
-      webRef.current.postMessage(
-        JSON.stringify({
-          type: 'REFOCUS',
-          lat: latitude,
-          lng: longitude,
-        })
-      )
+      const injectedJavaScript = `
+        (function() {
+          window.map.setView([${latitude}, ${longitude}], 18);
+        })();
+      `
+      webRef.current.injectJavaScript(injectedJavaScript)
     }
   }
 
@@ -190,7 +187,6 @@ const WebMapRender = () => {
     <View style={{ position: 'relative', flex: 1 }}>
       <WebView
         style={{ height: '100%' }}
-        // originWhitelist={['*']}
         source={{ html: htmlContent }}
         ref={webRef}
         startInLoadingState
@@ -203,6 +199,8 @@ const WebMapRender = () => {
             />
           </View>
         )}
+        javaScriptEnabled={true}
+        domStorageEnabled={true}
       />
       <View
         style={{
