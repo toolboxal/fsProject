@@ -1,4 +1,4 @@
-import { Stack, useRouter } from 'expo-router'
+import { Stack } from 'expo-router'
 import { useEffect, useState } from 'react'
 import { View, Text, TextInput } from 'react-native'
 import { Colors } from '@/constants/Colors'
@@ -13,6 +13,10 @@ import { migrate } from 'drizzle-orm/expo-sqlite/migrator'
 import migrations from '../drizzle/migrations/migrations'
 import { db } from '@/drizzle/db'
 import AnimatedSplashScreen from '@/components/AnimatedSplashScreen'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import * as Location from 'expo-location'
+import getCurrentLocation from '@/utils/getCurrentLoc'
+import useMyStore from '@/store/store'
 
 // SplashScreen.preventAutoHideAsync()
 
@@ -29,7 +33,11 @@ const theme = {
 const RootLayout = () => {
   const [appIsReady, setAppIsReady] = useState(false)
   const [splashAnimationComplete, setSplashAnimationComplete] = useState(false)
-  const router = useRouter()
+
+  const setAddress = useMyStore((state) => state.setAddress)
+  const setGeoCoords = useMyStore((state) => state.setGeoCoords)
+
+  const queryClient = new QueryClient()
 
   useEffect(() => {
     async function prepare() {
@@ -49,6 +57,21 @@ const RootLayout = () => {
       } finally {
         setAppIsReady(true)
       }
+
+      const getLocationPermission = async () => {
+        let { status } = await Location.requestForegroundPermissionsAsync()
+        if (status !== 'granted') {
+          console.log('Permission to access location was denied')
+          return
+        }
+
+        const { latitude, longitude, getAddress } = await getCurrentLocation()
+
+        setGeoCoords({ latitude, longitude })
+
+        setAddress(getAddress[0])
+      }
+      getLocationPermission()
     }
 
     prepare()
@@ -75,89 +98,91 @@ const RootLayout = () => {
   }
 
   return (
-    <GestureHandlerRootView>
-      <ActionSheetProvider>
-        <RootSiblingParent>
-          <PaperProvider theme={theme}>
-            <View style={{ flex: 1 }}>
-              <Stack screenOptions={{ headerShown: false }}>
-                <Stack.Screen name="(tabs)" />
-                <Stack.Screen
-                  name="formPage"
-                  options={{
-                    presentation: 'card',
-                    // gestureEnabled: false,
-                    headerShown: true,
-                    headerTitle: 'Create New Record',
-                    headerTitleStyle: {
-                      fontFamily: 'IBM-Regular',
-                      color: Colors.primary600,
-                      fontSize: 22,
-                    },
-                    headerBackTitle: 'Back',
-                    headerBackTitleStyle: {
-                      fontFamily: 'Roboto-Regular',
-                      fontSize: 18,
-                    },
-                    headerStyle: {
-                      backgroundColor: Colors.primary50,
-                    },
-                    headerTintColor: Colors.primary600,
-                  }}
-                />
-                <Stack.Screen
-                  name="editPage"
-                  options={{
-                    presentation: 'card',
-                    // gestureEnabled: false,
-                    headerShown: true,
-                    headerTitle: 'Edit Record',
-                    headerTitleStyle: {
-                      fontFamily: 'IBM-Regular',
-                      color: Colors.primary600,
-                      fontSize: 22,
-                    },
-                    headerBackTitle: 'Back',
-                    headerBackTitleStyle: {
-                      fontFamily: 'Roboto-Regular',
-                      fontSize: 18,
-                    },
+    <QueryClientProvider client={queryClient}>
+      <GestureHandlerRootView>
+        <ActionSheetProvider>
+          <RootSiblingParent>
+            <PaperProvider theme={theme}>
+              <View style={{ flex: 1 }}>
+                <Stack screenOptions={{ headerShown: false }}>
+                  <Stack.Screen name="(tabs)" />
+                  <Stack.Screen
+                    name="formPage"
+                    options={{
+                      presentation: 'card',
+                      // gestureEnabled: false,
+                      headerShown: true,
+                      headerTitle: 'Create New Record',
+                      headerTitleStyle: {
+                        fontFamily: 'IBM-Regular',
+                        color: Colors.primary600,
+                        fontSize: 22,
+                      },
+                      headerBackTitle: 'Back',
+                      headerBackTitleStyle: {
+                        fontFamily: 'Roboto-Regular',
+                        fontSize: 18,
+                      },
+                      headerStyle: {
+                        backgroundColor: Colors.primary50,
+                      },
+                      headerTintColor: Colors.primary600,
+                    }}
+                  />
+                  <Stack.Screen
+                    name="editPage"
+                    options={{
+                      presentation: 'card',
+                      // gestureEnabled: false,
+                      headerShown: true,
+                      headerTitle: 'Edit Record',
+                      headerTitleStyle: {
+                        fontFamily: 'IBM-Regular',
+                        color: Colors.primary600,
+                        fontSize: 22,
+                      },
+                      headerBackTitle: 'Back',
+                      headerBackTitleStyle: {
+                        fontFamily: 'Roboto-Regular',
+                        fontSize: 18,
+                      },
 
-                    headerStyle: {
-                      backgroundColor: Colors.primary50,
-                    },
-                    headerTintColor: Colors.primary600,
-                  }}
-                />
-                <Stack.Screen
-                  name="readmePage"
-                  options={{
-                    presentation: 'card',
-                    // gestureEnabled: false,
-                    headerShown: true,
-                    headerTitle: 'readme',
-                    headerTitleStyle: {
-                      fontFamily: 'IBM-Regular',
-                      color: Colors.primary600,
-                      fontSize: 22,
-                    },
-                    headerBackTitle: 'Back',
-                    headerBackTitleStyle: {
-                      fontFamily: 'Roboto-Regular',
-                      fontSize: 18,
-                    },
-                    headerStyle: {
-                      backgroundColor: Colors.primary50,
-                    },
-                    headerTintColor: Colors.primary600,
-                  }}
-                />
-              </Stack>
-            </View>
-          </PaperProvider>
-        </RootSiblingParent>
-      </ActionSheetProvider>
-    </GestureHandlerRootView>
+                      headerStyle: {
+                        backgroundColor: Colors.primary50,
+                      },
+                      headerTintColor: Colors.primary600,
+                    }}
+                  />
+                  <Stack.Screen
+                    name="readmePage"
+                    options={{
+                      presentation: 'card',
+                      // gestureEnabled: false,
+                      headerShown: true,
+                      headerTitle: 'readme',
+                      headerTitleStyle: {
+                        fontFamily: 'IBM-Regular',
+                        color: Colors.primary600,
+                        fontSize: 22,
+                      },
+                      headerBackTitle: 'Back',
+                      headerBackTitleStyle: {
+                        fontFamily: 'Roboto-Regular',
+                        fontSize: 18,
+                      },
+                      headerStyle: {
+                        backgroundColor: Colors.primary50,
+                      },
+                      headerTintColor: Colors.primary600,
+                    }}
+                  />
+                </Stack>
+              </View>
+            </PaperProvider>
+          </RootSiblingParent>
+        </ActionSheetProvider>
+      </GestureHandlerRootView>
+    </QueryClientProvider>
   )
 }
 

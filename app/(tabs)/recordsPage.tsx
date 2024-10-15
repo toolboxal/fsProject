@@ -1,14 +1,15 @@
 import {
   View,
   Text,
-  SafeAreaView,
-  StatusBar,
+  // SafeAreaView,
   StyleSheet,
   TouchableOpacity,
   Alert,
   Platform,
   TouchableWithoutFeedback,
 } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
+import { StatusBar } from 'expo-status-bar'
 import { router, useFocusEffect } from 'expo-router'
 import { Colors } from '@/constants/Colors'
 import { defaultStyles } from '@/constants/Styles'
@@ -28,15 +29,25 @@ import { db } from '@/drizzle/db'
 import { Person, TPerson } from '@/drizzle/schema'
 import { eq } from 'drizzle-orm'
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite'
+import { useQuery, QueryClient, useQueryClient } from '@tanstack/react-query'
 
 const RecordsPage = () => {
   const [menuOpen, setMenuOpen] = useState(false)
   const selectedPerson = useMyStore((state) => state.selectedPerson)
 
-  const snapPoints = useMemo(() => ['10%', '45%'], [])
+  const snapPoints = useMemo(() => ['20%', '55%'], [])
   const bottomSheetRef = useRef<BottomSheet>(null)
+  const queryClient = useQueryClient()
 
-  const { data: persons } = useLiveQuery(db.select().from(Person))
+  // const { data: persons } = useLiveQuery(db.select().from(Person))
+
+  const { data: persons } = useQuery({
+    queryKey: ['persons'],
+    queryFn: () => {
+      const result = db.select().from(Person).all()
+      return result
+    },
+  })
 
   const { showActionSheetWithOptions } = useActionSheet()
 
@@ -79,6 +90,7 @@ const RecordsPage = () => {
         text: 'Confirm',
         onPress: async () => {
           await db.delete(Person).where(eq(Person.id, personId))
+          queryClient.invalidateQueries({ queryKey: ['persons'] })
           handleOpenBtmSheet('close')
           showToast()
           console.log('confirm delete')
@@ -176,8 +188,10 @@ const RecordsPage = () => {
     .filter((item) => item !== null) as number[]
   // --------end of data formatting----------
 
+  console.log('recordsPage render')
+
   // JSX when there no existing records
-  if (persons.length === 0)
+  if ((persons === undefined || persons.length) === 0)
     return (
       <TouchableWithoutFeedback onPress={handleOutsidePress}>
         <SafeAreaView
@@ -189,7 +203,7 @@ const RecordsPage = () => {
             paddingTop: Platform.OS === 'android' ? 40 : 0,
           }}
         >
-          <StatusBar barStyle={'dark-content'} />
+          <StatusBar style="dark" />
           <View style={styles.headerContainer}>
             <TouchableOpacity
               style={styles.addBtn}
@@ -258,8 +272,9 @@ const RecordsPage = () => {
           backgroundColor: Colors.primary50,
           paddingTop: Platform.OS === 'android' ? 40 : 0,
         }}
+        edges={['top', 'right', 'left']}
       >
-        <StatusBar barStyle={'dark-content'} />
+        <StatusBar style="dark" />
 
         <View style={styles.headerContainer}>
           <TouchableOpacity
@@ -310,7 +325,7 @@ const RecordsPage = () => {
           }}
         >
           <FlashList
-            contentContainerStyle={{ paddingBottom: 100 }}
+            contentContainerStyle={{ paddingBottom: 200 }}
             data={flatMapped}
             renderItem={({ item }) => {
               if (typeof item === 'string') {
@@ -385,7 +400,7 @@ const RecordsPage = () => {
               <Text
                 style={[defaultStyles.textH2, { color: Colors.emerald200 }]}
               >
-                {selectedPerson.unit}
+                #{selectedPerson.unit}
               </Text>
               <Text
                 style={[defaultStyles.textH2, { color: Colors.emerald200 }]}
@@ -524,7 +539,7 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 8,
     position: 'relative',
-    marginBottom: 35,
+    marginBottom: 130,
   },
   remarksText: {
     fontFamily: 'IBM-Regular',

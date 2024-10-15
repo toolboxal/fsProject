@@ -1,7 +1,7 @@
 import { Colors } from '@/constants/Colors'
 import { useEffect } from 'react'
 import { StyleSheet, Text, View, Image, ImageBackground } from 'react-native'
-import Animated, { FadeInDown, FadeOut } from 'react-native-reanimated'
+import Animated, { FadeInLeft, FadeOut } from 'react-native-reanimated'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 type AnimatedProps = {
@@ -16,7 +16,7 @@ const AnimatedSplashScreen = ({
   useEffect(() => {
     setTimeout(() => {
       setSplashAnimationComplete()
-    }, 4500)
+    }, 4000)
   }, [])
 
   return (
@@ -24,18 +24,17 @@ const AnimatedSplashScreen = ({
       source={require('@/assets/images/splashscreen_bg.png')}
       style={styles.backgroundImage}
     >
-      <View style={styles.overlay} />
+      {/* <View style={styles.overlay} /> */}
       <View
         style={{
           flex: 1,
-          //   backgroundColor: Colors.primary700,
           paddingHorizontal: 40,
           paddingTop: top + 120,
         }}
       >
         <Animated.View
           style={styles.animatedView}
-          entering={FadeInDown.duration(1500)}
+          entering={FadeInLeft.duration(1200)}
           exiting={FadeOut}
         >
           <Image
@@ -44,8 +43,8 @@ const AnimatedSplashScreen = ({
             resizeMode="contain"
           />
           <Text style={[styles.H1, { color: Colors.white }]}>Welcome to</Text>
-          <Text style={[styles.H1, { color: Colors.emerald400 }]}>FSPal</Text>
-          <Text style={[styles.textBody, { color: Colors.emerald400 }]}>
+          <Text style={[styles.H1, { color: Colors.emerald300 }]}>FSPal</Text>
+          <Text style={[styles.textBody, { color: Colors.emerald300 }]}>
             Locate your calls on a map.
           </Text>
         </Animated.View>
@@ -62,11 +61,11 @@ const styles = StyleSheet.create({
     height: '100%',
     backgroundColor: Colors.primary700,
   },
-  overlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: Colors.primary900,
-    opacity: 0.77, // Adjust opacity as needed
-  },
+  //   overlay: {
+  //     ...StyleSheet.absoluteFillObject,
+  //     backgroundColor: Colors.primary900,
+  //     opacity: 0.77,
+  //   },
   imageStyle: {
     width: 80,
     height: 80,

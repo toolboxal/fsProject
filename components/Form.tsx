@@ -22,10 +22,12 @@ import { db } from '@/drizzle/db'
 import { Person, TPerson } from '@/drizzle/schema'
 import WebView from 'react-native-webview'
 import { SegmentedButtons } from 'react-native-paper'
+import { useQueryClient } from '@tanstack/react-query'
 
 type TFormData = Omit<TPerson, 'id' | 'category' | 'latitude' | 'longitude'>
 
 const Form = () => {
+  const queryClient = useQueryClient()
   const [category, setCategory] = useState('CA')
   const geoCoords = useMyStore((state) => state.geoCoords)
   const setGeoCoords = useMyStore((state) => state.setGeoCoords)
@@ -86,6 +88,7 @@ const Form = () => {
       longitude: geoCoords.longitude,
       category: category,
     })
+    queryClient.invalidateQueries({ queryKey: ['persons'] })
     console.log('submitted new user')
     reset()
     showToast(data.name === null ? '' : data.name)

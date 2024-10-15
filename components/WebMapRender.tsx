@@ -12,34 +12,51 @@ import { FontAwesome6 } from '@expo/vector-icons'
 import { Ionicons } from '@expo/vector-icons'
 import { router } from 'expo-router'
 import getCurrentLocation from '@/utils/getCurrentLoc'
-import { useRef } from 'react'
+import { useRef, useMemo } from 'react'
 
 import { db } from '@/drizzle/db'
-import { Person } from '@/drizzle/schema'
+import { Person, TPerson } from '@/drizzle/schema'
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { getWeather } from '@/utils/getWeather'
+import { useQuery } from '@tanstack/react-query'
 
 const WebMapRender = () => {
+  const { bottom } = useSafeAreaInsets()
   const setAddress = useMyStore((state) => state.setAddress)
   const setGeoCoords = useMyStore((state) => state.setGeoCoords)
   const geoCoords = useMyStore((state) => state.geoCoords)
+
   const { latitude, longitude } = geoCoords
+
   const webRef = useRef<WebView>(null)
 
-  const { data: persons } = useLiveQuery(db.select().from(Person))
+  // const { data: persons } = useLiveQuery(db.select().from(Person))
 
-  const markers = persons?.map((person) => {
-    const {
-      name,
-      block,
-      unit,
-      street,
-      category,
-      latitude,
-      longitude,
-      remarks,
-    } = person
+  const { data: persons } = useQuery({
+    queryKey: ['persons'],
+    queryFn: () => {
+      const result = db.select().from(Person).all()
+      return result
+    },
+    refetchOnMount: false,
+    staleTime: Infinity,
+  })
 
-    const popUpContent = `<h3 style='color:#6ee7b7;font-size:15px;line-height:0.1; display:inline-block;padding:0;margin:0'>${name}</h3>
+  const markers = useMemo(() => {
+    return persons?.map((person) => {
+      const {
+        name,
+        block,
+        unit,
+        street,
+        category,
+        latitude,
+        longitude,
+        remarks,
+      } = person
+
+      const popUpContent = `<h3 style='color:#6ee7b7;font-size:15px;line-height:0.1; display:inline-block;padding:0;margin:0'>${name}</h3>
     <p style='color:#6ee7b7;font-size:14px;font-weight:bold; display:inline-block;padding:0;margin:0' >| ${category}</p>
     <hr>
     
@@ -50,13 +67,16 @@ const WebMapRender = () => {
      <p style='color:#6ee7b7;font-size:15px;font-style:italic; display:inline-block;padding:0;margin:0;line-height:0.5'>${street}</p>
      <p style='color:#fff;font-size:15px; display:block;margin-top:0.5;background-color:#262626;'>${remarks}</p>
     `
-
-    return { popUpContent, latitude, longitude }
-  })
+      console.log('inside markers')
+      return { popUpContent, latitude, longitude }
+    })
+  }, [persons])
 
   const markersJSON = JSON.stringify(markers)
 
-  const htmlContent = `
+  const htmlContent = useMemo(() => {
+    // console.log('inside html')
+    return `
     <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -68,6 +88,8 @@ const WebMapRender = () => {
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
+
+
 
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
@@ -88,7 +110,7 @@ const WebMapRender = () => {
     <div id="map"></div>
     <script>
         (function() {
-            const map = L.map('map').setView([${latitude}, ${longitude}], 18);
+            const map = L.map('map', {zoomControl:false}).setView([${latitude}, ${longitude}], 18);
             
             L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 maxZoom: 19,
@@ -146,6 +168,7 @@ const WebMapRender = () => {
 </body>
 </html>
   `
+  }, [persons])
 
   const handleRefreshNavigation = async () => {
     const { latitude, longitude, getAddress } = await getCurrentLocation()
@@ -161,11 +184,19 @@ const WebMapRender = () => {
       )
     }
   }
+
+  // getWeather(
+  //   latitude,
+  //   longitude,
+  //   Intl.DateTimeFormat().resolvedOptions().timeZone
+  // )
+  console.log('webMap render')
+
   return (
     <View style={{ position: 'relative', flex: 1 }}>
       <WebView
         style={{ height: '100%' }}
-        originWhitelist={['*']}
+        // originWhitelist={['*']}
         source={{ html: htmlContent }}
         ref={webRef}
         startInLoadingState
@@ -179,7 +210,14 @@ const WebMapRender = () => {
           </View>
         )}
       />
-      <View style={{ position: 'absolute', bottom: 40, right: 15, gap: 15 }}>
+      <View
+        style={{
+          position: 'absolute',
+          bottom: bottom + 75 + 25,
+          right: 15,
+          gap: 15,
+        }}
+      >
         <TouchableOpacity
           style={styles.addBtn}
           onPress={handleRefreshNavigation}

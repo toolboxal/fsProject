@@ -26,6 +26,7 @@ import { Person, TPerson } from '@/drizzle/schema'
 import { eq } from 'drizzle-orm'
 import { SegmentedButtons } from 'react-native-paper'
 import WebView from 'react-native-webview'
+import { useQueryClient } from '@tanstack/react-query'
 
 type TFormData = Omit<TPerson, 'id' | 'category' | 'latitude' | 'longitude'>
 type TGeoCoords = {
@@ -34,6 +35,8 @@ type TGeoCoords = {
 }
 
 const EditPage = () => {
+  const queryClient = useQueryClient()
+
   const selectedPerson = useMyStore((state) => state.selectedPerson)
   const [category, setCategory] = useState(selectedPerson.category!)
 
@@ -84,6 +87,7 @@ const EditPage = () => {
         longitude: updatedLng,
       })
       .where(eq(Person.id, selectedPerson.id))
+    queryClient.invalidateQueries({ queryKey: ['persons'] })
     console.log('edit done')
     reset()
     showToast()
