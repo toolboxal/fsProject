@@ -1,7 +1,7 @@
 import * as Location from 'expo-location'
 
 const getCurrentLocation = async () => {
-  let { coords } = await Location.getCurrentPositionAsync({ accuracy: 4 })
+  let { coords } = await Location.getCurrentPositionAsync({ accuracy: 3 })
   const { latitude, longitude } = coords
 
   const getAddress = await Location.reverseGeocodeAsync({

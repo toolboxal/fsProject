@@ -217,7 +217,7 @@ const Form = () => {
           >
             <FontAwesome6
               name="location-arrow"
-              size={22}
+              size={20}
               color={Colors.primary100}
             />
             <Text
@@ -373,7 +373,7 @@ export default Form
 const styles = StyleSheet.create({
   scrollViewContainer: {
     flex: 1,
-    paddingHorizontal: 20,
+    paddingHorizontal: 18,
   },
   apartmentBtnsContainer: {
     paddingHorizontal: 20,
@@ -388,7 +388,8 @@ const styles = StyleSheet.create({
   },
   twoColumnsContainer: {
     flexDirection: 'row',
-    gap: 20,
+    // gap: 20,
+    justifyContent: 'space-between',
     marginVertical: 7,
     width: '100%',
     alignItems: 'center',

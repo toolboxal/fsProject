@@ -15,7 +15,10 @@ import { defaultStyles } from '@/constants/Styles'
 import { useCallback, useMemo, useRef, useState } from 'react'
 import { FlashList } from '@shopify/flash-list'
 import SingleRecord from '@/components/SingleRecord'
-import BottomSheet, { BottomSheetScrollView } from '@gorhom/bottom-sheet'
+import BottomSheet, {
+  BottomSheetScrollView,
+  BottomSheetView,
+} from '@gorhom/bottom-sheet'
 import useMyStore from '@/store/store'
 import { useActionSheet } from '@expo/react-native-action-sheet'
 import FontAwesome from '@expo/vector-icons/FontAwesome6'
@@ -199,7 +202,7 @@ const RecordsPage = () => {
             justifyContent: 'center',
             alignItems: 'center',
             backgroundColor: Colors.primary50,
-            paddingTop: Platform.OS === 'android' ? 40 : 0,
+            paddingTop: Platform.OS === 'android' ? 5 : 0,
           }}
         >
           <StatusBar style="dark" />
@@ -269,7 +272,7 @@ const RecordsPage = () => {
           justifyContent: 'center',
           alignItems: 'center',
           backgroundColor: Colors.primary50,
-          paddingTop: Platform.OS === 'android' ? 40 : 0,
+          paddingTop: Platform.OS === 'android' ? 5 : 0,
         }}
         edges={['top', 'right', 'left']}
       >
@@ -354,92 +357,100 @@ const RecordsPage = () => {
           index={-1}
           backgroundStyle={{ backgroundColor: Colors.primary800 }}
           handleIndicatorStyle={{ backgroundColor: Colors.primary100 }}
+          style={{ flex: 1 }}
         >
-          <View style={styles.btmSheetHeaderContainer}>
-            <View
-              style={{
-                position: 'relative',
-              }}
-            >
-              <Text style={styles.btmSheetHeader}>
-                {selectedPerson.name?.length! > 15
-                  ? selectedPerson.name?.slice(0, 12) + '...'
-                  : selectedPerson.name}
-              </Text>
+          <BottomSheetScrollView style={styles.btmSheetContent}>
+            <View style={styles.btmSheetHeaderContainer}>
               <View
+                style={{
+                  position: 'relative',
+                }}
+              >
+                <Text style={styles.btmSheetHeader}>
+                  {selectedPerson.name?.length! > 15
+                    ? selectedPerson.name?.slice(0, 12) + '...'
+                    : selectedPerson.name}
+                </Text>
+                <View
+                  style={[
+                    styles.categoryCircle,
+                    {
+                      backgroundColor: `${
+                        selectedPerson.category === 'RV'
+                          ? Colors.rose400
+                          : selectedPerson.category === 'BS'
+                          ? Colors.emerald700
+                          : Colors.sky600
+                      }`,
+                    },
+                  ]}
+                >
+                  <Text style={styles.categoryText}>
+                    {selectedPerson.category}
+                  </Text>
+                </View>
+              </View>
+              <TouchableOpacity
+                onPress={() => handleActionSheet(selectedPerson.id)}
+                style={{
+                  position: 'absolute',
+                  top: 10,
+                  right: 20,
+                  alignItems: 'center',
+                }}
+              >
+                <FontAwesome name="grip" size={22} color={Colors.sky100} />
+                <Text style={{ color: Colors.sky100 }}>menu</Text>
+              </TouchableOpacity>
+            </View>
+            <BottomSheetView style={styles.btmSheetScrollView}>
+              <View style={styles.btmSheetAddContainer}>
+                <Text
+                  style={[defaultStyles.textH2, { color: Colors.emerald200 }]}
+                >
+                  {selectedPerson.block ? 'Apt.' + selectedPerson.block : ''}
+                </Text>
+                <Text
+                  style={[defaultStyles.textH2, { color: Colors.emerald200 }]}
+                >
+                  #{selectedPerson.unit}
+                </Text>
+                <Text
+                  style={[defaultStyles.textH2, { color: Colors.emerald200 }]}
+                >
+                  {selectedPerson.street?.length! > 25
+                    ? selectedPerson.street?.slice(0, 20) + '...'
+                    : selectedPerson.street}
+                </Text>
+              </View>
+              <Text
                 style={[
-                  styles.categoryCircle,
+                  defaultStyles.textH2,
                   {
-                    backgroundColor: `${
-                      selectedPerson.category === 'RV'
-                        ? Colors.rose400
-                        : selectedPerson.category === 'BS'
-                        ? Colors.emerald700
-                        : Colors.sky600
-                    }`,
+                    marginVertical: 10,
+                    fontFamily: 'IBM-MediumItalic',
+                    fontSize: 18,
+                    color: Colors.emerald200,
                   },
                 ]}
               >
-                <Text style={styles.categoryText}>
-                  {selectedPerson.category}
+                {`contact: ${selectedPerson.contact}`}
+              </Text>
+              <View style={styles.remarksBox}>
+                <Text style={styles.remarksText}>{selectedPerson.remarks}</Text>
+                <Text
+                  style={{
+                    position: 'absolute',
+                    color: Colors.primary300,
+                    top: -20,
+                    right: 5,
+                    letterSpacing: 0.5,
+                  }}
+                >
+                  {selectedPerson.date}
                 </Text>
               </View>
-            </View>
-            <TouchableOpacity
-              onPress={() => handleActionSheet(selectedPerson.id)}
-              style={{
-                position: 'absolute',
-                top: 10,
-                right: 20,
-                alignItems: 'center',
-              }}
-            >
-              <FontAwesome name="grip" size={22} color={Colors.sky100} />
-              <Text style={{ color: Colors.sky100 }}>menu</Text>
-            </TouchableOpacity>
-          </View>
-          <BottomSheetScrollView style={styles.btmSheetScrollView}>
-            <View style={styles.btmSheetAddContainer}>
-              <Text
-                style={[defaultStyles.textH2, { color: Colors.emerald200 }]}
-              >
-                #{selectedPerson.unit}
-              </Text>
-              <Text
-                style={[defaultStyles.textH2, { color: Colors.emerald200 }]}
-              >
-                {selectedPerson.street?.length! > 25
-                  ? selectedPerson.street?.slice(0, 25) + '...'
-                  : selectedPerson.street}
-              </Text>
-            </View>
-            <Text
-              style={[
-                defaultStyles.textH2,
-                {
-                  marginVertical: 10,
-                  fontFamily: 'IBM-MediumItalic',
-                  fontSize: 18,
-                  color: Colors.emerald200,
-                },
-              ]}
-            >
-              {`contact: ${selectedPerson.contact}`}
-            </Text>
-            <View style={styles.remarksBox}>
-              <Text style={styles.remarksText}>{selectedPerson.remarks}</Text>
-              <Text
-                style={{
-                  position: 'absolute',
-                  color: Colors.primary300,
-                  top: -20,
-                  right: 5,
-                  letterSpacing: 0.5,
-                }}
-              >
-                {selectedPerson.date}
-              </Text>
-            </View>
+            </BottomSheetView>
           </BottomSheetScrollView>
         </BottomSheet>
       </SafeAreaView>
@@ -500,6 +511,9 @@ const styles = StyleSheet.create({
     padding: 3,
     paddingLeft: 12,
   },
+  btmSheetContent: {
+    flex: 1,
+  },
   btmSheetHeaderContainer: {
     paddingHorizontal: 20,
     paddingTop: 10,
@@ -531,7 +545,7 @@ const styles = StyleSheet.create({
   },
   btmSheetScrollView: {
     padding: 20,
-    flex: 1,
+    flexGrow: 1,
   },
   btmSheetAddContainer: {
     flexDirection: 'row',
@@ -544,7 +558,7 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 8,
     position: 'relative',
-    marginBottom: 130,
+    marginBottom: 120,
   },
   remarksText: {
     fontFamily: 'IBM-Regular',

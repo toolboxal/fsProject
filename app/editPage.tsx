@@ -232,7 +232,7 @@ const EditPage = () => {
               >
                 <FontAwesome6
                   name="location-arrow"
-                  size={22}
+                  size={20}
                   color={Colors.primary100}
                 />
                 <Text
@@ -401,7 +401,7 @@ export default EditPage
 const styles = StyleSheet.create({
   scrollViewContainer: {
     flex: 1,
-    paddingHorizontal: 20,
+    paddingHorizontal: 18,
   },
   headerContainer: {
     width: '100%',
@@ -414,7 +414,8 @@ const styles = StyleSheet.create({
   },
   twoColumnsContainer: {
     flexDirection: 'row',
-    gap: 20,
+    // gap: 20,
+    justifyContent: 'space-between',
     marginVertical: 7,
     width: '100%',
     // borderWidth: 1,

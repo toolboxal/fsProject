@@ -2,7 +2,7 @@
   "expo": {
     "name": "FsPal",
     "slug": "fsProject",
-    "version": "1.0.4",
+    "version": "1.0.5",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
@@ -10,9 +10,13 @@
     "splash": {
       "image": "./assets/images/splashscreen_bg.png",
       "resizeMode": "contain",
-      "backgroundColor": "#404040"
+      "imageResizeMode": "cover",
+      "backgroundColor": "#404040",
+      "tabletSpacing": 0,
+      "supportsTablet": false
     },
     "ios": {
+      "buildNumber": "2",
       "supportsTablet": false,
       "bundleIdentifier": "com.toolboxal.fsProject",
       "infoPlist": {
@@ -25,7 +29,7 @@
       "versionCode": 1,
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#6EE7B7"
+        "backgroundColor": "#404040"
       },
       "permissions": [
         "ACCESS_COARSE_LOCATION",
@@ -62,6 +66,12 @@
       "eas": {
         "projectId": "3dc3a5b5-4462-4b63-8ab7-303972c746c8"
       }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/3dc3a5b5-4462-4b63-8ab7-303972c746c8"
     }
   }
 }

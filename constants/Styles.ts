@@ -8,7 +8,7 @@ export const defaultStyles = StyleSheet.create({
   },
   textH2: {
     fontFamily: 'IBM-SemiBold',
-    fontSize: 20,
+    fontSize: 18,
   },
 
   textBody: {
