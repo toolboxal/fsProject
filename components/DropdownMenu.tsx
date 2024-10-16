@@ -10,6 +10,7 @@ import Feather from '@expo/vector-icons/Feather'
 import AntDesign from '@expo/vector-icons/AntDesign'
 import Ionicons from '@expo/vector-icons/Ionicons'
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
+import { useQueryClient } from '@tanstack/react-query'
 
 type TDropdownMenuProps = {
   handleMenuOpen: () => void
@@ -20,16 +21,18 @@ const DropdownMenu = ({
   handleMenuOpen,
   existingRecords,
 }: TDropdownMenuProps) => {
+  const queryClient = useQueryClient()
+
   const handleUpload = async () => {
     console.log('pressed handle')
-    await uploadRecord()
+    await uploadRecord(queryClient)
   }
 
   const handleBackUp = async () => {
     await createBackup()
   }
   const handleRestore = async () => {
-    await restoreRecord()
+    await restoreRecord(queryClient)
   }
   const handleGeneratePDF = async () => {
     await generatePDF()

@@ -6,7 +6,6 @@ import {
   Alert,
   Platform,
   TouchableWithoutFeedback,
-  ScrollView,
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { StatusBar } from 'expo-status-bar'
@@ -19,8 +18,6 @@ import SingleRecord from '@/components/SingleRecord'
 import BottomSheet, {
   BottomSheetScrollView,
   BottomSheetView,
-  BottomSheetModal,
-  BottomSheetModalProvider,
 } from '@gorhom/bottom-sheet'
 import useMyStore from '@/store/store'
 import { useActionSheet } from '@expo/react-native-action-sheet'
@@ -268,266 +265,178 @@ const RecordsPage = () => {
 
   // JSX when there are records
   return (
-    <TouchableWithoutFeedback onPress={handleOutsidePress}>
-      <SafeAreaView style={styles.safeArea} edges={['top', 'right', 'left']}>
-        <StatusBar style="dark" />
+    <SafeAreaView style={styles.safeArea} edges={['top', 'right', 'left']}>
+      <StatusBar style="dark" />
 
-        <View style={styles.headerContainer}>
-          <TouchableOpacity
-            style={styles.addBtn}
-            onPress={() => {
-              router.navigate('/formPage')
-              if (menuOpen === true) {
-                setMenuOpen(false)
-              }
-            }}
-          >
-            <Ionicons
-              name="create-outline"
-              size={20}
-              color={Colors.emerald900}
-            />
-            <Text
-              style={{
-                fontFamily: 'IBM-Bold',
-                fontSize: 16,
-                color: Colors.emerald900,
-              }}
-            >
-              Create
-            </Text>
-          </TouchableOpacity>
-          <Text style={styles.headerText}>Records</Text>
-          <TouchableOpacity
-            style={styles.burgerContainer}
-            onPress={() => setMenuOpen(!menuOpen)}
-            activeOpacity={0.8}
-          >
-            <Ionicons name="menu" size={30} color={Colors.primary100} />
-          </TouchableOpacity>
-          {menuOpen && (
-            <DropdownMenu
-              handleMenuOpen={handleMenuOpen}
-              existingRecords={true}
-            />
-          )}
-        </View>
-
-        <View
-          style={{
-            flex: 1,
-            backgroundColor: Colors.primary300,
-            width: '100%',
+      <View style={styles.headerContainer}>
+        <TouchableOpacity
+          style={styles.addBtn}
+          onPress={() => {
+            router.navigate('/formPage')
+            if (menuOpen === true) {
+              setMenuOpen(false)
+            }
           }}
         >
-          <FlashList
-            contentContainerStyle={{ paddingBottom: 200 }}
-            data={flatMapped}
-            renderItem={({ item }) => {
-              if (typeof item === 'string') {
-                // Rendering header
-                return <Text style={styles.header}>{item}</Text>
-              } else {
-                // Render item
-                return (
-                  <SingleRecord
-                    item={item}
-                    handleOpenBtmSheet={handleOpenBtmSheet}
-                    handleActionSheet={handleActionSheet}
-                  />
-                )
-              }
+          <Ionicons name="create-outline" size={20} color={Colors.emerald900} />
+          <Text
+            style={{
+              fontFamily: 'IBM-Bold',
+              fontSize: 16,
+              color: Colors.emerald900,
             }}
-            stickyHeaderIndices={stickyHeaderIndices}
-            getItemType={(item) => {
-              return typeof item === 'string' ? 'sectionHeader' : 'row'
-            }}
-            estimatedItemSize={50}
+          >
+            Create
+          </Text>
+        </TouchableOpacity>
+        <Text style={styles.headerText}>Records</Text>
+        <TouchableOpacity
+          style={styles.burgerContainer}
+          onPress={() => setMenuOpen(!menuOpen)}
+          activeOpacity={0.8}
+        >
+          <Ionicons name="menu" size={30} color={Colors.primary100} />
+        </TouchableOpacity>
+        {menuOpen && (
+          <DropdownMenu
+            handleMenuOpen={handleMenuOpen}
+            existingRecords={true}
           />
-        </View>
-        <BottomSheet
-          ref={bottomSheetRef}
-          snapPoints={snapPoints}
-          index={1}
-          backgroundStyle={{ backgroundColor: Colors.primary800 }}
-          handleIndicatorStyle={{ backgroundColor: Colors.primary100 }}
-          style={{ flex: 1, paddingHorizontal: 10 }}
+        )}
+      </View>
+
+      <View
+        style={{
+          flex: 1,
+          backgroundColor: Colors.primary300,
+          width: '100%',
+        }}
+      >
+        <FlashList
+          contentContainerStyle={{ paddingBottom: 200 }}
+          data={flatMapped}
+          renderItem={({ item }) => {
+            if (typeof item === 'string') {
+              // Rendering header
+              return <Text style={styles.header}>{item}</Text>
+            } else {
+              // Render item
+              return (
+                <SingleRecord
+                  item={item}
+                  handleOpenBtmSheet={handleOpenBtmSheet}
+                  handleActionSheet={handleActionSheet}
+                />
+              )
+            }
+          }}
+          stickyHeaderIndices={stickyHeaderIndices}
+          getItemType={(item) => {
+            return typeof item === 'string' ? 'sectionHeader' : 'row'
+          }}
+          estimatedItemSize={50}
+        />
+      </View>
+      <BottomSheet
+        ref={bottomSheetRef}
+        snapPoints={snapPoints}
+        index={-1}
+        backgroundStyle={{ backgroundColor: Colors.primary800 }}
+        handleIndicatorStyle={{ backgroundColor: Colors.primary100 }}
+        style={{ flex: 1, paddingHorizontal: 10 }}
+      >
+        <BottomSheetView
+          style={{
+            paddingTop: 12,
+            paddingBottom: 10,
+            // backgroundColor: 'lightpink',
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+          }}
+        >
+          <BottomSheetView>
+            <Text style={styles.btmSheetHeader}>
+              {selectedPerson.name?.length! > 18
+                ? selectedPerson.name?.slice(0, 15) + '..'
+                : selectedPerson.name}
+            </Text>
+            <BottomSheetView
+              style={[
+                styles.categoryCircle,
+                {
+                  backgroundColor: `${
+                    selectedPerson.category === 'RV'
+                      ? Colors.rose400
+                      : selectedPerson.category === 'BS'
+                      ? Colors.emerald700
+                      : Colors.sky600
+                  }`,
+                },
+              ]}
+            >
+              <Text style={styles.categoryText}>{selectedPerson.category}</Text>
+            </BottomSheetView>
+          </BottomSheetView>
+          <TouchableOpacity
+            onPress={() => handleActionSheet(selectedPerson.id)}
+            style={{
+              // position: 'absolute',
+              // top: 10,
+              // right: 20,
+              alignItems: 'center',
+              paddingRight: 5,
+            }}
+          >
+            <FontAwesome name="grip" size={22} color={Colors.sky100} />
+            <Text style={{ color: Colors.sky100 }}>menu</Text>
+          </TouchableOpacity>
+        </BottomSheetView>
+        <BottomSheetScrollView
+          contentContainerStyle={{
+            flexGrow: 1,
+            // backgroundColor: 'lightgrey',
+            paddingBottom: 120,
+          }}
         >
           <BottomSheetView
             style={{
-              paddingTop: 12,
-              paddingBottom: 10,
-              // backgroundColor: 'lightpink',
               flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'space-between',
+              alignItems: 'baseline',
+              justifyContent: 'flex-start',
+              gap: 6,
             }}
           >
-            <BottomSheetView>
-              <Text style={styles.btmSheetHeader}>
-                {selectedPerson.name?.length! > 18
-                  ? selectedPerson.name?.slice(0, 15) + '..'
-                  : selectedPerson.name}
-              </Text>
-              <BottomSheetView
-                style={[
-                  styles.categoryCircle,
-                  {
-                    backgroundColor: `${
-                      selectedPerson.category === 'RV'
-                        ? Colors.rose400
-                        : selectedPerson.category === 'BS'
-                        ? Colors.emerald700
-                        : Colors.sky600
-                    }`,
-                  },
-                ]}
-              >
-                <Text style={styles.categoryText}>
-                  {selectedPerson.category}
-                </Text>
-              </BottomSheetView>
-            </BottomSheetView>
-            <TouchableOpacity
-              onPress={() => handleActionSheet(selectedPerson.id)}
-              style={{
-                // position: 'absolute',
-                // top: 10,
-                // right: 20,
-                alignItems: 'center',
-                paddingRight: 5,
-              }}
-            >
-              <FontAwesome name="grip" size={22} color={Colors.sky100} />
-              <Text style={{ color: Colors.sky100 }}>menu</Text>
-            </TouchableOpacity>
-          </BottomSheetView>
-          <BottomSheetScrollView
-            contentContainerStyle={{
-              flexGrow: 1,
-              // backgroundColor: 'lightgrey',
-              paddingBottom: 120,
-            }}
-          >
-            <BottomSheetView
-              style={{
-                flexDirection: 'row',
-                alignItems: 'baseline',
-                justifyContent: 'flex-start',
-                gap: 6,
-              }}
-            >
-              <Text
-                style={[defaultStyles.textH2, { color: Colors.emerald200 }]}
-              >
-                {selectedPerson.block ? 'Apt.' + selectedPerson.block : ''}
-              </Text>
-              <Text
-                style={[defaultStyles.textH2, { color: Colors.emerald200 }]}
-              >
-                #{selectedPerson.unit}
-              </Text>
-              <Text
-                style={[defaultStyles.textH2, { color: Colors.emerald200 }]}
-              >
-                {selectedPerson.street?.length! > 25
-                  ? selectedPerson.street?.slice(0, 20) + '...'
-                  : selectedPerson.street}
-              </Text>
-            </BottomSheetView>
-            <Text style={[defaultStyles.textH2, styles.contactText]}>
-              {`contact: ${selectedPerson.contact}`}
+            <Text style={[defaultStyles.textH2, { color: Colors.emerald200 }]}>
+              {selectedPerson.block ? 'Apt.' + selectedPerson.block : ''}
             </Text>
-            <Text style={styles.dateText}>{selectedPerson.date}</Text>
-            <BottomSheetView
-              style={{
-                padding: 15,
-                paddingBottom: 15,
-                backgroundColor: Colors.primary600,
-                borderRadius: 5,
-                marginVertical: 10,
-              }}
-            >
-              <Text style={styles.remarksText}>{selectedPerson.remarks}</Text>
-            </BottomSheetView>
-          </BottomSheetScrollView>
-
-          {/* <BottomSheetView style={styles.btmSheetContent}>
-            <BottomSheetView style={styles.btmSheetHeaderContainer}>
-              <BottomSheetView
-                style={{
-                  position: 'relative',
-                }}
-              >
-                <Text style={styles.btmSheetHeader}>
-                  {selectedPerson.name?.length! > 15
-                    ? selectedPerson.name?.slice(0, 12) + '...'
-                    : selectedPerson.name}
-                </Text>
-                <BottomSheetView
-                  style={[
-                    styles.categoryCircle,
-                    {
-                      backgroundColor: `${
-                        selectedPerson.category === 'RV'
-                          ? Colors.rose400
-                          : selectedPerson.category === 'BS'
-                          ? Colors.emerald700
-                          : Colors.sky600
-                      }`,
-                    },
-                  ]}
-                >
-                  <Text style={styles.categoryText}>
-                    {selectedPerson.category}
-                  </Text>
-                </BottomSheetView>
-              </BottomSheetView>
-              <TouchableOpacity
-                onPress={() => handleActionSheet(selectedPerson.id)}
-                style={{
-                  position: 'absolute',
-                  top: 10,
-                  right: 20,
-                  alignItems: 'center',
-                }}
-              >
-                <FontAwesome name="grip" size={22} color={Colors.sky100} />
-                <Text style={{ color: Colors.sky100 }}>menu</Text>
-              </TouchableOpacity>
-            </BottomSheetView>
-            <BottomSheetView style={styles.btmSheetScrollViewContent}>
-              <BottomSheetView style={styles.btmSheetAddContainer}>
-                <Text
-                  style={[defaultStyles.textH2, { color: Colors.emerald200 }]}
-                >
-                  {selectedPerson.block ? 'Apt.' + selectedPerson.block : ''}
-                </Text>
-                <Text
-                  style={[defaultStyles.textH2, { color: Colors.emerald200 }]}
-                >
-                  #{selectedPerson.unit}
-                </Text>
-                <Text
-                  style={[defaultStyles.textH2, { color: Colors.emerald200 }]}
-                >
-                  {selectedPerson.street?.length! > 25
-                    ? selectedPerson.street?.slice(0, 20) + '...'
-                    : selectedPerson.street}
-                </Text>
-              </BottomSheetView>
-              <Text style={[defaultStyles.textH2, styles.contactText]}>
-                {`contact: ${selectedPerson.contact}`}
-              </Text>
-              <BottomSheetScrollView style={styles.remarksBox}>
-                <Text style={styles.remarksText}>{selectedPerson.remarks}</Text>
-                <Text style={styles.dateText}>{selectedPerson.date}</Text>
-              </BottomSheetScrollView>
-            </BottomSheetView>
-          </BottomSheetView> */}
-        </BottomSheet>
-      </SafeAreaView>
-    </TouchableWithoutFeedback>
+            <Text style={[defaultStyles.textH2, { color: Colors.emerald200 }]}>
+              #{selectedPerson.unit}
+            </Text>
+            <Text style={[defaultStyles.textH2, { color: Colors.emerald200 }]}>
+              {selectedPerson.street?.length! > 25
+                ? selectedPerson.street?.slice(0, 20) + '...'
+                : selectedPerson.street}
+            </Text>
+          </BottomSheetView>
+          <Text style={[defaultStyles.textH2, styles.contactText]}>
+            {`contact: ${selectedPerson.contact}`}
+          </Text>
+          <Text style={styles.dateText}>{selectedPerson.date}</Text>
+          <BottomSheetView
+            style={{
+              padding: 15,
+              paddingBottom: 15,
+              backgroundColor: Colors.primary600,
+              borderRadius: 5,
+              marginVertical: 10,
+            }}
+          >
+            <Text style={styles.remarksText}>{selectedPerson.remarks}</Text>
+          </BottomSheetView>
+        </BottomSheetScrollView>
+      </BottomSheet>
+    </SafeAreaView>
   )
 }
 export default RecordsPage

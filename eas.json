@@ -12,6 +12,9 @@
       "distribution": "internal",
       "channel": "preview"
     },
+    "staging": {
+      "channel": "staging"
+    },
     "production": {
       "channel": "production"
     }

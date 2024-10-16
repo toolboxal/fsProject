@@ -7,10 +7,11 @@ import Toast from 'react-native-root-toast'
 
 import { db } from '@/drizzle/db'
 import { Person, TPerson } from '@/drizzle/schema'
+import { QueryClient } from '@tanstack/react-query'
 
 type TRestore = Omit<TPerson, 'id'>[]
 
-const restoreRecord = async () => {
+const restoreRecord = async (queryClient: QueryClient) => {
   const showToast = (name?: string) => {
     Toast.show(`Records restored 👍`, {
       duration: 5000,
@@ -67,7 +68,8 @@ const restoreRecord = async () => {
         longitude: longitude,
       })
     })
-
+    queryClient.invalidateQueries({ queryKey: ['persons'] })
+    // queryClient.refetchQueries({ queryKey: ['persons'] })
     showToast()
   } catch (error) {
     if (error instanceof Error) {

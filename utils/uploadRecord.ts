@@ -7,8 +7,9 @@ import Toast from 'react-native-root-toast'
 
 import { Person } from '@/drizzle/schema'
 import { db } from '@/drizzle/db'
+import { QueryClient } from '@tanstack/react-query'
 
-const uploadRecord = async () => {
+const uploadRecord = async (queryClient: QueryClient) => {
   const showToast = (name?: string) => {
     Toast.show(`Record ${name} has been upload 👍`, {
       duration: 5000,
@@ -43,6 +44,7 @@ const uploadRecord = async () => {
     await db.insert(Person).values({
       ...data,
     })
+    queryClient.invalidateQueries({ queryKey: ['persons'] })
     showToast(data.name)
   } catch (error) {
     if (error instanceof Error) {
