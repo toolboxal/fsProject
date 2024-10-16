@@ -29,20 +29,6 @@ const ReadmePage = () => {
           your data when you reinstall the app.
         </Text>
         <Text style={styles.body}>
-          No. The records are stored locally on your phone. No backup is
-          available on a server. If you delete the app, the data will also be
-          deleted. You can do a local backup onto a JSON file and save to your
-          phone's file system. This JSON file can then be used to restore all
-          your data when you reinstall the app.
-        </Text>
-        <Text style={styles.body}>
-          No. The records are stored locally on your phone. No backup is
-          available on a server. If you delete the app, the data will also be
-          deleted. You can do a local backup onto a JSON file and save to your
-          phone's file system. This JSON file can then be used to restore all
-          your data when you reinstall the app.
-        </Text>
-        <Text style={styles.body}>
           You can also export a PDF of all your records.
         </Text>
         <Text style={styles.subheader}>Is sharing available?</Text>

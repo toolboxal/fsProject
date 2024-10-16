@@ -6,6 +6,7 @@ import {
   Alert,
   Platform,
   TouchableWithoutFeedback,
+  ScrollView,
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { StatusBar } from 'expo-status-bar'
@@ -18,6 +19,8 @@ import SingleRecord from '@/components/SingleRecord'
 import BottomSheet, {
   BottomSheetScrollView,
   BottomSheetView,
+  BottomSheetModal,
+  BottomSheetModalProvider,
 } from '@gorhom/bottom-sheet'
 import useMyStore from '@/store/store'
 import { useActionSheet } from '@expo/react-native-action-sheet'
@@ -266,16 +269,7 @@ const RecordsPage = () => {
   // JSX when there are records
   return (
     <TouchableWithoutFeedback onPress={handleOutsidePress}>
-      <SafeAreaView
-        style={{
-          flex: 1,
-          justifyContent: 'center',
-          alignItems: 'center',
-          backgroundColor: Colors.primary50,
-          paddingTop: Platform.OS === 'android' ? 5 : 0,
-        }}
-        edges={['top', 'right', 'left']}
-      >
+      <SafeAreaView style={styles.safeArea} edges={['top', 'right', 'left']}>
         <StatusBar style="dark" />
 
         <View style={styles.headerContainer}>
@@ -354,14 +348,113 @@ const RecordsPage = () => {
         <BottomSheet
           ref={bottomSheetRef}
           snapPoints={snapPoints}
-          index={-1}
+          index={1}
           backgroundStyle={{ backgroundColor: Colors.primary800 }}
           handleIndicatorStyle={{ backgroundColor: Colors.primary100 }}
-          style={{ flex: 1 }}
+          style={{ flex: 1, paddingHorizontal: 10 }}
         >
-          <BottomSheetScrollView style={styles.btmSheetContent}>
-            <View style={styles.btmSheetHeaderContainer}>
-              <View
+          <BottomSheetView
+            style={{
+              paddingTop: 12,
+              paddingBottom: 10,
+              // backgroundColor: 'lightpink',
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+            }}
+          >
+            <BottomSheetView>
+              <Text style={styles.btmSheetHeader}>
+                {selectedPerson.name?.length! > 18
+                  ? selectedPerson.name?.slice(0, 15) + '..'
+                  : selectedPerson.name}
+              </Text>
+              <BottomSheetView
+                style={[
+                  styles.categoryCircle,
+                  {
+                    backgroundColor: `${
+                      selectedPerson.category === 'RV'
+                        ? Colors.rose400
+                        : selectedPerson.category === 'BS'
+                        ? Colors.emerald700
+                        : Colors.sky600
+                    }`,
+                  },
+                ]}
+              >
+                <Text style={styles.categoryText}>
+                  {selectedPerson.category}
+                </Text>
+              </BottomSheetView>
+            </BottomSheetView>
+            <TouchableOpacity
+              onPress={() => handleActionSheet(selectedPerson.id)}
+              style={{
+                // position: 'absolute',
+                // top: 10,
+                // right: 20,
+                alignItems: 'center',
+                paddingRight: 5,
+              }}
+            >
+              <FontAwesome name="grip" size={22} color={Colors.sky100} />
+              <Text style={{ color: Colors.sky100 }}>menu</Text>
+            </TouchableOpacity>
+          </BottomSheetView>
+          <BottomSheetScrollView
+            contentContainerStyle={{
+              flexGrow: 1,
+              // backgroundColor: 'lightgrey',
+              paddingBottom: 120,
+            }}
+          >
+            <BottomSheetView
+              style={{
+                flexDirection: 'row',
+                alignItems: 'baseline',
+                justifyContent: 'flex-start',
+                gap: 6,
+              }}
+            >
+              <Text
+                style={[defaultStyles.textH2, { color: Colors.emerald200 }]}
+              >
+                {selectedPerson.block ? 'Apt.' + selectedPerson.block : ''}
+              </Text>
+              <Text
+                style={[defaultStyles.textH2, { color: Colors.emerald200 }]}
+              >
+                #{selectedPerson.unit}
+              </Text>
+              <Text
+                style={[defaultStyles.textH2, { color: Colors.emerald200 }]}
+              >
+                {selectedPerson.street?.length! > 25
+                  ? selectedPerson.street?.slice(0, 20) + '...'
+                  : selectedPerson.street}
+              </Text>
+            </BottomSheetView>
+            <Text style={[defaultStyles.textH2, styles.contactText]}>
+              {`contact: ${selectedPerson.contact}`}
+            </Text>
+            <Text style={styles.dateText}>{selectedPerson.date}</Text>
+            <BottomSheetView
+              style={{
+                padding: 15,
+                paddingBottom: 15,
+                backgroundColor: Colors.primary600,
+                borderRadius: 5,
+                marginVertical: 10,
+              }}
+            >
+              <Text style={styles.remarksText}>{selectedPerson.remarks}</Text>
+            </BottomSheetView>
+          </BottomSheetScrollView>
+
+          {/* <BottomSheetView style={styles.btmSheetContent}>
+            <BottomSheetView style={styles.btmSheetHeaderContainer}>
+              <BottomSheetView
                 style={{
                   position: 'relative',
                 }}
@@ -371,7 +464,7 @@ const RecordsPage = () => {
                     ? selectedPerson.name?.slice(0, 12) + '...'
                     : selectedPerson.name}
                 </Text>
-                <View
+                <BottomSheetView
                   style={[
                     styles.categoryCircle,
                     {
@@ -388,8 +481,8 @@ const RecordsPage = () => {
                   <Text style={styles.categoryText}>
                     {selectedPerson.category}
                   </Text>
-                </View>
-              </View>
+                </BottomSheetView>
+              </BottomSheetView>
               <TouchableOpacity
                 onPress={() => handleActionSheet(selectedPerson.id)}
                 style={{
@@ -402,9 +495,9 @@ const RecordsPage = () => {
                 <FontAwesome name="grip" size={22} color={Colors.sky100} />
                 <Text style={{ color: Colors.sky100 }}>menu</Text>
               </TouchableOpacity>
-            </View>
-            <BottomSheetView style={styles.btmSheetScrollView}>
-              <View style={styles.btmSheetAddContainer}>
+            </BottomSheetView>
+            <BottomSheetView style={styles.btmSheetScrollViewContent}>
+              <BottomSheetView style={styles.btmSheetAddContainer}>
                 <Text
                   style={[defaultStyles.textH2, { color: Colors.emerald200 }]}
                 >
@@ -422,36 +515,16 @@ const RecordsPage = () => {
                     ? selectedPerson.street?.slice(0, 20) + '...'
                     : selectedPerson.street}
                 </Text>
-              </View>
-              <Text
-                style={[
-                  defaultStyles.textH2,
-                  {
-                    marginVertical: 10,
-                    fontFamily: 'IBM-MediumItalic',
-                    fontSize: 18,
-                    color: Colors.emerald200,
-                  },
-                ]}
-              >
+              </BottomSheetView>
+              <Text style={[defaultStyles.textH2, styles.contactText]}>
                 {`contact: ${selectedPerson.contact}`}
               </Text>
-              <View style={styles.remarksBox}>
+              <BottomSheetScrollView style={styles.remarksBox}>
                 <Text style={styles.remarksText}>{selectedPerson.remarks}</Text>
-                <Text
-                  style={{
-                    position: 'absolute',
-                    color: Colors.primary300,
-                    top: -20,
-                    right: 5,
-                    letterSpacing: 0.5,
-                  }}
-                >
-                  {selectedPerson.date}
-                </Text>
-              </View>
+                <Text style={styles.dateText}>{selectedPerson.date}</Text>
+              </BottomSheetScrollView>
             </BottomSheetView>
-          </BottomSheetScrollView>
+          </BottomSheetView> */}
         </BottomSheet>
       </SafeAreaView>
     </TouchableWithoutFeedback>
@@ -511,19 +584,24 @@ const styles = StyleSheet.create({
     padding: 3,
     paddingLeft: 12,
   },
+  safeArea: {
+    flex: 1,
+    backgroundColor: Colors.primary50,
+    paddingTop: Platform.OS === 'android' ? 5 : 0,
+  },
   btmSheetContent: {
     flex: 1,
   },
   btmSheetHeaderContainer: {
     paddingHorizontal: 20,
-    paddingTop: 10,
-    // backgroundColor: 'lightpink',
+    paddingTop: 12,
+    backgroundColor: 'lightpink',
     flexDirection: 'row',
     alignItems: 'center',
   },
   btmSheetHeader: {
     fontFamily: 'IBM-Bold',
-    fontSize: 30,
+    fontSize: 26,
     color: Colors.sky100,
   },
   categoryCircle: {
@@ -543,22 +621,25 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: Colors.white,
   },
-  btmSheetScrollView: {
-    padding: 20,
+  btmSheetScrollViewContent: {
     flexGrow: 1,
+    padding: 20,
+    paddingBottom: 40,
+    backgroundColor: 'lightgreen',
   },
   btmSheetAddContainer: {
     flexDirection: 'row',
     alignItems: 'baseline',
     justifyContent: 'flex-start',
-    gap: 7,
+    gap: 6,
   },
   remarksBox: {
+    flexGrow: 1,
     backgroundColor: Colors.primary600,
     padding: 15,
     borderRadius: 8,
     position: 'relative',
-    marginBottom: 120,
+    // marginBottom: 120,
   },
   remarksText: {
     fontFamily: 'IBM-Regular',
@@ -573,5 +654,16 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginLeft: 25,
+  },
+  contactText: {
+    marginVertical: 10,
+    fontFamily: 'IBM-MediumItalic',
+    fontSize: 18,
+    color: Colors.emerald200,
+  },
+  dateText: {
+    color: Colors.primary300,
+    letterSpacing: 0.6,
+    fontSize: 16,
   },
 })
