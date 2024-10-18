@@ -34,6 +34,9 @@ const Form = () => {
   const address = useMyStore((state) => state.address)
   let { latitude, longitude } = geoCoords
 
+  const [updatedLat, setUpdatedLat] = useState(latitude)
+  const [updatedLng, setUpdatedLng] = useState(longitude)
+
   const { todayDate } = getTimeDate()
 
   const { street, streetNumber } = address
@@ -84,8 +87,8 @@ const Form = () => {
       contact: contact,
       block: toUpperBlock,
       date: date,
-      latitude: geoCoords.latitude,
-      longitude: geoCoords.longitude,
+      latitude: updatedLat,
+      longitude: updatedLng,
       category: category,
     })
     queryClient.invalidateQueries({ queryKey: ['persons'] })
@@ -104,7 +107,9 @@ const Form = () => {
       const newGeoCode = await Location.geocodeAsync(addressString)
       const lat = newGeoCode[0].latitude
       const lng = newGeoCode[0].longitude
-      setGeoCoords({ latitude: lat, longitude: lng })
+      // setGeoCoords({ latitude: lat, longitude: lng })
+      setUpdatedLat(lat)
+      setUpdatedLng(lng)
     } catch (error) {
       Alert.alert("This address doesn't exist")
     }
@@ -132,7 +137,7 @@ const Form = () => {
     <div id="map"></div>
     <script>
         (function() {
-            const map = L.map('map',{zoomControl:false}).setView([${latitude}, ${longitude}], 18);
+            const map = L.map('map',{zoomControl:false}).setView([${updatedLat}, ${updatedLng}], 18);
             
             L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 maxZoom: 19,
@@ -148,8 +153,8 @@ const Form = () => {
             popupAnchor: [0,-20]
             });
 
-            L.marker([${latitude}, ${longitude}], {icon:currentLocIcon}).addTo(map)
-                .bindPopup('You are here')
+            L.marker([${updatedLat}, ${updatedLng}], {icon:currentLocIcon}).addTo(map)
+                
 
         })();
     </script>

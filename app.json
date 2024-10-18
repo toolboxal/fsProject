@@ -39,7 +39,7 @@
         "android.permission.FOREGROUND_SERVICE",
         "android.permission.FOREGROUND_SERVICE_LOCATION"
       ],
-      "package": "com.toolboxal.fsProject"
+      "package": "com.toolboxal.fsPal"
     },
     "web": {
       "bundler": "metro",

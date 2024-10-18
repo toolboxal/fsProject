@@ -148,7 +148,7 @@ const EditPage = () => {
             });
 
             L.marker([${updatedLat}, ${updatedLng}], {icon:currentLocIcon}).addTo(map)
-                .bindPopup('You are here')
+                
 
         })();
     </script>
