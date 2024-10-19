@@ -165,7 +165,7 @@ const WebMapRender = () => {
 </body>
 </html>
   `
-  }, [persons])
+  }, [persons, latitude, longitude])
 
   const handleRefreshNavigation = async () => {
     const { latitude, longitude, getAddress } = await getCurrentLocation()
