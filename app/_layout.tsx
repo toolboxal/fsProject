@@ -19,6 +19,7 @@ import getCurrentLocation from '@/utils/getCurrentLoc'
 import useMyStore from '@/store/store'
 
 // SplashScreen.preventAutoHideAsync()
+SplashScreen.hideAsync()
 
 const theme = {
   colors: {

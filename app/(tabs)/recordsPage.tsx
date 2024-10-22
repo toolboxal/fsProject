@@ -5,7 +5,6 @@ import {
   TouchableOpacity,
   Alert,
   Platform,
-  TouchableWithoutFeedback,
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { StatusBar } from 'expo-status-bar'
@@ -35,6 +34,7 @@ import { useQuery, QueryClient, useQueryClient } from '@tanstack/react-query'
 
 const RecordsPage = () => {
   const [menuOpen, setMenuOpen] = useState(false)
+  const [refreshing, setRefreshing] = useState(false)
   const selectedPerson = useMyStore((state) => state.selectedPerson)
 
   const snapPoints = useMemo(() => ['20%', '55%'], [])
@@ -50,6 +50,13 @@ const RecordsPage = () => {
       return result
     },
   })
+
+  const onRefresh = async () => {
+    setRefreshing(true)
+    // Refetch the data
+    await queryClient.invalidateQueries({ queryKey: ['persons'] })
+    setRefreshing(false)
+  }
 
   const { showActionSheetWithOptions } = useActionSheet()
 
@@ -146,12 +153,6 @@ const RecordsPage = () => {
     setMenuOpen(!menuOpen)
   }
 
-  const handleOutsidePress = () => {
-    if (menuOpen) {
-      setMenuOpen(false)
-    }
-  }
-
   // --------data formatting----------
 
   const categoryMap: { [key: string]: TPerson[] } = {}
@@ -195,72 +196,70 @@ const RecordsPage = () => {
   // JSX when there no existing records
   if ((persons === undefined || persons.length) === 0)
     return (
-      <TouchableWithoutFeedback onPress={handleOutsidePress}>
-        <SafeAreaView
-          style={{
-            flex: 1,
-            justifyContent: 'center',
-            alignItems: 'center',
-            backgroundColor: Colors.primary50,
-            paddingTop: Platform.OS === 'android' ? 5 : 0,
-          }}
-        >
-          <StatusBar style="dark" />
-          <View style={styles.headerContainer}>
-            <TouchableOpacity
-              style={styles.addBtn}
-              onPress={() => {
-                router.navigate('/formPage')
-                if (menuOpen === true) {
-                  setMenuOpen(false)
-                }
-              }}
-            >
-              <Ionicons
-                name="create-outline"
-                size={20}
-                color={Colors.emerald900}
-              />
-              <Text
-                style={{
-                  fontFamily: 'IBM-Bold',
-                  fontSize: 16,
-                  color: Colors.emerald900,
-                }}
-              >
-                Create
-              </Text>
-            </TouchableOpacity>
-            <Text style={styles.headerText}>Records</Text>
-            <TouchableOpacity
-              style={styles.burgerContainer}
-              onPress={() => setMenuOpen(!menuOpen)}
-              activeOpacity={0.6}
-            >
-              <Ionicons name="menu" size={30} color={Colors.primary100} />
-            </TouchableOpacity>
-            {menuOpen && (
-              <DropdownMenu
-                handleMenuOpen={handleMenuOpen}
-                existingRecords={false}
-              />
-            )}
-          </View>
-          <View
-            style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
+      <SafeAreaView
+        style={{
+          flex: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+          backgroundColor: Colors.primary50,
+          paddingTop: Platform.OS === 'android' ? 5 : 0,
+        }}
+      >
+        <StatusBar style="dark" />
+        <View style={styles.headerContainer}>
+          <TouchableOpacity
+            style={styles.addBtn}
+            onPress={() => {
+              router.navigate('/formPage')
+              if (menuOpen === true) {
+                setMenuOpen(false)
+              }
+            }}
           >
+            <Ionicons
+              name="create-outline"
+              size={20}
+              color={Colors.emerald900}
+            />
             <Text
               style={{
-                fontFamily: 'IBM-SemiBold',
-                fontSize: 22,
-                color: Colors.primary300,
+                fontFamily: 'IBM-Bold',
+                fontSize: 16,
+                color: Colors.emerald900,
               }}
             >
-              No Records
+              Create
             </Text>
-          </View>
-        </SafeAreaView>
-      </TouchableWithoutFeedback>
+          </TouchableOpacity>
+          <Text style={styles.headerText}>Records</Text>
+          <TouchableOpacity
+            style={styles.burgerContainer}
+            onPress={() => setMenuOpen(!menuOpen)}
+            activeOpacity={0.6}
+          >
+            <Ionicons name="menu" size={30} color={Colors.primary100} />
+          </TouchableOpacity>
+          {menuOpen && (
+            <DropdownMenu
+              handleMenuOpen={handleMenuOpen}
+              existingRecords={false}
+            />
+          )}
+        </View>
+        <View
+          style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
+        >
+          <Text
+            style={{
+              fontFamily: 'IBM-SemiBold',
+              fontSize: 22,
+              color: Colors.primary300,
+            }}
+          >
+            No Records
+          </Text>
+        </View>
+      </SafeAreaView>
     )
 
   // JSX when there are records
@@ -335,6 +334,8 @@ const RecordsPage = () => {
             return typeof item === 'string' ? 'sectionHeader' : 'row'
           }}
           estimatedItemSize={50}
+          refreshing={refreshing}
+          onRefresh={onRefresh}
         />
       </View>
       <BottomSheet

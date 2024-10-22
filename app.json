@@ -9,8 +9,7 @@
     "userInterfaceStyle": "automatic",
     "splash": {
       "image": "./assets/images/splashscreen_bg.png",
-      "resizeMode": "contain",
-      "imageResizeMode": "cover",
+      "resizeMode": "cover",
       "backgroundColor": "#404040",
       "tabletSpacing": 0,
       "supportsTablet": false
@@ -29,7 +28,7 @@
       "versionCode": 1,
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#404040"
+        "backgroundColor": "#6ee7b7"
       },
       "permissions": [
         "ACCESS_COARSE_LOCATION",

@@ -2,7 +2,6 @@ import { Colors } from '@/constants/Colors'
 import { useEffect } from 'react'
 import { StyleSheet, Text, View, Image, ImageBackground } from 'react-native'
 import Animated, { FadeInLeft, FadeOut } from 'react-native-reanimated'
-import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 type AnimatedProps = {
   setSplashAnimationComplete: () => void
@@ -11,8 +10,6 @@ type AnimatedProps = {
 const AnimatedSplashScreen = ({
   setSplashAnimationComplete,
 }: AnimatedProps) => {
-  const { top } = useSafeAreaInsets()
-
   useEffect(() => {
     setTimeout(() => {
       setSplashAnimationComplete()
@@ -23,13 +20,14 @@ const AnimatedSplashScreen = ({
     <ImageBackground
       source={require('@/assets/images/splashscreen_bg.png')}
       style={styles.backgroundImage}
+      resizeMode="cover"
     >
       {/* <View style={styles.overlay} /> */}
       <View
         style={{
           flex: 1,
           paddingHorizontal: 40,
-          paddingTop: top + 120,
+          paddingTop: 160,
         }}
       >
         <Animated.View

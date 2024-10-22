@@ -39,7 +39,7 @@ const MapsPage = () => {
         paddingTop: Platform.OS === 'android' ? 45 : 0,
       }}
     >
-      <StatusBar style="dark" />
+      <StatusBar style={Platform.OS === 'android'? "light" : "dark"} />
       <WebMapRender />
     </View>
   )
