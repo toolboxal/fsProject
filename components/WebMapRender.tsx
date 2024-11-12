@@ -57,7 +57,7 @@ const WebMapRender = () => {
       } = person
 
       const popUpContent = `<h3 style='color:#6ee7b7;font-size:15px;line-height:0.1; display:inline-block;padding:0;margin:0'>${name}</h3>
-    <p style='color:#6ee7b7;font-size:14px;font-weight:bold; display:inline-block;padding:0;margin:0' >| ${category}</p>
+    
     <hr>
     
     <p style='color:#6ee7b7;font-size:15px;font-style:italic; display:inline-block;padding:0;margin:0;line-height:0.5; font-weight:bold'>${
@@ -68,7 +68,7 @@ const WebMapRender = () => {
      <p style='color:#fff;font-size:15px; display:block;margin-top:0.5;background-color:#262626;'>${remarks}</p>
     `
       console.log('inside markers')
-      return { popUpContent, latitude, longitude }
+      return { popUpContent, latitude, longitude, category }
     })
   }, [persons])
 
@@ -133,6 +133,31 @@ const WebMapRender = () => {
             popupAnchor: [0,-20]
             });
 
+            const caIcon = L.divIcon({
+            className: 'custom-div-icon',
+            html: "<div style='font-family:Inter, sans-serif;font-size:15px;font-weight:bold;color:#fff;background-color:#34d399;display:flex;justify-content: center; align-items: center;border-radius: 100px;height:30px;width:30px; border: none;box-shadow: 2px 2px 0 0 #4B4B4B;'>CA</div>",
+            iconSize: [40, 40],
+            iconAnchor: null,
+            popupAnchor: [0,-20]
+            });
+
+            const rvIcon = L.divIcon({
+            className: 'custom-div-icon',
+            html: "<div style='font-family:Inter, sans-serif;font-size:15px;font-weight:bold;color:#fff;background-color:#059669;display:flex;justify-content: center; align-items: center;border-radius: 100px;height:30px;width:30px; border: none;box-shadow: 2px 2px 0 0 #4B4B4B;'>RV</div>",
+            iconSize: [40, 40],
+            iconAnchor: null,
+            popupAnchor: [0,-20]
+            });
+
+            const bsIcon = L.divIcon({
+            className: 'custom-div-icon',
+            html: "<div style='font-family:Inter, sans-serif;font-size:15px;font-weight:bold;color:#fff;background-color:#064e3b;display:flex;justify-content: center; align-items: center;border-radius: 100px;height:30px;width:30px; border: none;box-shadow: 2px 2px 0 0 #4B4B4B;'>BS</div>",
+            iconSize: [40, 40],
+            iconAnchor: null,
+            popupAnchor: [0,-20]
+            });
+
+
             L.marker([${latitude}, ${longitude}], {icon:currentLocIcon}).addTo(window.map)
                 .bindPopup('You are here')
 
@@ -144,7 +169,7 @@ const WebMapRender = () => {
 
             markers?.forEach((marker) => {
               const mark = L.marker([marker.latitude, marker.longitude], {
-                icon: customIcon,
+                icon: marker.category === 'CA' ? caIcon : marker.category === 'RV' ? rvIcon : bsIcon,
               }).bindPopup(marker.popUpContent)
               markersGroup.addLayer(mark)
             })
