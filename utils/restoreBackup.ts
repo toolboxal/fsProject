@@ -53,6 +53,7 @@ const restoreRecord = async (queryClient: QueryClient) => {
         longitude,
         category,
         date,
+        publications,
       } = item
 
       await db.insert(Person).values({
@@ -66,6 +67,7 @@ const restoreRecord = async (queryClient: QueryClient) => {
         date: date,
         latitude: latitude,
         longitude: longitude,
+        publications: publications,
       })
     })
     queryClient.invalidateQueries({ queryKey: ['persons'] })

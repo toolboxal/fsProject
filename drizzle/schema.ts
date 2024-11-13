@@ -14,6 +14,7 @@ export const Person = sqliteTable('person', {
   date: text('date'),
   latitude: real('latitude').default(0),
   longitude: real('longitude').default(0),
+  publications: text('publications').default(''),
 })
 
 export type TPerson = InferSelectModel<typeof Person>

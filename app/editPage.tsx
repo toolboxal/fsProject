@@ -29,10 +29,6 @@ import WebView from 'react-native-webview'
 import { useQueryClient } from '@tanstack/react-query'
 
 type TFormData = Omit<TPerson, 'id' | 'category' | 'latitude' | 'longitude'>
-type TGeoCoords = {
-  latitude: number
-  longitude: number
-}
 
 const EditPage = () => {
   const queryClient = useQueryClient()
@@ -52,6 +48,7 @@ const EditPage = () => {
       contact: selectedPerson.contact || '',
       date: selectedPerson.date || '',
       remarks: selectedPerson.remarks || '',
+      publications: selectedPerson.publications || '',
     },
   })
 
@@ -70,7 +67,8 @@ const EditPage = () => {
   }
 
   const submitPressed = async (data: TFormData) => {
-    const { name, contact, remarks, date, block, unit, street } = data
+    const { name, contact, remarks, date, block, unit, street, publications } =
+      data
     const toUpperBlock = block === null ? '' : block.toUpperCase()
     await db
       .update(Person)
@@ -85,6 +83,7 @@ const EditPage = () => {
         category: category,
         latitude: updatedLat,
         longitude: updatedLng,
+        publications: publications,
       })
       .where(eq(Person.id, selectedPerson.id))
     queryClient.invalidateQueries({ queryKey: ['persons'] })
@@ -322,6 +321,20 @@ const EditPage = () => {
                 )}
               />
             </View>
+            <Controller
+              control={control}
+              name="publications"
+              render={({ field: { value, onChange, onBlur } }) => (
+                <TextInputComponent
+                  value={value}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  label="publications"
+                  placeholderText="stopped at lff lesson3 pt5"
+                  extraStyles={{ width: '100%' }}
+                />
+              )}
+            />
             <Controller
               control={control}
               name="remarks"

@@ -57,6 +57,7 @@ const Form = () => {
       contact: '',
       date: '',
       remarks: '',
+      publications: '',
     },
   })
 
@@ -77,7 +78,7 @@ const Form = () => {
   const submitPressed = async (data: TFormData) => {
     console.log('pressed')
     const toUpperBlock = data.block === null ? '' : data.block.toUpperCase()
-    const { name, unit, street, remarks, contact, date } = data
+    const { name, unit, street, remarks, contact, date, publications } = data
 
     await db.insert(Person).values({
       name: name,
@@ -90,6 +91,7 @@ const Form = () => {
       latitude: updatedLat,
       longitude: updatedLng,
       category: category,
+      publications: publications,
     })
     queryClient.invalidateQueries({ queryKey: ['persons'] })
     console.log('submitted new user')
@@ -306,6 +308,20 @@ const Form = () => {
             )}
           />
         </View>
+        <Controller
+          control={control}
+          name="publications"
+          render={({ field: { value, onChange, onBlur } }) => (
+            <TextInputComponent
+              value={value}
+              onChangeText={onChange}
+              onBlur={onBlur}
+              label="publications"
+              placeholderText="stopped at lff lesson3 pt5"
+              extraStyles={{ width: '100%' }}
+            />
+          )}
+        />
         <Controller
           control={control}
           name="remarks"

@@ -23,6 +23,7 @@ const generatePDF = async () => {
             <td>${item.street}</d>
             <td>${item.contact}</d>
             <td>${item.date}</d>
+            <td>${item.publications}</d>
             <td>${item.remarks}</d>
         </tr>
         `
@@ -39,6 +40,7 @@ const generatePDF = async () => {
     <th>Street</th>
     <th>Contact</th>
     <th>Date</th>
+    <th>Publications</th>
     <th>Remarks</th>
     </tr>`
     const tableHTML = `

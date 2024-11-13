@@ -9,8 +9,8 @@
     "userInterfaceStyle": "automatic",
     "splash": {
       "image": "./assets/images/splashscreen_bg.png",
-      "resizeMode": "cover",
-      "backgroundColor": "#404040",
+      "resizeMode": "contain",
+      "backgroundColor": "#6ee7b7",
       "tabletSpacing": 0,
       "supportsTablet": false
     },

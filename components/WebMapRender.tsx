@@ -1,6 +1,5 @@
 import { WebView } from 'react-native-webview'
 import useMyStore from '@/store/store'
-import { Platform } from 'react-native'
 
 import {
   ActivityIndicator,
@@ -16,7 +15,7 @@ import getCurrentLocation from '@/utils/getCurrentLoc'
 import { useRef, useMemo } from 'react'
 
 import { db } from '@/drizzle/db'
-import { Person, TPerson } from '@/drizzle/schema'
+import { Person } from '@/drizzle/schema'
 // import { useLiveQuery } from 'drizzle-orm/expo-sqlite'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useQuery } from '@tanstack/react-query'
@@ -54,6 +53,7 @@ const WebMapRender = () => {
         latitude,
         longitude,
         remarks,
+        publications,
       } = person
 
       const popUpContent = `<h3 style='color:#6ee7b7;font-size:15px;line-height:0.1; display:inline-block;padding:0;margin:0'>${name}</h3>
@@ -65,7 +65,8 @@ const WebMapRender = () => {
     }</p>
     <p style='color:#6ee7b7;font-size:15px;font-style:italic; display:inline-block;padding:0;margin:0;line-height:0.5'>#${unit}</p>
      <p style='color:#6ee7b7;font-size:15px;font-style:italic; display:inline-block;padding:0;margin:0;line-height:1.2'>${street}</p>
-     <p style='color:#fff;font-size:15px; display:block;margin-top:0.5;background-color:#262626;'>${remarks}</p>
+     <p style='color:#fbffc1;font-size:15px;font-style:italic; display:inline-block;padding:0;margin:0;line-height:1.2;font-weight:bold'>${publications}</p>
+     <p style='color:#fff;font-size:15px; display:block;margin-top:0.1;background-color:#262626;'>${remarks}</p>
     `
       console.log('inside markers')
       return { popUpContent, latitude, longitude, category }
@@ -125,20 +126,12 @@ const WebMapRender = () => {
             popupAnchor: [0,-20]
             });
 
-            const customIcon = L.divIcon({
-            className: 'custom-div-icon',
-            html: "<span class='material-icons' style='font-size:35px;color:#5d3ff4;'>face</span>",
-            iconSize: [40, 40],
-            iconAnchor: null,
-            popupAnchor: [0,-20]
-            });
-
             const caIcon = L.divIcon({
             className: 'custom-div-icon',
-            html: "<div style='font-family:Inter, sans-serif;font-size:15px;font-weight:bold;color:#fff;background-color:#34d399;display:flex;justify-content: center; align-items: center;border-radius: 100px;height:30px;width:30px; border: none;box-shadow: 2px 2px 0 0 #4B4B4B;'>CA</div>",
+            html: "<div style='font-family:Inter, sans-serif;font-size:15px;font-weight:bold;color:#5b5b5b;background-color:#34d399;display:flex;justify-content: center; align-items: center;border-radius: 100px;height:30px;width:30px; border: none;box-shadow: 2px 2px 0 0 #4B4B4B;'>CA</div>",
             iconSize: [40, 40],
             iconAnchor: null,
-            popupAnchor: [0,-20]
+            popupAnchor: [-5,-25]
             });
 
             const rvIcon = L.divIcon({
@@ -146,7 +139,7 @@ const WebMapRender = () => {
             html: "<div style='font-family:Inter, sans-serif;font-size:15px;font-weight:bold;color:#fff;background-color:#059669;display:flex;justify-content: center; align-items: center;border-radius: 100px;height:30px;width:30px; border: none;box-shadow: 2px 2px 0 0 #4B4B4B;'>RV</div>",
             iconSize: [40, 40],
             iconAnchor: null,
-            popupAnchor: [0,-20]
+            popupAnchor: [-5,-25]
             });
 
             const bsIcon = L.divIcon({
@@ -154,7 +147,7 @@ const WebMapRender = () => {
             html: "<div style='font-family:Inter, sans-serif;font-size:15px;font-weight:bold;color:#fff;background-color:#064e3b;display:flex;justify-content: center; align-items: center;border-radius: 100px;height:30px;width:30px; border: none;box-shadow: 2px 2px 0 0 #4B4B4B;'>BS</div>",
             iconSize: [40, 40],
             iconAnchor: null,
-            popupAnchor: [0,-20]
+            popupAnchor: [-5,-25]
             });
 
 

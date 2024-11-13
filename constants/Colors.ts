@@ -46,4 +46,7 @@ export const Colors = {
   rose400: '#fb7185',
   rose500: '#f43f5e',
   rose600: '#e11d48',
+  lemon100: '#fbffc1',
+  lemon200: '#fcff86',
+  lemon300: '#fffc41',
 }

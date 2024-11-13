@@ -13,7 +13,7 @@ const AnimatedSplashScreen = ({
   useEffect(() => {
     setTimeout(() => {
       setSplashAnimationComplete()
-    }, 4000)
+    }, 3500)
   }, [])
 
   return (

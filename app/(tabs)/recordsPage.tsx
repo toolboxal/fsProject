@@ -37,7 +37,7 @@ const RecordsPage = () => {
   const [refreshing, setRefreshing] = useState(false)
   const selectedPerson = useMyStore((state) => state.selectedPerson)
 
-  const snapPoints = useMemo(() => ['20%', '55%'], [])
+  const snapPoints = useMemo(() => ['20%', '50%'], [])
   const bottomSheetRef = useRef<BottomSheet>(null)
   const queryClient = useQueryClient()
 
@@ -368,10 +368,10 @@ const RecordsPage = () => {
                 {
                   backgroundColor: `${
                     selectedPerson.category === 'RV'
-                      ? Colors.rose400
+                      ? Colors.emerald600
                       : selectedPerson.category === 'BS'
-                      ? Colors.emerald700
-                      : Colors.sky600
+                      ? Colors.emerald900
+                      : Colors.emerald400
                   }`,
                 },
               ]}
@@ -424,6 +424,11 @@ const RecordsPage = () => {
             {`contact: ${selectedPerson.contact}`}
           </Text>
           <Text style={styles.dateText}>{selectedPerson.date}</Text>
+          {selectedPerson.publications && (
+            <Text style={styles.publicationsText}>
+              {selectedPerson.publications}
+            </Text>
+          )}
           <BottomSheetView
             style={{
               padding: 15,
@@ -512,12 +517,11 @@ const styles = StyleSheet.create({
   btmSheetHeader: {
     fontFamily: 'IBM-Bold',
     fontSize: 26,
-    color: Colors.sky100,
+    color: Colors.white,
   },
   categoryCircle: {
-    width: 35,
-    height: 35,
-    backgroundColor: Colors.emerald700,
+    width: 33,
+    height: 33,
     borderRadius: 50,
     position: 'absolute',
     top: -10,
@@ -525,6 +529,8 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#fff',
   },
   categoryText: {
     fontFamily: 'IBM-Bold',
@@ -555,6 +561,12 @@ const styles = StyleSheet.create({
     fontFamily: 'IBM-Regular',
     fontSize: 18,
     color: Colors.primary100,
+  },
+  publicationsText: {
+    fontFamily: 'IBM-SemiBoldItalic',
+    fontSize: 18,
+    color: Colors.lemon100,
+    marginTop: 5,
   },
   burgerContainer: {
     width: 40,
