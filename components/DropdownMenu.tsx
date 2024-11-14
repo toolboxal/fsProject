@@ -5,6 +5,7 @@ import uploadRecord from '@/utils/uploadRecord'
 import createBackup from '@/utils/createBackup'
 import restoreRecord from '@/utils/restoreBackup'
 import generatePDF from '@/utils/generatePDF'
+import createDocx from '@/utils/createDocx'
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated'
 import Feather from '@expo/vector-icons/Feather'
 import AntDesign from '@expo/vector-icons/AntDesign'
@@ -36,6 +37,9 @@ const DropdownMenu = ({
   }
   const handleGeneratePDF = async () => {
     await generatePDF()
+  }
+  const handleCreateDocx = async () => {
+    await createDocx()
   }
 
   return (
@@ -79,7 +83,7 @@ const DropdownMenu = ({
         <Feather name="upload" size={24} color={Colors.emerald200} />
         <Text style={styles.optionText}>Upload single record</Text>
       </TouchableOpacity>
-      <View style={styles.divider}></View>
+      {/* <View style={styles.divider}></View>
       {existingRecords && (
         <TouchableOpacity
           style={styles.optionBox}
@@ -92,6 +96,20 @@ const DropdownMenu = ({
           <AntDesign name="pdffile1" size={24} color={Colors.emerald200} />
           <Text style={styles.optionText}>Generate pdf</Text>
         </TouchableOpacity>
+      )} */}
+      <View style={styles.divider}></View>
+      {existingRecords && (
+        <TouchableOpacity
+          style={styles.optionBox}
+          activeOpacity={0.9}
+          onPress={() => {
+            handleCreateDocx()
+            handleMenuOpen()
+          }}
+        >
+          <Ionicons name="document" size={24} color={Colors.emerald200} />
+          <Text style={styles.optionText}>Export as document</Text>
+        </TouchableOpacity>
       )}
       <View style={styles.divider}></View>
       <TouchableOpacity
@@ -102,7 +120,11 @@ const DropdownMenu = ({
           handleMenuOpen()
         }}
       >
-        <Ionicons name="glasses-outline" size={32} color={Colors.emerald200} />
+        <Ionicons
+          name="information-circle-outline"
+          size={24}
+          color={Colors.emerald200}
+        />
         <Text style={styles.optionText}>Readme</Text>
       </TouchableOpacity>
     </Animated.View>

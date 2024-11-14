@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import { WebView } from 'react-native-webview'
 import useMyStore from '@/store/store'
 
@@ -21,6 +22,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useQuery } from '@tanstack/react-query'
 
 const WebMapRender = () => {
+  const [isDarkMode, setIsDarkMode] = useState(false)
   const { bottom } = useSafeAreaInsets()
   const setAddress = useMyStore((state) => state.setAddress)
   const setGeoCoords = useMyStore((state) => state.setGeoCoords)
@@ -41,6 +43,23 @@ const WebMapRender = () => {
     refetchOnMount: false,
     staleTime: Infinity,
   })
+
+  const toggleDarkMap = async () => {
+    if (webRef.current) {
+      const injectedJavaScript = `
+        (function() {
+          const mapTiles = document.querySelector('.map-tiles');
+          mapTiles.style.filter = ${
+            isDarkMode
+              ? '""'
+              : '"brightness(0.55) hue-rotate(150deg) saturate(0.8) contrast(2.5)"'
+          };
+        })();
+      `
+      webRef.current.injectJavaScript(injectedJavaScript)
+      setIsDarkMode(!isDarkMode)
+    }
+  }
 
   const markers = useMemo(() => {
     return persons?.map((person) => {
@@ -65,8 +84,8 @@ const WebMapRender = () => {
     }</p>
     <p style='color:#6ee7b7;font-size:15px;font-style:italic; display:inline-block;padding:0;margin:0;line-height:0.5'>#${unit}</p>
      <p style='color:#6ee7b7;font-size:15px;font-style:italic; display:inline-block;padding:0;margin:0;line-height:1.2'>${street}</p>
-     <p style='color:#fbffc1;font-size:15px;font-style:italic; display:inline-block;padding:0;margin:0;line-height:1.2;font-weight:bold'>${publications}</p>
-     <p style='color:#fff;font-size:15px; display:block;margin-top:0.1;background-color:#262626;'>${remarks}</p>
+     <p style='color:#fbffc1;font-size:15px;font-style:italic; display:block;padding:0;margin:0;line-height:1.2;font-weight:bold'>${publications}</p>
+     <p style='color:#fff;font-size:15px; display:block;margin:0;background-color:#262626;'>${remarks}</p>
     `
       console.log('inside markers')
       return { popUpContent, latitude, longitude, category }
@@ -104,6 +123,13 @@ const WebMapRender = () => {
         .leaflet-popup-tip {
         background: #262626; 
         }
+         .map-tiles {
+        filter: ${
+          isDarkMode
+            ? 'brightness(0.57) hue-rotate(120deg) saturate(0.8) contrast(2.5)'
+            : ''
+        };
+      }
     </style>
 </head>
 <body>
@@ -114,7 +140,8 @@ const WebMapRender = () => {
             
             L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 maxZoom: 19,
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                className: 'map-tiles',
             }).addTo(window.map);
 
            
@@ -228,6 +255,17 @@ const WebMapRender = () => {
           gap: 15,
         }}
       >
+        <TouchableOpacity
+          style={styles.addBtn}
+          onPress={toggleDarkMap}
+          activeOpacity={0.8}
+        >
+          <Ionicons
+            name={isDarkMode ? 'sunny' : 'moon'}
+            size={26}
+            color={Colors.emerald500}
+          />
+        </TouchableOpacity>
         <TouchableOpacity
           style={styles.addBtn}
           onPress={handleRefreshNavigation}

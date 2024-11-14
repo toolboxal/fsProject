@@ -1,6 +1,7 @@
 import { Colors } from '@/constants/Colors'
 import { Text, StyleSheet, View, ScrollView } from 'react-native'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import Ionicons from '@expo/vector-icons/Ionicons'
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
 
 const ReadmePage = () => {
   return (
@@ -10,13 +11,11 @@ const ReadmePage = () => {
         showsVerticalScrollIndicator={false}
       >
         <Text style={styles.header}>Welcome to FsPal 👋</Text>
-        <Text style={styles.subheader}>Purpose</Text>
+        <Text style={styles.subheader}>To note.</Text>
         <Text style={styles.body}>
-          The primary design of this app is to use your current geolocation.
-          When geolocation permission is granted, each new record created will
-          have its geolocation stored in the background. The records will then
-          show up on the map as markers. You can refresh the map to see which
-          record is closest to you in the ministry.
+          Whenever you create a new record, check the minimap to see whether
+          marker is at the desired location. Sometimes, you will need to press
+          the 'Update Map' button to refresh the marker's location.
         </Text>
         <Text style={styles.subheader}>
           Are the records stored in the cloud?
@@ -28,8 +27,28 @@ const ReadmePage = () => {
           phone's file system. This JSON file can then be used to restore all
           your data when you reinstall the app.
         </Text>
+        <Text
+          style={[
+            styles.subheader,
+            { color: Colors.emerald700, fontFamily: 'IBM-SemiBoldItalic' },
+          ]}
+        >
+          New Feature! - Export as Docs
+          <Ionicons
+            name="document-outline"
+            size={24}
+            color={Colors.emerald700}
+          />
+        </Text>
         <Text style={styles.body}>
-          You can also export a PDF of all your records.
+          You can create a copy of your records in a .docx file, and open it on{' '}
+          {''}
+          <MaterialCommunityIcons
+            name="google"
+            size={20}
+            color={Colors.emerald700}
+          />
+          oogle Docs! Or whichever compatible note-taking app you prefer.
         </Text>
         <Text style={styles.subheader}>Is sharing available?</Text>
         <Text style={styles.body}>
