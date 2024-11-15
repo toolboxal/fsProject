@@ -138,7 +138,7 @@ const WebMapRender = () => {
          .map-tiles {
         filter: ${
           isDarkMode
-            ? 'brightness(0.57) hue-rotate(120deg) saturate(0.8) contrast(2.5)'
+            ? 'brightness(0.6) hue-rotate(120deg) saturate(0.8) contrast(2.5)'
             : ''
         };
       }
@@ -167,7 +167,7 @@ const WebMapRender = () => {
 
             const caIcon = L.divIcon({
             className: 'custom-div-icon',
-            html: "<div style='font-family:Inter, sans-serif;font-size:15px;font-weight:bold;color:#5b5b5b;background-color:#34d399;display:flex;justify-content: center; align-items: center;border-radius: 100px;height:30px;width:30px; border: none;box-shadow: 2px 2px 0 0 #4B4B4B;'>CA</div>",
+            html: "<div style='font-family:Inter, sans-serif;font-size:15px;font-weight:bold;color:#fff;background-color:#34d399;display:flex;justify-content: center; align-items: center;border-radius: 100px;height:30px;width:30px; border: none;box-shadow: 2px 2px 1px 0 #262626;'>CA</div>",
             iconSize: [40, 40],
             iconAnchor: null,
             popupAnchor: [-5,-25]
@@ -175,7 +175,7 @@ const WebMapRender = () => {
 
             const rvIcon = L.divIcon({
             className: 'custom-div-icon',
-            html: "<div style='font-family:Inter, sans-serif;font-size:15px;font-weight:bold;color:#fff;background-color:#059669;display:flex;justify-content: center; align-items: center;border-radius: 100px;height:30px;width:30px; border: none;box-shadow: 2px 2px 0 0 #4B4B4B;'>RV</div>",
+            html: "<div style='font-family:Inter, sans-serif;font-size:15px;font-weight:bold;color:#fff;background-color:#059669;display:flex;justify-content: center; align-items: center;border-radius: 100px;height:30px;width:30px; border: none;box-shadow: 2px 2px 1px 0 #262626;'>RV</div>",
             iconSize: [40, 40],
             iconAnchor: null,
             popupAnchor: [-5,-25]
@@ -183,7 +183,7 @@ const WebMapRender = () => {
 
             const bsIcon = L.divIcon({
             className: 'custom-div-icon',
-            html: "<div style='font-family:Inter, sans-serif;font-size:15px;font-weight:bold;color:#fff;background-color:#064e3b;display:flex;justify-content: center; align-items: center;border-radius: 100px;height:30px;width:30px; border: none;box-shadow: 2px 2px 0 0 #4B4B4B;'>BS</div>",
+            html: "<div style='font-family:Inter, sans-serif;font-size:15px;font-weight:bold;color:#fff;background-color:#064e3b;display:flex;justify-content: center; align-items: center;border-radius: 100px;height:30px;width:30px; border: none;box-shadow: 2px 2px 1px 0 #262626;'>BS</div>",
             iconSize: [40, 40],
             iconAnchor: null,
             popupAnchor: [-5,-25]
@@ -274,7 +274,10 @@ const WebMapRender = () => {
       >
         <TouchableOpacity
           style={styles.addBtn}
-          onPress={toggleDarkMap}
+          onPress={() => {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+            toggleDarkMap()
+          }}
           activeOpacity={0.8}
         >
           <Ionicons
@@ -285,14 +288,20 @@ const WebMapRender = () => {
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.addBtn}
-          onPress={handleRefreshNavigation}
+          onPress={() => {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+            handleRefreshNavigation()
+          }}
           activeOpacity={0.8}
         >
           <Ionicons name="navigate" size={26} color={Colors.primary50} />
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.addBtn}
-          onPress={() => router.navigate('/formPage')}
+          onPress={() => {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+            router.navigate('/formPage')
+          }}
           activeOpacity={0.8}
         >
           <FontAwesome6 name="add" size={26} color={Colors.primary50} />
