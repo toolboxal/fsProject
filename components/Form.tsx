@@ -12,6 +12,7 @@ import * as Location from 'expo-location'
 import { useForm, Controller } from 'react-hook-form'
 import { Colors } from '@/constants/Colors'
 import { useEffect, useState } from 'react'
+import * as Haptics from 'expo-haptics'
 import TextInputComponent from './TextInputComponent'
 import FontAwesome from '@expo/vector-icons/FontAwesome6'
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6'
@@ -76,6 +77,7 @@ const Form = () => {
   }
 
   const submitPressed = async (data: TFormData) => {
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
     console.log('pressed')
     const toUpperBlock = data.block === null ? '' : data.block.toUpperCase()
     const { name, unit, street, remarks, contact, date, publications } = data

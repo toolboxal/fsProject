@@ -3,12 +3,18 @@ import { Colors } from '@/constants/Colors'
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5'
 import { Platform } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import * as Haptics from 'expo-haptics'
 
 const TabsLayout = () => {
   const { bottom } = useSafeAreaInsets()
   console.log('tabslayout page')
   return (
     <Tabs
+      screenListeners={{
+        tabPress: () => {
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+        },
+      }}
       screenOptions={{
         headerShown: false,
         unmountOnBlur: true,

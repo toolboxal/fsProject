@@ -2,6 +2,7 @@ import { Colors } from '@/constants/Colors'
 import useMyStore from '@/store/store'
 
 import { Text, TouchableOpacity, StyleSheet, Pressable } from 'react-native'
+import * as Haptics from 'expo-haptics'
 import FontAwesome from '@expo/vector-icons/FontAwesome6'
 import { TPerson } from '@/drizzle/schema'
 
@@ -28,6 +29,7 @@ const SingleRecord = (prop: TProps) => {
       activeOpacity={0.7}
       style={styles.container}
       onPress={() => {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
         setSelectedPerson(item)
         handleOpenBtmSheet('expand')
       }}
@@ -45,6 +47,7 @@ const SingleRecord = (prop: TProps) => {
           padding: 10,
         }}
         onPress={() => {
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
           setSelectedPerson(item)
           handleActionSheet(id)
         }}

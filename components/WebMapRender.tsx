@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native'
+import * as Haptics from 'expo-haptics'
 import { Colors } from '@/constants/Colors'
 import { FontAwesome6 } from '@expo/vector-icons'
 import { Ionicons } from '@expo/vector-icons'
@@ -58,6 +59,17 @@ const WebMapRender = () => {
       `
       webRef.current.injectJavaScript(injectedJavaScript)
       setIsDarkMode(!isDarkMode)
+    }
+  }
+
+  const handleMessage = (event: any) => {
+    try {
+      const data = JSON.parse(event.nativeEvent.data)
+      if (data.type === 'MARKER_CLICK') {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+      }
+    } catch (error) {
+      console.log('Error parsing message:', error)
     }
   }
 
@@ -191,6 +203,10 @@ const WebMapRender = () => {
               const mark = L.marker([marker.latitude, marker.longitude], {
                 icon: marker.category === 'CA' ? caIcon : marker.category === 'RV' ? rvIcon : bsIcon,
               }).bindPopup(marker.popUpContent)
+
+               mark.on('click', function() {
+              window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'MARKER_CLICK' }));
+              });
               markersGroup.addLayer(mark)
             })
             window.map.addLayer(markersGroup)
@@ -234,6 +250,7 @@ const WebMapRender = () => {
         style={{ height: '100%' }}
         source={{ html: htmlContent }}
         ref={webRef}
+        onMessage={handleMessage}
         startInLoadingState
         renderLoading={() => (
           <View style={{ height: '100%' }}>

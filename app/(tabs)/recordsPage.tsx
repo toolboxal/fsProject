@@ -18,6 +18,7 @@ import BottomSheet, {
   BottomSheetScrollView,
   BottomSheetView,
 } from '@gorhom/bottom-sheet'
+import * as Haptics from 'expo-haptics'
 import useMyStore from '@/store/store'
 import { useActionSheet } from '@expo/react-native-action-sheet'
 import FontAwesome from '@expo/vector-icons/FontAwesome6'
@@ -150,6 +151,7 @@ const RecordsPage = () => {
   }
 
   const handleMenuOpen = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
     setMenuOpen(!menuOpen)
   }
 

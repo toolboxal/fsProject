@@ -27,6 +27,11 @@ const ReadmePage = () => {
           phone's file system. This JSON file can then be used to restore all
           your data when you reinstall the app.
         </Text>
+        <Text style={styles.subheader}>Is sharing available?</Text>
+        <Text style={styles.body}>
+          Yes. You can transfer a record to another person who is also using
+          FsPal.
+        </Text>
         <Text
           style={[
             styles.subheader,
@@ -49,11 +54,6 @@ const ReadmePage = () => {
             color={Colors.emerald700}
           />
           oogle Docs! Or whichever compatible note-taking app you prefer.
-        </Text>
-        <Text style={styles.subheader}>Is sharing available?</Text>
-        <Text style={styles.body}>
-          Yes. You can transfer a record to another person who is also using
-          FsPal.
         </Text>
       </ScrollView>
     </View>

@@ -20,6 +20,7 @@ import { useState } from 'react'
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6'
 import { router } from 'expo-router'
 import Toast from 'react-native-root-toast'
+import * as Haptics from 'expo-haptics'
 
 import { db } from '@/drizzle/db'
 import { Person, TPerson } from '@/drizzle/schema'
@@ -67,6 +68,7 @@ const EditPage = () => {
   }
 
   const submitPressed = async (data: TFormData) => {
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
     const { name, contact, remarks, date, block, unit, street, publications } =
       data
     const toUpperBlock = block === null ? '' : block.toUpperCase()
