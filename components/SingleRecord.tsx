@@ -1,7 +1,13 @@
 import { Colors } from '@/constants/Colors'
 import useMyStore from '@/store/store'
 
-import { Text, TouchableOpacity, StyleSheet, Pressable } from 'react-native'
+import {
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  Pressable,
+  View,
+} from 'react-native'
 import * as Haptics from 'expo-haptics'
 import FontAwesome from '@expo/vector-icons/FontAwesome6'
 import { TPerson } from '@/drizzle/schema'
@@ -16,7 +22,7 @@ const SingleRecord = (prop: TProps) => {
   const setSelectedPerson = useMyStore((state) => state.setSelectedPerson)
 
   const { item, handleOpenBtmSheet, handleActionSheet } = prop
-  const { name, block, unit, remarks, id } = item
+  const { name, block, unit, remarks, id, category } = item
   let formattedRemarks = ''
   if (remarks === null) {
     return
@@ -37,7 +43,25 @@ const SingleRecord = (prop: TProps) => {
       <Text style={styles.houseUnit}>
         {block ? `# ${unit}` : `house no. ${unit}`}
       </Text>
-      <Text style={styles.textName}>{name}</Text>
+      <View style={styles.nameContainer}>
+        <Text style={styles.textName}>{name}</Text>
+        <View
+          style={[
+            styles.categoryCircle,
+            {
+              backgroundColor: `${
+                category === 'RV'
+                  ? Colors.emerald600
+                  : category === 'BS'
+                  ? Colors.emerald900
+                  : Colors.emerald400
+              }`,
+            },
+          ]}
+        >
+          <Text style={styles.categoryText}>{category}</Text>
+        </View>
+      </View>
       <Text style={styles.textRemarks}>{formattedRemarks}</Text>
       <Pressable
         style={{
@@ -79,6 +103,25 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: Colors.emerald700,
   },
+  nameContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+  },
+  categoryCircle: {
+    width: 22,
+    height: 22,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 50,
+    backgroundColor: Colors.emerald300,
+  },
+  categoryText: {
+    fontFamily: 'IBM-SemiBold',
+    fontSize: 12,
+    color: Colors.white,
+  },
+
   textName: {
     fontFamily: 'IBM-SemiBold',
     fontSize: 18,
@@ -86,7 +129,7 @@ const styles = StyleSheet.create({
   },
   textRemarks: {
     fontFamily: 'IBM-Italic',
-    fontSize: 16,
+    fontSize: 15,
     color: Colors.primary900,
     overflow: 'hidden',
     maxHeight: 25,

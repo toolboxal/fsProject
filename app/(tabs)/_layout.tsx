@@ -17,20 +17,13 @@ const TabsLayout = () => {
       }}
       screenOptions={{
         headerShown: false,
-        unmountOnBlur: true,
-        tabBarShowLabel: false,
+        tabBarShowLabel: true,
         tabBarHideOnKeyboard: true,
         tabBarStyle: {
-          backgroundColor: Colors.primary900,
-          height: Platform.OS === 'android' ? 75 : bottom + 60,
-          // paddingBottom: Platform.OS === 'android' ? 10 : 30,
-          borderTopLeftRadius: 25,
-          borderTopRightRadius: 25,
+          backgroundColor: 'rgba(30,30,30,0.88)',
+          height: Platform.OS === 'android' ? 75 : bottom + 62,
           position: 'absolute',
-          // height: 75,
-          // marginBottom: bottom,
-          // marginHorizontal: 15,
-          paddingTop: 10,
+          paddingTop: 5,
         },
       }}
     >
@@ -41,7 +34,7 @@ const TabsLayout = () => {
 
           tabBarIcon: ({ focused }) => (
             <FontAwesome5
-              size={30}
+              size={24}
               name="map-marked-alt"
               color={`${focused ? Colors.emerald500 : Colors.primary500}`}
             />
@@ -56,7 +49,7 @@ const TabsLayout = () => {
           title: 'Records',
           tabBarIcon: ({ focused }) => (
             <FontAwesome5
-              size={33}
+              size={24}
               name="folder-open"
               color={`${focused ? Colors.emerald500 : Colors.primary500}`}
             />
