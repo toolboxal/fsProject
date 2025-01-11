@@ -1,5 +1,5 @@
 import { Stack } from 'expo-router'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { View, Text, TextInput } from 'react-native'
 import { Colors } from '@/constants/Colors'
 import { RootSiblingParent } from 'react-native-root-siblings'
@@ -17,9 +17,9 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import * as Location from 'expo-location'
 import getCurrentLocation from '@/utils/getCurrentLoc'
 import useMyStore from '@/store/store'
+import { NavigationContainer } from '@react-navigation/native'
 
-// SplashScreen.preventAutoHideAsync()
-SplashScreen.hideAsync()
+SplashScreen.preventAutoHideAsync()
 
 const theme = {
   colors: {
@@ -33,7 +33,6 @@ const theme = {
 
 const RootLayout = () => {
   const [appIsReady, setAppIsReady] = useState(false)
-  const [splashAnimationComplete, setSplashAnimationComplete] = useState(false)
 
   const setAddress = useMyStore((state) => state.setAddress)
   const setGeoCoords = useMyStore((state) => state.setGeoCoords)
@@ -53,6 +52,13 @@ const RootLayout = () => {
           'IBM-Bold': require('../assets/fonts/IBMPlexSans-Bold.ttf'),
         })
         await migrate(db, migrations)
+
+        if ((Text as any).defaultProps == null) (Text as any).defaultProps = {}
+        ;(Text as any).defaultProps.allowFontScaling = false
+
+        if ((TextInput as any).defaultProps == null)
+          (TextInput as any).defaultProps = {}
+        ;(TextInput as any).defaultProps.allowFontScaling = false
       } catch (error) {
         console.warn(error)
       } finally {
@@ -78,24 +84,14 @@ const RootLayout = () => {
     prepare()
   }, [])
 
-  useEffect(() => {
-    if (appIsReady && splashAnimationComplete) {
-      // Disable font scaling after splash screen is complete
-      if ((Text as any).defaultProps == null) (Text as any).defaultProps = {}
-      ;(Text as any).defaultProps.allowFontScaling = false
-
-      if ((TextInput as any).defaultProps == null)
-        (TextInput as any).defaultProps = {}
-      ;(TextInput as any).defaultProps.allowFontScaling = false
+  const onLayoutRootView = useCallback(() => {
+    if (appIsReady) {
+      SplashScreen.hide()
     }
-  }, [appIsReady, splashAnimationComplete])
+  }, [appIsReady])
 
-  if (!appIsReady || !splashAnimationComplete) {
-    return (
-      <AnimatedSplashScreen
-        setSplashAnimationComplete={() => setSplashAnimationComplete(true)}
-      />
-    )
+  if (!appIsReady) {
+    return null
   }
 
   return (
@@ -104,7 +100,7 @@ const RootLayout = () => {
         <ActionSheetProvider>
           <RootSiblingParent>
             <PaperProvider theme={theme}>
-              <View style={{ flex: 1 }}>
+              <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
                 <Stack screenOptions={{ headerShown: false }}>
                   <Stack.Screen name="(tabs)" />
                   <Stack.Screen

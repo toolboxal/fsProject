@@ -1,6 +1,5 @@
 import { InferSelectModel } from 'drizzle-orm'
 import { sqliteTable, integer, text, real } from 'drizzle-orm/sqlite-core'
-import { openDatabaseSync } from 'expo-sqlite/next'
 
 export const Person = sqliteTable('person', {
   id: integer('id').primaryKey(),

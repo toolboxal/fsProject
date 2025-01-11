@@ -53,7 +53,8 @@
           "locationAlwaysAndWhenInUsePermission": "Allow FsPal to use your location.",
           "isAndroidForegroundServiceEnabled": true
         }
-      ]
+      ],
+      "expo-font"
     ],
     "experiments": {
       "typedRoutes": true
