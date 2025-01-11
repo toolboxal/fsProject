@@ -12,14 +12,17 @@ import { PaperProvider } from 'react-native-paper'
 import { migrate } from 'drizzle-orm/expo-sqlite/migrator'
 import migrations from '../drizzle/migrations/migrations'
 import { db } from '@/drizzle/db'
-import AnimatedSplashScreen from '@/components/AnimatedSplashScreen'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import * as Location from 'expo-location'
 import getCurrentLocation from '@/utils/getCurrentLoc'
 import useMyStore from '@/store/store'
-import { NavigationContainer } from '@react-navigation/native'
 
 SplashScreen.preventAutoHideAsync()
+
+SplashScreen.setOptions({
+  duration: 1000,
+  fade: true,
+})
 
 const theme = {
   colors: {

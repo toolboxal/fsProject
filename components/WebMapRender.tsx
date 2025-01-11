@@ -52,8 +52,8 @@ const WebMapRender = () => {
           const mapTiles = document.querySelector('.map-tiles');
           mapTiles.style.filter = ${
             isDarkMode
-              ? '""'
-              : '"brightness(0.55) hue-rotate(150deg) saturate(0.8) contrast(2.5)"'
+              ? '"brightness(0.88) saturate(1.2) contrast(1.5)"'
+              : '"brightness(0.57) hue-rotate(220deg) saturate(0.5) contrast(3.3) invert(1)"'
           };
         })();
       `
@@ -135,13 +135,7 @@ const WebMapRender = () => {
         .leaflet-popup-tip {
         background: #262626; 
         }
-         .map-tiles {
-        filter: ${
-          isDarkMode
-            ? 'brightness(0.6) hue-rotate(120deg) saturate(0.8) contrast(2.5)'
-            : ''
-        };
-      }
+         
     </style>
 </head>
 <body>
