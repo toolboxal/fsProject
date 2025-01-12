@@ -8,9 +8,9 @@
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "splash": {
-      "image": "./assets/images/splashscreen_bg.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#6ee7b7",
+      "image": "./assets/images/splashscreen.png",
+      "resizeMode": "cover",
+      "backgroundColor": "#404040",
       "tabletSpacing": 0,
       "supportsTablet": false
     },
@@ -28,7 +28,7 @@
       "versionCode": 2,
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#6ee7b7"
+        "backgroundColor": "#404040"
       },
       "permissions": [
         "ACCESS_COARSE_LOCATION",

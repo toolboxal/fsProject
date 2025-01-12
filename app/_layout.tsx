@@ -20,7 +20,7 @@ import useMyStore from '@/store/store'
 SplashScreen.preventAutoHideAsync()
 
 SplashScreen.setOptions({
-  duration: 1000,
+  duration: 3000,
   fade: true,
 })
 
@@ -62,6 +62,8 @@ const RootLayout = () => {
         if ((TextInput as any).defaultProps == null)
           (TextInput as any).defaultProps = {}
         ;(TextInput as any).defaultProps.allowFontScaling = false
+
+        // await new Promise((resolve) => setTimeout(resolve, 3000))
       } catch (error) {
         console.warn(error)
       } finally {

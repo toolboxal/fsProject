@@ -6,9 +6,7 @@ import createBackup from '@/utils/createBackup'
 import restoreRecord from '@/utils/restoreBackup'
 import generatePDF from '@/utils/generatePDF'
 import createDocx from '@/utils/createDocx'
-import Animated, { FadeIn, FadeOut } from 'react-native-reanimated'
 import Feather from '@expo/vector-icons/Feather'
-import AntDesign from '@expo/vector-icons/AntDesign'
 import Ionicons from '@expo/vector-icons/Ionicons'
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
 import { useQueryClient } from '@tanstack/react-query'
@@ -43,11 +41,7 @@ const DropdownMenu = ({
   }
 
   return (
-    <Animated.View
-      style={styles.dropdownContainer}
-      entering={FadeIn}
-      exiting={FadeOut}
-    >
+    <View style={styles.dropdownContainer}>
       {existingRecords && (
         <TouchableOpacity
           style={styles.optionBox}
@@ -127,7 +121,7 @@ const DropdownMenu = ({
         />
         <Text style={styles.optionText}>Readme</Text>
       </TouchableOpacity>
-    </Animated.View>
+    </View>
   )
 }
 export default DropdownMenu

@@ -18,6 +18,9 @@ const TabsLayout = () => {
       screenOptions={{
         headerShown: false,
         tabBarShowLabel: true,
+        tabBarLabelStyle: {
+          fontFamily: 'IBM-SemiBold',
+        },
         tabBarHideOnKeyboard: true,
         tabBarStyle: {
           backgroundColor: 'rgba(30,30,30,0.88)',
@@ -25,6 +28,7 @@ const TabsLayout = () => {
           position: 'absolute',
           paddingTop: 5,
         },
+        animation: 'fade',
       }}
     >
       <Tabs.Screen
