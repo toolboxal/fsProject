@@ -1,9 +1,10 @@
 import { Tabs } from 'expo-router'
 import { Colors } from '@/constants/Colors'
-import FontAwesome5 from '@expo/vector-icons/FontAwesome5'
 import { Platform } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import * as Haptics from 'expo-haptics'
+import FontAwesome5 from '@expo/vector-icons/FontAwesome5'
+import FontAwesome from '@expo/vector-icons/FontAwesome'
 
 const TabsLayout = () => {
   const { bottom } = useSafeAreaInsets()
@@ -55,6 +56,21 @@ const TabsLayout = () => {
             <FontAwesome5
               size={24}
               name="folder-open"
+              color={`${focused ? Colors.emerald500 : Colors.primary500}`}
+            />
+          ),
+          tabBarActiveTintColor: Colors.emerald500,
+        }}
+      />
+
+      <Tabs.Screen
+        name="reportPage"
+        options={{
+          title: 'Report',
+          tabBarIcon: ({ focused }) => (
+            <FontAwesome
+              name="list-alt"
+              size={24}
               color={`${focused ? Colors.emerald500 : Colors.primary500}`}
             />
           ),

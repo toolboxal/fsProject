@@ -63,7 +63,7 @@ const RootLayout = () => {
           (TextInput as any).defaultProps = {}
         ;(TextInput as any).defaultProps.allowFontScaling = false
 
-        // await new Promise((resolve) => setTimeout(resolve, 3000))
+        await new Promise((resolve) => setTimeout(resolve, 3000))
       } catch (error) {
         console.warn(error)
       } finally {
@@ -176,6 +176,19 @@ const RootLayout = () => {
                         backgroundColor: Colors.primary50,
                       },
                       headerTintColor: Colors.primary600,
+                    }}
+                  />
+                  <Stack.Screen
+                    name="reportFormSheet"
+                    options={{
+                      presentation: 'formSheet',
+                      sheetAllowedDetents: 'fitToContents',
+                      sheetCornerRadius: 15,
+                      sheetGrabberVisible: false,
+                      sheetExpandsWhenScrolledToEdge: false,
+                      contentStyle: {
+                        backgroundColor: 'transparent',
+                      },
                     }}
                   />
                 </Stack>

@@ -4,7 +4,6 @@ import useMyStore from '@/store/store'
 import getCurrentLocation from '@/utils/getCurrentLoc'
 import { useEffect } from 'react'
 import { KeyboardAvoidingView, Platform, StatusBar } from 'react-native'
-import { BlurView } from 'expo-blur'
 
 const FormPage = () => {
   const setGeoCoords = useMyStore((state) => state.setGeoCoords)
