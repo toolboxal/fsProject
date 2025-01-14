@@ -3,19 +3,29 @@ import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { format } from 'date-fns'
 import { useForm, Controller } from 'react-hook-form'
+import * as Haptics from 'expo-haptics'
 import EvilIcons from '@expo/vector-icons/EvilIcons'
+import { TReport } from '@/drizzle/schema'
+import { db } from '@/drizzle/db'
+
+type TFormData = Omit<TReport, 'id' | 'created_at'>
 
 const reportFormSheet = () => {
   const bottom = useSafeAreaInsets().bottom
-  const today = format(new Date(), 'dd MMMM yyyy')
+  const today = format(new Date(), 'dd MMM yyyy')
 
   const { control, handleSubmit, reset, setValue, getValues } = useForm({
     defaultValues: {
       date: '',
-      hrs: '',
-      bs: '',
+      hrs: 0,
+      bs: 0,
     },
   })
+
+  const SubmitPressed = (data: TFormData) => {
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
+    console.log(data)
+  }
 
   return (
     <View style={[styles.mainContainer, { marginBottom: -bottom }]}>
@@ -32,6 +42,9 @@ const reportFormSheet = () => {
               },
             ]
           }}
+          onPressOut={() => {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft)
+          }}
         >
           <Text style={styles.dateChangeTxt}>Change Date</Text>
         </Pressable>
@@ -45,14 +58,14 @@ const reportFormSheet = () => {
               name="hrs"
               render={({ field: { value, onChange, onBlur } }) => (
                 <TextInput
-                  value={value}
+                  value={value.toString()}
                   onChangeText={onChange}
                   onBlur={onBlur}
                   autoComplete="off"
                   autoCorrect={false}
                   autoCapitalize="sentences"
                   selectionColor={Colors.primary700}
-                  placeholder="1.75hrs"
+                  placeholder="1.75"
                   placeholderTextColor={Colors.primary300}
                   autoFocus
                   style={styles.hrsInput}
@@ -71,7 +84,7 @@ const reportFormSheet = () => {
               name="bs"
               render={({ field: { value, onChange, onBlur } }) => (
                 <TextInput
-                  value={value}
+                  value={value.toString()}
                   onChangeText={onChange}
                   onBlur={onBlur}
                   autoComplete="off"
@@ -99,6 +112,7 @@ const reportFormSheet = () => {
               },
             ]
           }}
+          onPressOut={handleSubmit(SubmitPressed)}
         >
           <EvilIcons name="arrow-up" size={24} color="white" />
           <Text style={styles.submitBtnTxt}>Submit</Text>
@@ -113,14 +127,14 @@ const styles = StyleSheet.create({
   mainContainer: {
     padding: 16,
     paddingBottom: 8,
-    backgroundColor: 'rgba(255,255,255,0.8)',
+    backgroundColor: Colors.primary50,
     flex: 1,
   },
   dateContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
-    marginBottom: 15,
+    marginBottom: 12,
   },
   dateTxt: {
     fontFamily: 'IBM-Bold',
@@ -139,7 +153,7 @@ const styles = StyleSheet.create({
   rowContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: 5,
   },
   inputContainers: {
     flexDirection: 'column',

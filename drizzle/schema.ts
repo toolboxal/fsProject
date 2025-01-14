@@ -1,4 +1,4 @@
-import { InferSelectModel } from 'drizzle-orm'
+import { InferSelectModel, sql } from 'drizzle-orm'
 import { sqliteTable, integer, text, real } from 'drizzle-orm/sqlite-core'
 
 export const Person = sqliteTable('person', {
@@ -17,3 +17,15 @@ export const Person = sqliteTable('person', {
 })
 
 export type TPerson = InferSelectModel<typeof Person>
+
+export const Report = sqliteTable('report', {
+  id: integer('id').primaryKey(),
+  date: text('date'),
+  hrs: real('hrs').default(0),
+  bs: integer('bs').default(0),
+  created_at: integer('created_at', { mode: 'timestamp' })
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+})
+
+export type TReport = InferSelectModel<typeof Report>

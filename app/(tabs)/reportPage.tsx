@@ -1,4 +1,10 @@
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import {
+  Platform,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native'
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import * as Haptics from 'expo-haptics'
 import { router } from 'expo-router'
@@ -23,7 +29,10 @@ const reportPage = () => {
           style={styles.addBtn}
           onPress={() => {
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
-            router.navigate('/reportFormSheet')
+
+            router.navigate(
+              Platform.OS === 'android' ? '/formsheetAndroid' : '/formsheetIOS'
+            )
           }}
           activeOpacity={0.8}
         >
@@ -34,6 +43,7 @@ const reportPage = () => {
     </SafeAreaView>
   )
 }
+
 export default reportPage
 const styles = StyleSheet.create({
   container: { flex: 1 },
