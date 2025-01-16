@@ -57,7 +57,10 @@ const ModalForm = ({ modalVisible, setModalVisible }: ModalProps) => {
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <Pressable
           style={styles.modalOverlay}
-          onPress={() => setModalVisible((prev) => !prev)}
+          onPress={() => {
+            setOpenPicker(false)
+            setModalVisible((prev) => !prev)
+          }}
         >
           <KeyboardAvoidingView
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -71,44 +74,32 @@ const ModalForm = ({ modalVisible, setModalVisible }: ModalProps) => {
                 <Text style={styles.dateTxt}>
                   {format(datePick, 'dd MMM yyyy')}
                 </Text>
+                {Platform.OS === 'android' && (
+                  <Pressable
+                    onPress={() => setOpenPicker(true)}
+                    style={styles.dateChangeBtn}
+                  >
+                    <Text>Open Calendar</Text>
+                  </Pressable>
+                )}
                 <Pressable
-                  style={[
-                    styles.dateChangeBtn,
-                    {
-                      backgroundColor: openPicker
-                        ? Colors.primary900
-                        : Colors.emerald400,
-                    },
-                  ]}
-                  onPressOut={() => {
-                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft)
-                    setOpenPicker((prev) => !prev)
+                  onPress={() => {
+                    setOpenPicker(false)
+                    setModalVisible((prev) => !prev)
                   }}
-                >
-                  {openPicker ? (
-                    <View style={{ flexDirection: 'row', gap: 1 }}>
-                      <EvilIcons name="close-o" size={20} color="white" />
-                      <Text style={{ color: Colors.white }}>Calendar</Text>
-                    </View>
-                  ) : (
-                    <Text style={{ color: Colors.primary700 }}>
-                      Change Date
-                    </Text>
-                  )}
-                </Pressable>
-                <Pressable
-                  onPress={() => setModalVisible((prev) => !prev)}
                   style={{ marginLeft: 'auto' }}
                 >
                   <EvilIcons name="close" size={30} color="black" />
                 </Pressable>
               </View>
-              {openPicker && (
+
+              {Platform.OS === 'ios' && (
                 <DateTimePicker
                   value={datePick}
                   mode="date"
                   display="inline"
-                  accentColor={Colors.emerald400}
+                  accentColor={Colors.emerald300}
+                  themeVariant="light"
                   minimumDate={startOfMonth(today)}
                   maximumDate={today}
                   onChange={(event, date) => {
@@ -116,13 +107,28 @@ const ModalForm = ({ modalVisible, setModalVisible }: ModalProps) => {
                   }}
                   style={{
                     transform: [{ scale: 0.88 }],
-                    //   backgroundColor: 'yellow',
+
                     padding: 0,
                     margin: -20,
                     marginTop: -27,
                   }}
                 />
               )}
+              {Platform.OS === 'android' && openPicker && (
+                <DateTimePicker
+                  value={datePick}
+                  mode="date"
+                  display="inline"
+                  themeVariant="light"
+                  minimumDate={startOfMonth(today)}
+                  maximumDate={today}
+                  onChange={(event, date) => {
+                    setOpenPicker(false)
+                    setDatePick(date || new Date())
+                  }}
+                />
+              )}
+
               <View style={styles.rowContainer}>
                 <View style={styles.inputContainers}>
                   <Text style={styles.label}>hours</Text>
@@ -244,13 +250,14 @@ const styles = StyleSheet.create({
   dateTxt: {
     fontFamily: 'IBM-Bold',
     fontSize: 22,
-    color: Colors.primary700,
+    color: Colors.primary900,
   },
   dateChangeBtn: {
     justifyContent: 'center',
     alignItems: 'center',
     padding: 8,
     borderRadius: 20,
+    backgroundColor: Colors.emerald400,
   },
   rowContainer: {
     flexDirection: 'row',
