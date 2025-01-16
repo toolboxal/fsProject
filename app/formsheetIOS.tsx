@@ -1,18 +1,19 @@
-import { Colors } from '@/constants/Colors'
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native'
+import { useRouter } from 'expo-router'
+import { Colors } from '@/constants/Colors'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { format } from 'date-fns'
 import { useForm, Controller } from 'react-hook-form'
 import * as Haptics from 'expo-haptics'
 import EvilIcons from '@expo/vector-icons/EvilIcons'
 import { TReport } from '@/drizzle/schema'
-import { db } from '@/drizzle/db'
 
 type TFormData = Omit<TReport, 'id' | 'created_at'>
 
 const reportFormSheet = () => {
   const bottom = useSafeAreaInsets().bottom
   const today = format(new Date(), 'dd MMM yyyy')
+  const router = useRouter()
 
   const { control, handleSubmit, reset, setValue, getValues } = useForm({
     defaultValues: {

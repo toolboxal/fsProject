@@ -77,20 +77,6 @@ const DropdownMenu = ({
         <Feather name="upload" size={24} color={Colors.emerald200} />
         <Text style={styles.optionText}>Upload single record</Text>
       </TouchableOpacity>
-      {/* <View style={styles.divider}></View>
-      {existingRecords && (
-        <TouchableOpacity
-          style={styles.optionBox}
-          activeOpacity={0.9}
-          onPress={() => {
-            handleGeneratePDF()
-            handleMenuOpen()
-          }}
-        >
-          <AntDesign name="pdffile1" size={24} color={Colors.emerald200} />
-          <Text style={styles.optionText}>Generate pdf</Text>
-        </TouchableOpacity>
-      )} */}
       <View style={styles.divider}></View>
       {existingRecords && (
         <TouchableOpacity

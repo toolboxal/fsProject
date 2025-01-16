@@ -1,18 +1,14 @@
-import {
-  Platform,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native'
+import { useState } from 'react'
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import * as Haptics from 'expo-haptics'
-import { router } from 'expo-router'
 import { FontAwesome6 } from '@expo/vector-icons'
 import { Colors } from '@/constants/Colors'
+import ModalForm from '@/components/ReportModal'
 
 const reportPage = () => {
   const { bottom } = useSafeAreaInsets()
+  const [modalVisible, setModalVisible] = useState(false)
   return (
     <SafeAreaView style={styles.container}>
       <Text>reportPage</Text>
@@ -29,10 +25,7 @@ const reportPage = () => {
           style={styles.addBtn}
           onPress={() => {
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
-
-            router.navigate(
-              Platform.OS === 'android' ? '/formsheetAndroid' : '/formsheetIOS'
-            )
+            setModalVisible((prev) => !prev)
           }}
           activeOpacity={0.8}
         >
@@ -40,6 +33,11 @@ const reportPage = () => {
           <Text style={styles.btnText}>New Report</Text>
         </TouchableOpacity>
       </View>
+
+      <ModalForm
+        setModalVisible={setModalVisible}
+        modalVisible={modalVisible}
+      />
     </SafeAreaView>
   )
 }

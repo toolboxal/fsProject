@@ -1,6 +1,6 @@
 import { Stack } from 'expo-router'
 import { useCallback, useEffect, useState } from 'react'
-import { View, Text, TextInput, Platform } from 'react-native'
+import { View, Text, TextInput } from 'react-native'
 import { Colors } from '@/constants/Colors'
 import { RootSiblingParent } from 'react-native-root-siblings'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
@@ -176,32 +176,6 @@ const RootLayout = () => {
                         backgroundColor: Colors.primary50,
                       },
                       headerTintColor: Colors.primary600,
-                    }}
-                  />
-                  <Stack.Screen
-                    name="formsheetIOS"
-                    options={{
-                      presentation: 'formSheet',
-                      sheetAllowedDetents: 'fitToContents',
-                      sheetCornerRadius: 15,
-                      sheetGrabberVisible: false,
-                      sheetExpandsWhenScrolledToEdge: false,
-                      contentStyle: {
-                        backgroundColor: 'transparent',
-                      },
-                    }}
-                  />
-                  <Stack.Screen
-                    name="formsheetAndroid"
-                    options={{
-                      presentation: 'modal',
-                      sheetAllowedDetents: 'fitToContents',
-                      sheetCornerRadius: 15,
-                      sheetGrabberVisible: false,
-                      sheetExpandsWhenScrolledToEdge: false,
-                      contentStyle: {
-                        backgroundColor: 'transparent',
-                      },
                     }}
                   />
                 </Stack>
