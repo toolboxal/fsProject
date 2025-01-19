@@ -71,7 +71,7 @@ const SingleRecord = (prop: TProps) => {
           padding: 10,
         }}
         onPress={() => {
-          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft)
           setSelectedPerson(item)
           handleActionSheet(id)
         }}

@@ -13,15 +13,16 @@ import {
 } from 'react-native'
 import { Colors } from '@/constants/Colors'
 
-import { format, startOfMonth } from 'date-fns'
+import { format, startOfMonth, isToday } from 'date-fns'
 import { useForm, Controller } from 'react-hook-form'
 import * as Haptics from 'expo-haptics'
 import EvilIcons from '@expo/vector-icons/EvilIcons'
-import { TReport } from '@/drizzle/schema'
 import DateTimePicker from '@react-native-community/datetimepicker'
-import { date } from 'drizzle-orm/mysql-core'
+import { db } from '@/drizzle/db'
+import { Report, TReport } from '@/drizzle/schema'
+import { useQueryClient } from '@tanstack/react-query'
 
-type TFormData = Omit<TReport, 'id' | 'created_at'>
+type TFormData = Omit<TReport, 'id' | 'created_at' | 'date'>
 
 type ModalProps = {
   modalVisible: boolean
@@ -29,11 +30,12 @@ type ModalProps = {
 }
 
 const ModalForm = ({ modalVisible, setModalVisible }: ModalProps) => {
+  const queryClient = useQueryClient()
   const today = new Date()
   const [datePick, setDatePick] = useState(today)
   const [openPicker, setOpenPicker] = useState(false)
 
-  const { control, handleSubmit, reset, setValue, getValues } = useForm({
+  const { control, handleSubmit, reset, watch } = useForm({
     defaultValues: {
       date: '',
       hrs: 0,
@@ -41,10 +43,30 @@ const ModalForm = ({ modalVisible, setModalVisible }: ModalProps) => {
     },
   })
 
-  const submitPressed = (data: TFormData) => {
-    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
-    console.log(data)
+  function convertFloatToTime(floatTime: number): string {
+    const hours = Math.floor(floatTime)
+    const minutes = Math.round((floatTime - hours) * 60)
+    return `${hours}hr ${minutes}mins`
   }
+
+  const watched = watch('hrs')
+  const watchedOutput = convertFloatToTime(watched)
+
+  const submitPressed = async (data: TFormData) => {
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
+
+    await db.insert(Report).values({
+      date: datePick,
+      hrs: data.hrs,
+      bs: data.bs,
+      created_at: datePick,
+    })
+    reset()
+    setModalVisible((prev) => !prev)
+    await queryClient.invalidateQueries({ queryKey: ['reports'] })
+  }
+
+  // console.log('*********modal render*********')
 
   return (
     <Modal
@@ -72,11 +94,16 @@ const ModalForm = ({ modalVisible, setModalVisible }: ModalProps) => {
             >
               <View style={styles.dateContainer}>
                 <Text style={styles.dateTxt}>
-                  {format(datePick, 'dd MMM yyyy')}
+                  {isToday(datePick)
+                    ? 'Today'
+                    : format(datePick, 'dd MMM yyyy')}
                 </Text>
                 {Platform.OS === 'android' && (
                   <Pressable
-                    onPress={() => setOpenPicker(true)}
+                    onPress={() => {
+                      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft)
+                      setOpenPicker(true)
+                    }}
                     style={styles.dateChangeBtn}
                   >
                     <Text>Open Calendar</Text>
@@ -98,7 +125,7 @@ const ModalForm = ({ modalVisible, setModalVisible }: ModalProps) => {
                   value={datePick}
                   mode="date"
                   display="inline"
-                  accentColor={Colors.emerald300}
+                  accentColor={Colors.emerald600}
                   themeVariant="light"
                   minimumDate={startOfMonth(today)}
                   maximumDate={today}
@@ -139,11 +166,15 @@ const ModalForm = ({ modalVisible, setModalVisible }: ModalProps) => {
                       render={({ field: { value, onChange, onBlur } }) => (
                         <TextInput
                           value={value.toString()}
-                          onChangeText={onChange}
+                          onChangeText={(text) => {
+                            const numValue = parseFloat(text)
+                            if (numValue >= 24) {
+                              onChange(String(24))
+                            } else {
+                              onChange(text)
+                            }
+                          }}
                           onBlur={onBlur}
-                          autoComplete="off"
-                          autoCorrect={false}
-                          autoCapitalize="sentences"
                           selectionColor={Colors.primary700}
                           placeholder="1.75"
                           placeholderTextColor={Colors.primary300}
@@ -167,9 +198,6 @@ const ModalForm = ({ modalVisible, setModalVisible }: ModalProps) => {
                           value={value.toString()}
                           onChangeText={onChange}
                           onBlur={onBlur}
-                          autoComplete="off"
-                          autoCorrect={false}
-                          autoCapitalize="sentences"
                           selectionColor={Colors.primary700}
                           placeholder=""
                           placeholderTextColor={Colors.primary300}
@@ -194,11 +222,11 @@ const ModalForm = ({ modalVisible, setModalVisible }: ModalProps) => {
                   }}
                   onPressOut={handleSubmit(submitPressed)}
                 >
-                  <EvilIcons name="arrow-up" size={24} color="white" />
+                  <EvilIcons name="arrow-up" size={22} color="white" />
                   <Text style={styles.submitBtnTxt}>Submit</Text>
                 </Pressable>
               </View>
-              <Text style={styles.sampleTxt}>eg. 1.75 = 1h45mins</Text>
+              <Text style={styles.watchedTxt}>{watchedOutput}</Text>
             </Pressable>
           </KeyboardAvoidingView>
         </Pressable>
@@ -215,7 +243,7 @@ const styles = StyleSheet.create({
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -228,7 +256,7 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     backgroundColor: 'white',
     borderRadius: 20,
-    padding: 20,
+    padding: 18,
     width: '90%',
     maxWidth: 400,
     shadowColor: '#000',
@@ -249,8 +277,9 @@ const styles = StyleSheet.create({
   },
   dateTxt: {
     fontFamily: 'IBM-Bold',
-    fontSize: 22,
-    color: Colors.primary900,
+    fontSize: 28,
+    color: Colors.emerald600,
+    paddingLeft: 2,
   },
   dateChangeBtn: {
     justifyContent: 'center',
@@ -288,14 +317,15 @@ const styles = StyleSheet.create({
     fontFamily: 'IBM-SemiBoldItalic',
     fontSize: 20,
   },
-  sampleTxt: {
-    fontFamily: 'IBM-Regular',
-    fontSize: 14,
-    color: Colors.primary500,
+  watchedTxt: {
+    fontFamily: 'IBM-Medium',
+    fontSize: 16,
+    color: Colors.emerald500,
+    letterSpacing: 0.8,
   },
   submitBtn: {
     flexDirection: 'row',
-    // marginLeft: 'auto',
+    alignItems: 'center',
     alignSelf: 'flex-end',
     padding: 10,
     borderRadius: 5,

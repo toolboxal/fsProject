@@ -1,17 +1,57 @@
 import { useState } from 'react'
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import {
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  Pressable,
+} from 'react-native'
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import * as Haptics from 'expo-haptics'
 import { FontAwesome6 } from '@expo/vector-icons'
 import { Colors } from '@/constants/Colors'
-import ModalForm from '@/components/ReportModal'
+import ModalForm from '@/components/reportComponents/ReportModal'
+import { db } from '@/drizzle/db'
+import { Report } from '@/drizzle/schema'
+import { useQuery } from '@tanstack/react-query'
+import ReportTable from '@/components/reportComponents/reportTable'
 
 const reportPage = () => {
   const { bottom } = useSafeAreaInsets()
   const [modalVisible, setModalVisible] = useState(false)
+
+  const { data } = useQuery({
+    queryKey: ['reports'],
+    queryFn: () => {
+      const result = db.select().from(Report).all()
+      return result
+    },
+  })
+  console.log(data)
+
   return (
     <SafeAreaView style={styles.container}>
-      <Text>reportPage</Text>
+      {!data || data.length === 0 ? (
+        <Text>No data available</Text>
+      ) : (
+        <ReportTable data={data} />
+      )}
+
+      {/* :::::button to delete all data */}
+      {/* <Pressable
+        onPress={async () => {
+          await db.delete(Report).execute()
+        }}
+        style={{
+          padding: 5,
+          backgroundColor: 'red',
+          width: 100,
+          borderRadius: 15,
+        }}
+      >
+        <Text>Delete all data</Text>
+      </Pressable> */}
+
       {/* :::::button for new record :::::: */}
       <View
         style={{
@@ -61,5 +101,26 @@ const styles = StyleSheet.create({
     color: Colors.white,
     fontFamily: 'IBM-SemiBold',
     fontSize: 15,
+  },
+  table: {
+    borderWidth: 2,
+    borderColor: 'green',
+    width: '90%',
+    marginHorizontal: 'auto',
+  },
+  row: {
+    flexDirection: 'row',
+    backgroundColor: 'lightblue',
+  },
+  headerCell: {
+    padding: 5,
+    borderWidth: 1,
+    borderColor: 'black',
+    flex: 1,
+  },
+  headerTxt: {
+    color: 'black',
+    fontFamily: 'IBM-SemiBold',
+    fontSize: 20,
   },
 })

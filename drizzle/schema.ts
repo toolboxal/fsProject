@@ -20,7 +20,9 @@ export type TPerson = InferSelectModel<typeof Person>
 
 export const Report = sqliteTable('report', {
   id: integer('id').primaryKey(),
-  date: text('date'),
+  date: integer('date', { mode: 'timestamp' })
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
   hrs: real('hrs').default(0),
   bs: integer('bs').default(0),
   created_at: integer('created_at', { mode: 'timestamp' })
