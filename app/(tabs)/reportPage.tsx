@@ -1,12 +1,5 @@
 import { useState } from 'react'
-import {
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-  Pressable,
-  ScrollView,
-} from 'react-native'
+import { StyleSheet, Text, View, Pressable, ScrollView } from 'react-native'
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import * as Haptics from 'expo-haptics'
 import { FontAwesome6 } from '@expo/vector-icons'
@@ -16,9 +9,10 @@ import { db } from '@/drizzle/db'
 import { Report } from '@/drizzle/schema'
 import { useQuery } from '@tanstack/react-query'
 import ReportTable from '@/components/reportComponents/reportTable'
+import { Tabs } from 'expo-router'
 
 const reportPage = () => {
-  const { bottom } = useSafeAreaInsets()
+  const { bottom, top } = useSafeAreaInsets()
   const [modalVisible, setModalVisible] = useState(false)
 
   const { data } = useQuery({
@@ -28,17 +22,58 @@ const reportPage = () => {
       return result
     },
   })
-  console.log(data)
+
+  // Calculate totals
+  const totals = data?.reduce(
+    (acc, curr) => ({
+      bs: acc.bs + (curr.bs || 0),
+      hrs: acc.hrs + (curr.hrs || 0),
+    }),
+    { bs: 0, hrs: 0 }
+  ) || { bs: 0, hrs: 0 }
 
   return (
     <SafeAreaView style={[styles.container]} edges={['bottom']}>
+      <Tabs.Screen
+        options={{
+          headerTitle: '',
+          headerStyle: {
+            backgroundColor: Colors.primary50,
+            height: top + 45,
+          },
+          headerLeft: () => (
+            <Pressable
+              style={styles.headerLeftBtn}
+              onPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+                setModalVisible((prev) => !prev)
+              }}
+            >
+              <FontAwesome6 name="add" size={13} color={Colors.primary900} />
+              <Text style={styles.btnText}>New Report</Text>
+            </Pressable>
+          ),
+        }}
+      />
       <ScrollView
         contentContainerStyle={{
-          paddingBottom: bottom + 30,
+          paddingBottom: bottom + 75,
           paddingTop: 10,
-          backgroundColor: 'pink',
+          backgroundColor: Colors.primary50,
         }}
+        showsVerticalScrollIndicator={false}
+        stickyHeaderIndices={[0]}
       >
+        <View style={styles.stickyHeader}>
+          <View style={styles.totalRow}>
+            <Text style={styles.totalLabel}>Total:</Text>
+            <View style={styles.totalValues}>
+              <Text style={styles.totalText}>BS: {totals.bs}</Text>
+              <Text style={styles.totalText}>Hrs: {totals.hrs}</Text>
+            </View>
+          </View>
+        </View>
+
         {!data || data.length === 0 ? (
           <Text>No data available</Text>
         ) : (
@@ -61,28 +96,6 @@ const reportPage = () => {
         <Text>Delete all data</Text>
       </Pressable> */}
 
-      {/* :::::button for new record :::::: */}
-      <View
-        style={{
-          position: 'absolute',
-          bottom: bottom + 75 + 25,
-          right: 15,
-          gap: 15,
-        }}
-      >
-        <TouchableOpacity
-          style={styles.addBtn}
-          onPress={() => {
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
-            setModalVisible((prev) => !prev)
-          }}
-          activeOpacity={0.8}
-        >
-          <FontAwesome6 name="add" size={13} color={Colors.primary50} />
-          <Text style={styles.btnText}>New Report</Text>
-        </TouchableOpacity>
-      </View>
-
       <ModalForm
         setModalVisible={setModalVisible}
         modalVisible={modalVisible}
@@ -94,21 +107,44 @@ const reportPage = () => {
 export default reportPage
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  addBtn: {
+  btnText: {
+    color: Colors.emerald800,
+    fontFamily: 'IBM-SemiBold',
+    fontSize: 18,
+  },
+  headerLeftBtn: {
     flexDirection: 'row',
     gap: 3,
-    backgroundColor: Colors.emerald950,
-    padding: 13,
-    borderRadius: 50,
-    shadowColor: '#000',
-    shadowOffset: { width: 2, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 5,
-    elevation: 5,
+    alignItems: 'center',
+    marginLeft: 10,
+    padding: 5,
   },
-  btnText: {
-    color: Colors.white,
-    fontFamily: 'IBM-SemiBold',
-    fontSize: 15,
+  stickyHeader: {
+    backgroundColor: Colors.primary100,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    marginBottom: 15,
+  },
+  totalRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: Colors.emerald300,
+    padding: 10,
+    borderRadius: 8,
+  },
+  totalLabel: {
+    fontFamily: 'IBM-Bold',
+    fontSize: 18,
+    color: Colors.primary800,
+  },
+  totalValues: {
+    flexDirection: 'row',
+    gap: 22,
+  },
+  totalText: {
+    fontFamily: 'IBM-Bold',
+    fontSize: 18,
+    color: Colors.primary800,
   },
 })

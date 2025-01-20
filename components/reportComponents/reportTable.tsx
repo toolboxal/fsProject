@@ -9,6 +9,20 @@ import {
 } from '@tanstack/react-table'
 import { TReport } from '@/drizzle/schema'
 import { format } from 'date-fns'
+import { Colors } from '@/constants/Colors'
+
+function convertFloatToTime(floatTime: number): string {
+  const hours = Math.floor(floatTime)
+  const minutes = Math.round((floatTime - hours) * 60)
+  if (hours === 0 && minutes !== 0) {
+    return `${minutes}m`
+  } else if (hours === 0 && minutes === 0) {
+    return '--'
+  } else if (hours !== 0 && minutes === 0) {
+    return `${hours}h`
+  }
+  return `${hours}h ${minutes}m`
+}
 
 const columnHelper = createColumnHelper<TReport>()
 
@@ -17,20 +31,24 @@ const columns = [
     header: () => <Text style={styles.headerTxt}>Date</Text>,
     cell: (info) => {
       const date = info.getValue()
-      const formattedDate = format(date!, 'dd MMM yyyy')
-      return <Text>{formattedDate}</Text>
+      const formattedDate = format(date!, 'dd MMM')
+      return <Text style={styles.cellTxt}>{formattedDate}</Text>
     },
     sortingFn: 'datetime',
     getGroupingValue: (row) => format(row.date!, 'yyyy-MM'),
   }),
   columnHelper.accessor('bs', {
     header: () => <Text style={styles.headerTxt}>BS</Text>,
-    cell: (info) => <Text>{info.getValue()}</Text>,
+    cell: (info) => <Text style={styles.cellTxt}>{info.getValue()}</Text>,
     aggregationFn: 'sum',
   }),
   columnHelper.accessor('hrs', {
     header: () => <Text style={styles.headerTxt}>Hrs</Text>,
-    cell: (info) => <Text>{info.getValue()}</Text>,
+    cell: (info) => (
+      <Text style={styles.cellTxt}>
+        {convertFloatToTime(info.getValue() || 0)}
+      </Text>
+    ),
     aggregationFn: 'sum',
   }),
 ]
@@ -78,7 +96,7 @@ const ReportTable = ({ data }: TProps) => {
                 {headerGroup.headers.map((header, index) => (
                   <View
                     key={header.id}
-                    style={[styles.headerCell, { flex: index === 0 ? 2 : 1 }]}
+                    style={[styles.headerCell, { flex: 1 }]}
                   >
                     {flexRender(
                       header.column.columnDef.header,
@@ -99,10 +117,7 @@ const ReportTable = ({ data }: TProps) => {
               .map((row) => (
                 <View key={row.id} style={styles.row}>
                   {row.getVisibleCells().map((cell, index) => (
-                    <View
-                      key={cell.id}
-                      style={[styles.cell, { flex: index === 0 ? 2 : 1 }]}
-                    >
+                    <View key={cell.id} style={[styles.cell, { flex: 1 }]}>
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()
@@ -114,7 +129,7 @@ const ReportTable = ({ data }: TProps) => {
 
             {/* Subtotal Row */}
             <View style={styles.subtotalRow}>
-              <View style={[styles.cell, { flex: 2 }]}>
+              <View style={[styles.cell, { flex: 1 }]}>
                 <Text style={styles.subtotalText}>Subtotal</Text>
               </View>
               <View style={[styles.cell, { flex: 1 }]}>
@@ -124,7 +139,7 @@ const ReportTable = ({ data }: TProps) => {
               </View>
               <View style={[styles.cell, { flex: 1 }]}>
                 <Text style={styles.subtotalText}>
-                  {monthGroup.getValue('hrs')}
+                  {convertFloatToTime(monthGroup.getValue('hrs'))}
                 </Text>
               </View>
             </View>
@@ -145,46 +160,56 @@ const styles = StyleSheet.create({
   monthContainer: {
     width: '90%',
     marginHorizontal: 'auto',
-    marginBottom: 20,
+    // marginBottom: 20,
   },
   monthHeader: {
-    backgroundColor: '#f0f0f0',
+    backgroundColor: Colors.primary200,
     padding: 10,
+    paddingBottom: 2,
     borderTopLeftRadius: 8,
     borderTopRightRadius: 8,
   },
   monthTitle: {
+    fontFamily: 'IBM-Bold',
     fontSize: 16,
     fontWeight: 'bold',
   },
   table: {
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderBottomLeftRadius: 8,
-    borderBottomRightRadius: 8,
+    // borderWidth: StyleSheet.hairlineWidth,
+    // borderColor: '#ddd',
+    // borderBottomLeftRadius: 8,
+    // borderBottomRightRadius: 8,
   },
   row: {
     flexDirection: 'row',
     borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
+    borderBottomColor: Colors.primary200,
   },
   headerCell: {
     padding: 10,
-    backgroundColor: '#f8f8f8',
+    backgroundColor: Colors.primary200,
   },
   cell: {
     padding: 10,
   },
+  cellTxt: {
+    fontFamily: 'IBM-Regular',
+    fontSize: 14,
+  },
   headerTxt: {
-    fontWeight: 'bold',
+    fontFamily: 'IBM-SemiBold',
+    fontSize: 16,
   },
   subtotalRow: {
     flexDirection: 'row',
-    backgroundColor: '#f5f5f5',
+    backgroundColor: Colors.primary200,
     borderTopWidth: 1,
-    borderTopColor: '#ddd',
+    borderTopColor: Colors.primary500,
+    borderBottomLeftRadius: 8,
+    borderBottomRightRadius: 8,
   },
   subtotalText: {
-    fontWeight: 'bold',
+    fontFamily: 'IBM-SemiBold',
+    fontSize: 15,
   },
 })

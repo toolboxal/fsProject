@@ -17,7 +17,7 @@ const TabsLayout = () => {
         },
       }}
       screenOptions={{
-        headerShown: true,
+        headerShown: false,
         tabBarShowLabel: true,
         tabBarLabelStyle: {
           fontFamily: 'IBM-SemiBold',
@@ -36,7 +36,6 @@ const TabsLayout = () => {
         name="index"
         options={{
           title: 'Map',
-          headerShown: false,
           tabBarIcon: ({ focused }) => (
             <FontAwesome5
               size={24}
@@ -52,7 +51,6 @@ const TabsLayout = () => {
         name="recordsPage"
         options={{
           title: 'Records',
-          headerShown: false,
           tabBarIcon: ({ focused }) => (
             <FontAwesome5
               size={24}
@@ -68,6 +66,7 @@ const TabsLayout = () => {
         name="reportPage"
         options={{
           title: 'Report',
+          headerShown: true,
           tabBarIcon: ({ focused }) => (
             <FontAwesome
               name="list-alt"
