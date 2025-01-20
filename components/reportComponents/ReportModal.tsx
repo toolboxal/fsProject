@@ -13,7 +13,7 @@ import {
 } from 'react-native'
 import { Colors } from '@/constants/Colors'
 
-import { format, startOfMonth, isToday } from 'date-fns'
+import { format, startOfMonth, isToday, isSameDay } from 'date-fns'
 import { useForm, Controller } from 'react-hook-form'
 import * as Haptics from 'expo-haptics'
 import EvilIcons from '@expo/vector-icons/EvilIcons'
@@ -66,11 +66,11 @@ const ModalForm = ({ modalVisible, setModalVisible }: ModalProps) => {
     await queryClient.invalidateQueries({ queryKey: ['reports'] })
   }
 
-  // console.log('*********modal render*********')
+  console.log('*********modal render*********')
 
   return (
     <Modal
-      animationType="fade"
+      animationType="slide"
       transparent={true}
       visible={modalVisible}
       onRequestClose={() => setModalVisible(false)}
@@ -128,13 +128,12 @@ const ModalForm = ({ modalVisible, setModalVisible }: ModalProps) => {
                   accentColor={Colors.emerald600}
                   themeVariant="light"
                   minimumDate={startOfMonth(today)}
-                  maximumDate={today}
+                  // maximumDate={today}
                   onChange={(event, date) => {
                     setDatePick(date || new Date())
                   }}
                   style={{
                     transform: [{ scale: 0.88 }],
-
                     padding: 0,
                     margin: -20,
                     marginTop: -27,
@@ -165,7 +164,7 @@ const ModalForm = ({ modalVisible, setModalVisible }: ModalProps) => {
                       name="hrs"
                       render={({ field: { value, onChange, onBlur } }) => (
                         <TextInput
-                          value={value.toString()}
+                          value={value === 0 ? '' : value.toString()}
                           onChangeText={(text) => {
                             const numValue = parseFloat(text)
                             if (numValue >= 24) {
@@ -195,8 +194,16 @@ const ModalForm = ({ modalVisible, setModalVisible }: ModalProps) => {
                       name="bs"
                       render={({ field: { value, onChange, onBlur } }) => (
                         <TextInput
-                          value={value.toString()}
-                          onChangeText={onChange}
+                          value={value === 0 ? '' : value.toString()}
+                          onChangeText={(text) => {
+                            // Only allow integer values
+                            const numValue = parseInt(text)
+                            if (!isNaN(numValue)) {
+                              onChange(String(numValue))
+                            } else if (text === '') {
+                              onChange('')
+                            }
+                          }}
                           onBlur={onBlur}
                           selectionColor={Colors.primary700}
                           placeholder=""
@@ -215,7 +222,7 @@ const ModalForm = ({ modalVisible, setModalVisible }: ModalProps) => {
                       styles.submitBtn,
                       {
                         backgroundColor: pressed
-                          ? Colors.primary950
+                          ? Colors.primary700
                           : Colors.primary800,
                       },
                     ]
@@ -243,7 +250,7 @@ const styles = StyleSheet.create({
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    backgroundColor: 'rgba(100, 100, 100, 0.9)',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -277,7 +284,7 @@ const styles = StyleSheet.create({
   },
   dateTxt: {
     fontFamily: 'IBM-Bold',
-    fontSize: 28,
+    fontSize: 26,
     color: Colors.emerald600,
     paddingLeft: 2,
   },
@@ -317,12 +324,14 @@ const styles = StyleSheet.create({
     fontFamily: 'IBM-SemiBoldItalic',
     fontSize: 20,
   },
+
   watchedTxt: {
     fontFamily: 'IBM-Medium',
     fontSize: 16,
     color: Colors.emerald500,
     letterSpacing: 0.8,
   },
+
   submitBtn: {
     flexDirection: 'row',
     alignItems: 'center',

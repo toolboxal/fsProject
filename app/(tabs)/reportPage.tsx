@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   View,
   Pressable,
+  ScrollView,
 } from 'react-native'
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import * as Haptics from 'expo-haptics'
@@ -30,12 +31,20 @@ const reportPage = () => {
   console.log(data)
 
   return (
-    <SafeAreaView style={styles.container}>
-      {!data || data.length === 0 ? (
-        <Text>No data available</Text>
-      ) : (
-        <ReportTable data={data} />
-      )}
+    <SafeAreaView style={[styles.container]} edges={['bottom']}>
+      <ScrollView
+        contentContainerStyle={{
+          paddingBottom: bottom + 30,
+          paddingTop: 10,
+          backgroundColor: 'pink',
+        }}
+      >
+        {!data || data.length === 0 ? (
+          <Text>No data available</Text>
+        ) : (
+          <ReportTable data={data} />
+        )}
+      </ScrollView>
 
       {/* :::::button to delete all data */}
       {/* <Pressable
@@ -101,26 +110,5 @@ const styles = StyleSheet.create({
     color: Colors.white,
     fontFamily: 'IBM-SemiBold',
     fontSize: 15,
-  },
-  table: {
-    borderWidth: 2,
-    borderColor: 'green',
-    width: '90%',
-    marginHorizontal: 'auto',
-  },
-  row: {
-    flexDirection: 'row',
-    backgroundColor: 'lightblue',
-  },
-  headerCell: {
-    padding: 5,
-    borderWidth: 1,
-    borderColor: 'black',
-    flex: 1,
-  },
-  headerTxt: {
-    color: 'black',
-    fontFamily: 'IBM-SemiBold',
-    fontSize: 20,
   },
 })
