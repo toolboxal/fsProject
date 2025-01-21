@@ -95,7 +95,9 @@ const ReportTable = ({ data }: TProps) => {
   })
 
   // Group rows by month
-  const groupedRows = table.getGroupedRowModel().rows
+  const groupedRows = table
+    .getGroupedRowModel()
+    .rows.sort((a, b) => String(a.id).localeCompare(String(b.id)))
 
   const { showActionSheetWithOptions } = useActionSheet()
 
