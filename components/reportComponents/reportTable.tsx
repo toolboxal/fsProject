@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from 'react-native'
+import { Pressable, StyleSheet, Text, View } from 'react-native'
 import {
   useReactTable,
   createColumnHelper,
@@ -7,9 +7,14 @@ import {
   getSortedRowModel,
   getGroupedRowModel,
 } from '@tanstack/react-table'
-import { TReport } from '@/drizzle/schema'
+import { db } from '@/drizzle/db'
+import { eq } from 'drizzle-orm'
+import { Report, TReport } from '@/drizzle/schema'
+import { useQueryClient } from '@tanstack/react-query'
 import { format } from 'date-fns'
+import { useActionSheet } from '@expo/react-native-action-sheet'
 import { Colors } from '@/constants/Colors'
+import FontAwesome6 from '@expo/vector-icons/FontAwesome6'
 
 function convertFloatToTime(floatTime: number): string {
   const hours = Math.floor(floatTime)
@@ -51,6 +56,18 @@ const columns = [
     ),
     aggregationFn: 'sum',
   }),
+  columnHelper.display({
+    id: 'actions',
+    cell: (info) => (
+      <View>
+        <FontAwesome6
+          name="ellipsis-vertical"
+          size={18}
+          color={Colors.primary300}
+        />
+      </View>
+    ),
+  }),
 ]
 
 type TProps = {
@@ -58,6 +75,7 @@ type TProps = {
 }
 
 const ReportTable = ({ data }: TProps) => {
+  const queryClient = useQueryClient()
   const table = useReactTable({
     columns,
     data: data || [],
@@ -79,6 +97,40 @@ const ReportTable = ({ data }: TProps) => {
   // Group rows by month
   const groupedRows = table.getGroupedRowModel().rows
 
+  const { showActionSheetWithOptions } = useActionSheet()
+
+  const handleActionSheet = (rowId: number) => {
+    const options = ['Delete', 'Edit', 'Cancel']
+    const destructiveButtonIndex = 0
+    const cancelButtonIndex = 2
+    showActionSheetWithOptions(
+      {
+        options,
+        destructiveButtonIndex,
+        cancelButtonIndex,
+      },
+      (selectedIndex: number | undefined) => {
+        switch (selectedIndex) {
+          case destructiveButtonIndex:
+            handleDeleteSingleReport(rowId)
+            break
+          case 1:
+            console.log('to edit')
+
+            break
+          case cancelButtonIndex:
+            console.log('canceled')
+        }
+      }
+    )
+  }
+
+  const handleDeleteSingleReport = async (rowId: number) => {
+    console.log('to delete')
+    await db.delete(Report).where(eq(Report.id, rowId))
+    queryClient.invalidateQueries({ queryKey: ['reports'] })
+  }
+
   return (
     <View style={styles.container}>
       {groupedRows.map((monthGroup) => (
@@ -96,7 +148,7 @@ const ReportTable = ({ data }: TProps) => {
                 {headerGroup.headers.map((header, index) => (
                   <View
                     key={header.id}
-                    style={[styles.headerCell, { flex: 1 }]}
+                    style={[styles.headerCell, { flex: index === 3 ? 0 : 1 }]}
                   >
                     {flexRender(
                       header.column.columnDef.header,
@@ -115,16 +167,35 @@ const ReportTable = ({ data }: TProps) => {
                 return dateA.getTime() - dateB.getTime()
               })
               .map((row) => (
-                <View key={row.id} style={styles.row}>
+                <Pressable
+                  key={row.id}
+                  style={({ pressed }) => {
+                    return [
+                      styles.row,
+                      {
+                        backgroundColor: pressed
+                          ? Colors.primary100
+                          : Colors.primary50,
+                      },
+                    ]
+                  }}
+                  onPressIn={() => {
+                    const rowId = row.original.id
+                    handleActionSheet(rowId)
+                  }}
+                >
                   {row.getVisibleCells().map((cell, index) => (
-                    <View key={cell.id} style={[styles.cell, { flex: 1 }]}>
+                    <View
+                      key={cell.id}
+                      style={[styles.cell, { flex: index === 3 ? 0 : 1 }]}
+                    >
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()
                       )}
                     </View>
                   ))}
-                </View>
+                </Pressable>
               ))}
 
             {/* Subtotal Row */}
@@ -142,6 +213,7 @@ const ReportTable = ({ data }: TProps) => {
                   {convertFloatToTime(monthGroup.getValue('hrs'))}
                 </Text>
               </View>
+              <View style={{ flex: 0.25 }}></View>
             </View>
           </View>
         </View>

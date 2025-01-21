@@ -147,7 +147,7 @@ const ModalForm = ({ modalVisible, setModalVisible }: ModalProps) => {
                   display="inline"
                   themeVariant="light"
                   minimumDate={startOfMonth(today)}
-                  maximumDate={today}
+                  // maximumDate={today}
                   onChange={(event, date) => {
                     setOpenPicker(false)
                     setDatePick(date || new Date())

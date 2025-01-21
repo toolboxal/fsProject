@@ -120,7 +120,7 @@ const styles = StyleSheet.create({
     padding: 5,
   },
   stickyHeader: {
-    backgroundColor: Colors.primary100,
+    backgroundColor: Colors.primary50,
     paddingVertical: 8,
     paddingHorizontal: 16,
     marginBottom: 15,
