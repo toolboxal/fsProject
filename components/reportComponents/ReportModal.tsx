@@ -127,7 +127,7 @@ const ModalForm = ({ modalVisible, setModalVisible }: ModalProps) => {
                   display="inline"
                   accentColor={Colors.emerald600}
                   themeVariant="light"
-                  minimumDate={startOfMonth(today)}
+                  // minimumDate={startOfMonth(today)}
                   // maximumDate={today}
                   onChange={(event, date) => {
                     setDatePick(date || new Date())

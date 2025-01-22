@@ -101,12 +101,15 @@ const ReportTable = ({ data }: TProps) => {
 
   const { showActionSheetWithOptions } = useActionSheet()
 
-  const handleActionSheet = (rowId: number) => {
+  const handleActionSheet = (rowId: number, rowDate: Date) => {
+    const title = format(rowDate, 'dd MMM yyyy')
     const options = ['Delete', 'Edit', 'Cancel']
     const destructiveButtonIndex = 0
     const cancelButtonIndex = 2
     showActionSheetWithOptions(
       {
+        title,
+        userInterfaceStyle: 'dark',
         options,
         destructiveButtonIndex,
         cancelButtonIndex,
@@ -181,9 +184,9 @@ const ReportTable = ({ data }: TProps) => {
                       },
                     ]
                   }}
-                  onPressIn={() => {
-                    const rowId = row.original.id
-                    handleActionSheet(rowId)
+                  onPress={() => {
+                    const { id: rowId, date: rowDate } = row.original
+                    handleActionSheet(rowId, rowDate)
                   }}
                 >
                   {row.getVisibleCells().map((cell, index) => (
