@@ -8,6 +8,7 @@ import { ActionSheetProvider } from '@expo/react-native-action-sheet'
 import * as Font from 'expo-font'
 import * as SplashScreen from 'expo-splash-screen'
 import { PaperProvider } from 'react-native-paper'
+import { Toaster } from 'sonner-native'
 
 import { migrate } from 'drizzle-orm/expo-sqlite/migrator'
 import migrations from '../drizzle/migrations/migrations'
@@ -56,6 +57,7 @@ const RootLayout = () => {
           'Lora-Regular': require('../assets/fonts/Lora-Regular.ttf'),
           'Lora-Italic': require('../assets/fonts/Lora-Italic.ttf'),
           'Lora-Bold': require('../assets/fonts/Lora-Bold.ttf'),
+          'Lora-SemiBoldItalic': require('../assets/fonts/Lora-SemiBoldItalic.ttf'),
         })
         await migrate(db, migrations)
 
@@ -182,6 +184,7 @@ const RootLayout = () => {
                     }}
                   />
                 </Stack>
+                <Toaster position="top-center" richColors />
               </View>
             </PaperProvider>
           </RootSiblingParent>

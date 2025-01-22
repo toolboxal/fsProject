@@ -1,5 +1,12 @@
 import { useState, useEffect } from 'react'
-import { StyleSheet, Text, View, Pressable, ScrollView } from 'react-native'
+import {
+  StyleSheet,
+  Text,
+  View,
+  Pressable,
+  ScrollView,
+  Platform,
+} from 'react-native'
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import * as Haptics from 'expo-haptics'
 import { FontAwesome6 } from '@expo/vector-icons'
@@ -11,8 +18,9 @@ import { useQuery } from '@tanstack/react-query'
 import ReportTable from '@/components/reportComponents/reportTable'
 import { Tabs } from 'expo-router'
 import SvcYrDropdown from '@/components/reportComponents/SvcYrDropdown'
-import { isAfter, isBefore } from 'date-fns'
+import { isAfter, isBefore, formatDistanceStrict } from 'date-fns'
 import { cleanupOldReports } from '@/utils/cleanupOldReports'
+import convertFloatToTime from '@/utils/convertFloatToTime'
 
 const reportPage = () => {
   const { bottom, top } = useSafeAreaInsets()
@@ -21,9 +29,10 @@ const reportPage = () => {
   useEffect(() => {
     cleanupOldReports()
   }, [])
+  console.log('report page')
 
   const currentSvcYr = () => {
-    const now = new Date('2024-10-15')
+    const now = new Date()
     if (isBefore(now, new Date(now.getFullYear(), 8, 1))) {
       return now.getFullYear()
     } else {
@@ -56,7 +65,7 @@ const reportPage = () => {
     }) || []
 
   // Calculate totals
-  const totals = data?.reduce(
+  const totals = filteredData?.reduce(
     (acc, curr) => ({
       bs: acc.bs + (curr.bs || 0),
       hrs: acc.hrs + (curr.hrs || 0),
@@ -82,14 +91,24 @@ const reportPage = () => {
               }}
             >
               <FontAwesome6 name="add" size={13} color={Colors.primary900} />
-              <Text style={styles.btnText}>New Report</Text>
+              <Text style={styles.btnTextLeft}>New Report</Text>
+            </Pressable>
+          ),
+          headerRight: () => (
+            <Pressable
+              style={styles.headerRightBtn}
+              onPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+              }}
+            >
+              <Text style={styles.btnTextRight}>Options</Text>
             </Pressable>
           ),
         }}
       />
       <ScrollView
         contentContainerStyle={{
-          paddingBottom: bottom + 75,
+          paddingBottom: Platform.OS === 'android' ? bottom + 100 : bottom + 75,
           paddingTop: 10,
           backgroundColor: Colors.primary50,
         }}
@@ -98,10 +117,31 @@ const reportPage = () => {
       >
         <View style={styles.stickyHeader}>
           <View style={styles.totalRow}>
-            <Text style={styles.totalLabel}>Total:</Text>
             <View style={styles.totalValues}>
-              <Text style={styles.totalText}>BS: {totals.bs}</Text>
-              <Text style={styles.totalText}>Hrs: {totals.hrs}</Text>
+              <Text style={styles.totalLabel}>Total:</Text>
+              <Text style={styles.totalText}>
+                {convertFloatToTime(totals.hrs)}
+              </Text>
+            </View>
+            <View style={[styles.totalValues, { alignItems: 'flex-end' }]}>
+              <Text style={styles.totalLabel}>Remaining hours:</Text>
+              <Text style={styles.remainingHrs}>
+                {600 - totals.hrs <= 0
+                  ? '0h 0m'
+                  : convertFloatToTime(600 - totals.hrs)}
+              </Text>
+              <Text style={styles.totalLabel}>Days to new Svc Year:</Text>
+              <Text style={styles.remainingHrs}>
+                {selectedYr === svcYrs.previousYr
+                  ? '0 days'
+                  : formatDistanceStrict(
+                      new Date(),
+                      new Date(selectedYr, 8, 1),
+                      {
+                        unit: 'day',
+                      }
+                    )}
+              </Text>
             </View>
           </View>
         </View>
@@ -146,10 +186,15 @@ const reportPage = () => {
 
 export default reportPage
 const styles = StyleSheet.create({
-  container: { flex: 1 },
-  btnText: {
+  container: { flex: 1, backgroundColor: Colors.primary50 },
+  btnTextLeft: {
     color: Colors.emerald800,
-    fontFamily: 'IBM-SemiBold',
+    fontFamily: 'IBM-Medium',
+    fontSize: 18,
+  },
+  btnTextRight: {
+    color: Colors.emerald800,
+    fontFamily: 'IBM-Medium',
     fontSize: 18,
   },
   headerLeftBtn: {
@@ -157,6 +202,10 @@ const styles = StyleSheet.create({
     gap: 3,
     alignItems: 'center',
     marginLeft: 10,
+    padding: 5,
+  },
+  headerRightBtn: {
+    marginRight: 15,
     padding: 5,
   },
   stickyHeader: {
@@ -169,23 +218,37 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: Colors.emerald300,
+    backgroundColor: Colors.emerald200,
     padding: 10,
     borderRadius: 8,
-  },
-  totalLabel: {
-    fontFamily: 'IBM-Bold',
-    fontSize: 18,
-    color: Colors.primary800,
+    shadowColor: Colors.primary500,
+    shadowOffset: { width: -1, height: 2 },
+    shadowOpacity: 1,
+    shadowRadius: 1,
+    elevation: 5,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: Colors.primary300,
   },
   totalValues: {
-    flexDirection: 'row',
-    gap: 22,
+    flexDirection: 'column',
+    flex: 1,
+    // backgroundColor: Colors.primary400,
+    gap: 3,
+  },
+  totalLabel: {
+    fontFamily: 'Lora-Regular',
+    fontSize: 13,
+    color: Colors.emerald900,
   },
   totalText: {
-    fontFamily: 'IBM-Bold',
-    fontSize: 18,
-    color: Colors.primary800,
+    fontFamily: 'Lora-SemiBoldItalic',
+    fontSize: 35,
+    color: Colors.emerald900,
+  },
+  remainingHrs: {
+    fontFamily: 'Lora-SemiBoldItalic',
+    fontSize: 20,
+    color: Colors.emerald900,
   },
   dropDownContainer: {
     width: '90%',

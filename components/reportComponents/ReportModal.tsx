@@ -13,14 +13,16 @@ import {
 } from 'react-native'
 import { Colors } from '@/constants/Colors'
 
-import { format, startOfMonth, isToday, isSameDay } from 'date-fns'
+import { format, isToday } from 'date-fns'
 import { useForm, Controller } from 'react-hook-form'
 import * as Haptics from 'expo-haptics'
-import EvilIcons from '@expo/vector-icons/EvilIcons'
 import DateTimePicker from '@react-native-community/datetimepicker'
 import { db } from '@/drizzle/db'
 import { Report, TReport } from '@/drizzle/schema'
 import { useQueryClient } from '@tanstack/react-query'
+import { toast } from 'sonner-native'
+import EvilIcons from '@expo/vector-icons/EvilIcons'
+import AntDesign from '@expo/vector-icons/AntDesign'
 
 type TFormData = Omit<TReport, 'id' | 'created_at' | 'date'>
 
@@ -64,6 +66,34 @@ const ModalForm = ({ modalVisible, setModalVisible }: ModalProps) => {
     reset()
     setModalVisible((prev) => !prev)
     await queryClient.invalidateQueries({ queryKey: ['reports'] })
+    toast.custom(
+      <View
+        style={{
+          alignSelf: 'center',
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 5,
+          backgroundColor: Colors.black,
+          width: 240,
+          paddingHorizontal: 8,
+          paddingVertical: 10,
+          borderRadius: 8,
+        }}
+      >
+        <AntDesign name="checkcircle" size={17} color={Colors.emerald300} />
+        <Text
+          style={{
+            fontFamily: 'IBM-Regular',
+            fontSize: 15,
+            color: Colors.white,
+          }}
+        >{`Record for ${format(datePick, 'dd MMM')} created`}</Text>
+      </View>,
+      {
+        duration: 5000,
+      }
+    )
   }
 
   console.log('*********modal render*********')
@@ -146,7 +176,7 @@ const ModalForm = ({ modalVisible, setModalVisible }: ModalProps) => {
                   mode="date"
                   display="inline"
                   themeVariant="light"
-                  minimumDate={startOfMonth(today)}
+                  // minimumDate={startOfMonth(today)}
                   // maximumDate={today}
                   onChange={(event, date) => {
                     setOpenPicker(false)
@@ -167,6 +197,9 @@ const ModalForm = ({ modalVisible, setModalVisible }: ModalProps) => {
                           value={value === 0 ? '' : value.toString()}
                           onChangeText={(text) => {
                             const numValue = parseFloat(text)
+                            if (text.includes(',')) {
+                              return
+                            }
                             if (numValue >= 24) {
                               onChange(String(24))
                             } else {

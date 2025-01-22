@@ -14,20 +14,10 @@ import { useQueryClient } from '@tanstack/react-query'
 import { format } from 'date-fns'
 import { useActionSheet } from '@expo/react-native-action-sheet'
 import { Colors } from '@/constants/Colors'
+import { toast } from 'sonner-native'
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6'
-
-function convertFloatToTime(floatTime: number): string {
-  const hours = Math.floor(floatTime)
-  const minutes = Math.round((floatTime - hours) * 60)
-  if (hours === 0 && minutes !== 0) {
-    return `${minutes}m`
-  } else if (hours === 0 && minutes === 0) {
-    return '--'
-  } else if (hours !== 0 && minutes === 0) {
-    return `${hours}h`
-  }
-  return `${hours}h ${minutes}m`
-}
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
+import convertFloatToTime from '@/utils/convertFloatToTime'
 
 const columnHelper = createColumnHelper<TReport>()
 
@@ -131,9 +121,42 @@ const ReportTable = ({ data }: TProps) => {
   }
 
   const handleDeleteSingleReport = async (rowId: number) => {
-    console.log('to delete')
     await db.delete(Report).where(eq(Report.id, rowId))
     queryClient.invalidateQueries({ queryKey: ['reports'] })
+    toast.custom(
+      <View
+        style={{
+          alignSelf: 'center',
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 4,
+          backgroundColor: Colors.black,
+          width: 240,
+          paddingHorizontal: 8,
+          paddingVertical: 10,
+          borderRadius: 8,
+        }}
+      >
+        <MaterialCommunityIcons
+          name="delete"
+          size={23}
+          color={Colors.rose500}
+        />
+        <Text
+          style={{
+            fontFamily: 'IBM-Regular',
+            fontSize: 15,
+            color: Colors.white,
+          }}
+        >
+          Report deleted
+        </Text>
+      </View>,
+      {
+        duration: 3000,
+      }
+    )
   }
 
   return (

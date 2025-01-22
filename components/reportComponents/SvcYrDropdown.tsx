@@ -21,7 +21,7 @@ const SvcYrDropdown = ({ selectedYr, setItem, svcYrs }: Props) => {
             <Entypo name="chevron-down" size={20} color="black" />
           </View>
         </DropdownMenu.Trigger>
-        <DropdownMenu.Content align="center">
+        <DropdownMenu.Content>
           <DropdownMenu.Item
             key="previous"
             onSelect={() => setItem(svcYrs.previousYr)}
@@ -45,14 +45,16 @@ const SvcYrDropdown = ({ selectedYr, setItem, svcYrs }: Props) => {
 export default SvcYrDropdown
 const styles = StyleSheet.create({
   trigger: {
-    backgroundColor: Colors.primary300,
+    backgroundColor: Colors.emerald50,
     alignSelf: 'flex-start',
     borderRadius: 5,
-    shadowColor: '#292524',
-    shadowOffset: { width: -3, height: 3 },
-    shadowOpacity: 0.4,
+    shadowColor: Colors.primary500,
+    shadowOffset: { width: -1, height: 1 },
+    shadowOpacity: 1,
     shadowRadius: 1,
     elevation: 5,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: Colors.primary300,
   },
   triggerContainer: {
     flexDirection: 'row',
