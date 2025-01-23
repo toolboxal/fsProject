@@ -4,7 +4,6 @@ import { View, Text, TextInput, Pressable } from 'react-native'
 import { useRouter } from 'expo-router'
 
 import { Colors } from '@/constants/Colors'
-import { RootSiblingParent } from 'react-native-root-siblings'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { ActionSheetProvider } from '@expo/react-native-action-sheet'
 import * as Font from 'expo-font'
@@ -112,68 +111,66 @@ const RootLayout = () => {
     <QueryClientProvider client={queryClient}>
       <GestureHandlerRootView>
         <ActionSheetProvider>
-          <RootSiblingParent>
-            <PaperProvider theme={theme}>
-              <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
-                <Stack screenOptions={{ headerShown: false }}>
-                  <Stack.Screen name="(tabs)" />
-                  <Stack.Screen
-                    name="formPage"
-                    options={{
-                      presentation: 'card',
-                      // gestureEnabled: false,
-                      headerShown: true,
-                      headerTitle: 'Create New Record',
-                      headerTitleStyle: {
-                        fontFamily: 'IBM-Regular',
-                        color: Colors.primary600,
-                        fontSize: 22,
-                      },
-                      headerBackTitle: 'Back',
-                      headerBackTitleStyle: {
-                        fontFamily: 'Roboto-Regular',
-                        fontSize: 18,
-                      },
-                      headerStyle: {
-                        backgroundColor: Colors.primary50,
-                      },
-                      headerTintColor: Colors.primary600,
-                    }}
-                  />
-                  <Stack.Screen
-                    name="editPage"
-                    options={{
-                      presentation: 'card',
-                      // gestureEnabled: false,
-                      headerShown: true,
-                      headerTitle: 'Edit Record',
-                      headerTitleStyle: {
-                        fontFamily: 'IBM-Regular',
-                        color: Colors.primary600,
-                        fontSize: 22,
-                      },
-                      headerBackTitle: 'Back',
-                      headerBackTitleStyle: {
-                        fontFamily: 'Roboto-Regular',
-                        fontSize: 18,
-                      },
+          <PaperProvider theme={theme}>
+            <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
+              <Stack screenOptions={{ headerShown: false }}>
+                <Stack.Screen name="(tabs)" />
+                <Stack.Screen
+                  name="formPage"
+                  options={{
+                    presentation: 'card',
+                    // gestureEnabled: false,
+                    headerShown: true,
+                    headerTitle: 'Create New Record',
+                    headerTitleStyle: {
+                      fontFamily: 'IBM-Regular',
+                      color: Colors.primary600,
+                      fontSize: 22,
+                    },
+                    headerBackTitle: 'Back',
+                    headerBackTitleStyle: {
+                      fontFamily: 'Roboto-Regular',
+                      fontSize: 18,
+                    },
+                    headerStyle: {
+                      backgroundColor: Colors.primary50,
+                    },
+                    headerTintColor: Colors.primary600,
+                  }}
+                />
+                <Stack.Screen
+                  name="editPage"
+                  options={{
+                    presentation: 'card',
+                    // gestureEnabled: false,
+                    headerShown: true,
+                    headerTitle: 'Edit Record',
+                    headerTitleStyle: {
+                      fontFamily: 'IBM-Regular',
+                      color: Colors.primary600,
+                      fontSize: 22,
+                    },
+                    headerBackTitle: 'Back',
+                    headerBackTitleStyle: {
+                      fontFamily: 'Roboto-Regular',
+                      fontSize: 18,
+                    },
 
-                      headerStyle: {
-                        backgroundColor: Colors.primary50,
-                      },
-                      headerTintColor: Colors.primary600,
-                    }}
-                  />
+                    headerStyle: {
+                      backgroundColor: Colors.primary50,
+                    },
+                    headerTintColor: Colors.primary600,
+                  }}
+                />
 
-                  <Stack.Screen
-                    name="(options)"
-                    options={{ presentation: 'modal' }}
-                  />
-                </Stack>
-                <Toaster position="top-center" richColors />
-              </View>
-            </PaperProvider>
-          </RootSiblingParent>
+                <Stack.Screen
+                  name="(options)"
+                  options={{ presentation: 'modal' }}
+                />
+              </Stack>
+              <Toaster position="top-center" richColors />
+            </View>
+          </PaperProvider>
         </ActionSheetProvider>
       </GestureHandlerRootView>
     </QueryClientProvider>

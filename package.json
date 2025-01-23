@@ -79,5 +79,21 @@
     "react-test-renderer": "18.2.0",
     "typescript": "~5.3.3"
   },
-  "private": true
+  "private": true,
+  "expo": {
+    "doctor": {
+      "reactNativeDirectoryCheck": {
+        "enabled": true,
+        "exclude": [
+          "@tanstack/react-table",
+          "date-fns",
+          "docx",
+          "drizzle-orm",
+          "expo-drizzle-studio-plugin",
+          "react-native-quick-base64"
+        ],
+        "listUnknownPackages": true
+      }
+    }
+  }
 }
