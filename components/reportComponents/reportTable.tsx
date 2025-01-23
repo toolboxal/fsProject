@@ -93,13 +93,13 @@ const ReportTable = ({ data }: TProps) => {
 
   const handleActionSheet = (rowId: number, rowDate: Date) => {
     const title = format(rowDate, 'dd MMM yyyy')
-    const options = ['Delete', 'Edit', 'Cancel']
+    const options = ['Delete', 'Cancel']
     const destructiveButtonIndex = 0
-    const cancelButtonIndex = 2
+    const cancelButtonIndex = 1
     showActionSheetWithOptions(
       {
         title,
-        userInterfaceStyle: 'dark',
+        // userInterfaceStyle: 'dark',
         options,
         destructiveButtonIndex,
         cancelButtonIndex,
@@ -108,10 +108,6 @@ const ReportTable = ({ data }: TProps) => {
         switch (selectedIndex) {
           case destructiveButtonIndex:
             handleDeleteSingleReport(rowId)
-            break
-          case 1:
-            console.log('to edit')
-
             break
           case cancelButtonIndex:
             console.log('canceled')

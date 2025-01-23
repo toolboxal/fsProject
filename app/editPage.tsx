@@ -19,7 +19,8 @@ import TextInputComponent from '@/components/TextInputComponent'
 import { useState } from 'react'
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6'
 import { router } from 'expo-router'
-import Toast from 'react-native-root-toast'
+
+import { toast } from 'sonner-native'
 import * as Haptics from 'expo-haptics'
 
 import { db } from '@/drizzle/db'
@@ -53,20 +54,6 @@ const EditPage = () => {
     },
   })
 
-  const showToast = () => {
-    Toast.show(`Edit saved 💾`, {
-      duration: 5000,
-      position: 60,
-      shadow: true,
-      animation: true,
-      hideOnPress: true,
-      delay: 0,
-      backgroundColor: Colors.emerald100,
-      textColor: Colors.primary900,
-      opacity: 1,
-    })
-  }
-
   const submitPressed = async (data: TFormData) => {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
     const { name, contact, remarks, date, block, unit, street, publications } =
@@ -91,7 +78,8 @@ const EditPage = () => {
     queryClient.invalidateQueries({ queryKey: ['persons'] })
     console.log('edit done')
     reset()
-    showToast()
+
+    toast.success('Edit saved 💾')
     router.navigate('/recordsPage')
   }
 

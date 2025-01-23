@@ -24,16 +24,14 @@ import useMyStore from '@/store/store'
 import { useActionSheet } from '@expo/react-native-action-sheet'
 import FontAwesome from '@expo/vector-icons/FontAwesome6'
 import { Ionicons } from '@expo/vector-icons'
-import Toast from 'react-native-root-toast'
+import { toast } from 'sonner-native'
 import sharePerson from '@/utils/sharePerson'
-import DropdownMenu from '@/components/DropdownMenu'
 
 import { db } from '@/drizzle/db'
 import { Person, TPerson } from '@/drizzle/schema'
 import { eq } from 'drizzle-orm'
 // import { useLiveQuery } from 'drizzle-orm/expo-sqlite'
 import { useQuery, QueryClient, useQueryClient } from '@tanstack/react-query'
-import { FontAwesome6 } from '@expo/vector-icons'
 
 const RecordsPage = () => {
   const [menuOpen, setMenuOpen] = useState(false)
@@ -84,20 +82,6 @@ const RecordsPage = () => {
     }, [])
   )
 
-  const showToast = (name?: string) => {
-    Toast.show(`Record has been deleted 🔥`, {
-      duration: 5000,
-      position: 60,
-      shadow: true,
-      animation: true,
-      hideOnPress: true,
-      delay: 0,
-      backgroundColor: Colors.rose200,
-      textColor: Colors.primary900,
-      opacity: 1,
-    })
-  }
-
   const handleDeleteAlert = (personId: number) => {
     Alert.alert('Record will be deleted', 'Ok to proceed?', [
       {
@@ -106,7 +90,8 @@ const RecordsPage = () => {
           await db.delete(Person).where(eq(Person.id, personId))
           queryClient.invalidateQueries({ queryKey: ['persons'] })
           handleOpenBtmSheet('close')
-          showToast()
+
+          toast.success('Record has been deleted 🗑️')
           console.log('confirm delete')
         },
         style: 'destructive',
@@ -152,11 +137,6 @@ const RecordsPage = () => {
 
   const handleActionSheet = (personId: number) => {
     actionSheetPressed(personId)
-  }
-
-  const handleMenuOpen = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
-    setMenuOpen(!menuOpen)
   }
 
   // --------data formatting----------
@@ -242,42 +222,6 @@ const RecordsPage = () => {
         }}
       />
 
-      {/* <View style={styles.headerContainer}>
-        <TouchableOpacity
-          style={styles.addBtn}
-          onPress={() => {
-            router.navigate('/formPage')
-            if (menuOpen === true) {
-              setMenuOpen(false)
-            }
-          }}
-        >
-          <Ionicons name="create-outline" size={20} color={Colors.emerald900} />
-          <Text
-            style={{
-              fontFamily: 'IBM-Bold',
-              fontSize: 16,
-              color: Colors.emerald900,
-            }}
-          >
-            Create
-          </Text>
-        </TouchableOpacity>
-        <Text style={styles.headerText}>Records</Text>
-        <TouchableOpacity
-          style={styles.burgerContainer}
-          onPress={() => setMenuOpen(!menuOpen)}
-          activeOpacity={0.8}
-        >
-          <Ionicons name="menu" size={30} color={Colors.primary100} />
-        </TouchableOpacity>
-        {menuOpen && (
-          <DropdownMenu
-            handleMenuOpen={handleMenuOpen}
-            existingRecords={true}
-          />
-        )}
-      </View> */}
       {(persons === undefined || persons.length) === 0 ? (
         <View
           style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}

@@ -18,7 +18,7 @@ import FontAwesome from '@expo/vector-icons/FontAwesome6'
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6'
 import useMyStore from '@/store/store'
 import getTimeDate from '../utils/getTimeDate'
-import Toast from 'react-native-root-toast'
+import { toast } from 'sonner-native'
 import { db } from '@/drizzle/db'
 import { Person, TPerson } from '@/drizzle/schema'
 import WebView from 'react-native-webview'
@@ -62,20 +62,6 @@ const Form = () => {
     },
   })
 
-  const showToast = (name: string) => {
-    Toast.show(`Record ${name} has been created 👍`, {
-      duration: 5000,
-      position: 60,
-      shadow: true,
-      animation: true,
-      hideOnPress: true,
-      delay: 0,
-      backgroundColor: Colors.emerald100,
-      textColor: Colors.primary900,
-      opacity: 1,
-    })
-  }
-
   const submitPressed = async (data: TFormData) => {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
     console.log('pressed')
@@ -98,7 +84,8 @@ const Form = () => {
     queryClient.invalidateQueries({ queryKey: ['persons'] })
     console.log('submitted new user')
     reset()
-    showToast(data.name === null ? '' : data.name)
+
+    toast.success(`Record ${name} has been created 👍`)
 
     router.navigate('/recordsPage')
   }

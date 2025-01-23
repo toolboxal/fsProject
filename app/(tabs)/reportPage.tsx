@@ -110,6 +110,9 @@ const reportPage = () => {
         }}
       />
       <ScrollView
+        style={{
+          flex: 1,
+        }}
         contentContainerStyle={{
           paddingBottom: Platform.OS === 'android' ? bottom + 100 : bottom + 75,
           paddingTop: 10,
@@ -121,6 +124,9 @@ const reportPage = () => {
         <View style={styles.stickyHeader}>
           <View style={styles.totalRow}>
             <View style={styles.totalValues}>
+              <Text style={styles.totalYrHeader}>
+                {'Viewing service year: ' + selectedYr}
+              </Text>
               <Text style={styles.totalLabel}>Total:</Text>
               <Text style={styles.totalText}>
                 {convertFloatToTime(totals.hrs)}
@@ -158,30 +164,35 @@ const reportPage = () => {
         </View>
 
         {!filteredData || filteredData.length === 0 ? (
-          <Text>No data available</Text>
+          <View
+            style={{
+              flex: 1,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <Text
+              style={{
+                fontFamily: 'IBM-SemiBold',
+                fontSize: 18,
+                color: Colors.primary300,
+                marginTop: 150,
+              }}
+            >
+              {selectedYr === svcYrs.previousYr
+                ? 'service year has ended'
+                : 'Start by creating your first report'}
+            </Text>
+          </View>
         ) : (
           <ReportTable data={filteredData} />
         )}
       </ScrollView>
 
-      {/* :::::button to delete all data */}
-      {/* <Pressable
-        onPress={async () => {
-          await db.delete(Report).execute()
-        }}
-        style={{
-          padding: 5,
-          backgroundColor: 'red',
-          width: 100,
-          borderRadius: 15,
-        }}
-      >
-        <Text>Delete all data</Text>
-      </Pressable> */}
-
       <ModalForm
         setModalVisible={setModalVisible}
         modalVisible={modalVisible}
+        svcYrs={svcYrs}
       />
     </SafeAreaView>
   )
@@ -220,7 +231,7 @@ const styles = StyleSheet.create({
   totalRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     backgroundColor: Colors.emerald200,
     padding: 10,
     borderRadius: 8,
@@ -237,6 +248,11 @@ const styles = StyleSheet.create({
     flex: 1,
     // backgroundColor: Colors.primary400,
     gap: 3,
+  },
+  totalYrHeader: {
+    fontFamily: 'Lora-SemiBoldItalic',
+    fontSize: 14,
+    color: Colors.emerald900,
   },
   totalLabel: {
     fontFamily: 'Lora-Regular',

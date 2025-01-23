@@ -1,6 +1,6 @@
 import { db } from '@/drizzle/db'
 import { Report } from '@/drizzle/schema'
-import { and, lt } from 'drizzle-orm'
+import { lt } from 'drizzle-orm'
 import { subYears } from 'date-fns'
 
 export const cleanupOldReports = async () => {

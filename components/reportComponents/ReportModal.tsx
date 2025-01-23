@@ -29,9 +29,10 @@ type TFormData = Omit<TReport, 'id' | 'created_at' | 'date'>
 type ModalProps = {
   modalVisible: boolean
   setModalVisible: React.Dispatch<React.SetStateAction<boolean>>
+  svcYrs: { currentYr: number; previousYr: number }
 }
 
-const ModalForm = ({ modalVisible, setModalVisible }: ModalProps) => {
+const ModalForm = ({ modalVisible, setModalVisible, svcYrs }: ModalProps) => {
   const queryClient = useQueryClient()
   const today = new Date()
   const [datePick, setDatePick] = useState(today)
@@ -91,7 +92,7 @@ const ModalForm = ({ modalVisible, setModalVisible }: ModalProps) => {
         >{`Record for ${format(datePick, 'dd MMM')} created`}</Text>
       </View>,
       {
-        duration: 5000,
+        duration: 3000,
       }
     )
   }
@@ -157,8 +158,8 @@ const ModalForm = ({ modalVisible, setModalVisible }: ModalProps) => {
                   display="inline"
                   accentColor={Colors.emerald600}
                   themeVariant="light"
-                  // minimumDate={startOfMonth(today)}
-                  // maximumDate={today}
+                  minimumDate={new Date(svcYrs.previousYr, 8, 1)}
+                  maximumDate={today}
                   onChange={(event, date) => {
                     setDatePick(date || new Date())
                   }}
@@ -177,7 +178,7 @@ const ModalForm = ({ modalVisible, setModalVisible }: ModalProps) => {
                   display="inline"
                   themeVariant="light"
                   // minimumDate={startOfMonth(today)}
-                  // maximumDate={today}
+                  maximumDate={today}
                   onChange={(event, date) => {
                     setOpenPicker(false)
                     setDatePick(date || new Date())

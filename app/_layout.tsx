@@ -72,7 +72,7 @@ const RootLayout = () => {
           (TextInput as any).defaultProps = {}
         ;(TextInput as any).defaultProps.allowFontScaling = false
 
-        await new Promise((resolve) => setTimeout(resolve, 3000))
+        await new Promise((resolve) => setTimeout(resolve, 2500))
       } catch (error) {
         console.warn(error)
       } finally {

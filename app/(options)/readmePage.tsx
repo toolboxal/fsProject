@@ -55,6 +55,19 @@ const ReadmePage = () => {
           />
           oogle Docs! Or whichever compatible note-taking app you prefer.
         </Text>
+        <Text
+          style={[
+            styles.subheader,
+            { color: Colors.emerald700, fontFamily: 'IBM-SemiBoldItalic' },
+          ]}
+        >
+          New Feature! - Fs Monthly Report
+        </Text>
+        <Text style={styles.body}>
+          Track your hours and bible studies with this new feature. Reports are
+          kept for 2 service years, current and previous. After 2 years, report
+          will auto delete.
+        </Text>
       </ScrollView>
     </View>
   )

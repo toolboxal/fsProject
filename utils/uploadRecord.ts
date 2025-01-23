@@ -1,27 +1,14 @@
-import { Colors } from '@/constants/Colors'
-
 import * as DocumentPicker from 'expo-document-picker'
 import * as FileSystem from 'expo-file-system'
 import { Alert } from 'react-native'
-import Toast from 'react-native-root-toast'
-
+import { toast } from 'sonner-native'
 import { Person } from '@/drizzle/schema'
 import { db } from '@/drizzle/db'
 import { QueryClient } from '@tanstack/react-query'
 
 const uploadRecord = async (queryClient: QueryClient) => {
   const showToast = (name?: string) => {
-    Toast.show(`Record ${name} has been upload 👍`, {
-      duration: 5000,
-      position: 60,
-      shadow: true,
-      animation: true,
-      hideOnPress: true,
-      delay: 0,
-      backgroundColor: Colors.emerald100,
-      textColor: Colors.primary900,
-      opacity: 1,
-    })
+    toast.success(`Record ${name} has been upload 👍`)
   }
 
   try {

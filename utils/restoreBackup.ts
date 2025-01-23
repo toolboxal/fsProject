@@ -3,79 +3,78 @@ import { Colors } from '@/constants/Colors'
 import * as DocumentPicker from 'expo-document-picker'
 import * as FileSystem from 'expo-file-system'
 import { Alert } from 'react-native'
-import Toast from 'react-native-root-toast'
+import { toast } from 'sonner-native'
 
 import { db } from '@/drizzle/db'
-import { Person, TPerson } from '@/drizzle/schema'
+import { Person, TPerson, Report, TReport } from '@/drizzle/schema'
 import { QueryClient } from '@tanstack/react-query'
 
-type TRestore = Omit<TPerson, 'id'>[]
+type TRestorePerson = Omit<TPerson, 'id'>
+type TRestoreReport = Omit<TReport, 'id'>
+
+interface BackupData {
+  person: TRestorePerson[]
+  report: TRestoreReport[]
+  backupDate: string
+}
 
 const restoreRecord = async (queryClient: QueryClient) => {
-  const showToast = (name?: string) => {
-    Toast.show(`Records restored 👍`, {
-      duration: 5000,
-      position: 60,
-      shadow: true,
-      animation: true,
-      hideOnPress: true,
-      delay: 0,
-      backgroundColor: Colors.emerald100,
-      textColor: Colors.primary900,
-      opacity: 1,
-    })
-  }
-
   try {
     const result = await DocumentPicker.getDocumentAsync({
       type: 'application/json',
     })
     if (result.assets === null) {
-      throw new Error('failed to open file')
-    } else if (!result.assets[0].name.includes('fspalbackup')) {
+      throw new Error('Failed to open file')
+    } else if (!result.assets[0].name.includes('fspal_backup')) {
       throw new Error(
-        'This is not the correct file. File name must be fspalbackup.json'
+        'This is not the correct file. File name must be fspal_backup.json'
       )
     }
 
     const uri = result.assets[0].uri
     const fileContent = await FileSystem.readAsStringAsync(uri)
-    const data: TRestore = JSON.parse(fileContent)
-    data.forEach(async (item) => {
-      const {
-        name,
-        unit,
-        street,
-        block,
-        remarks,
-        contact,
-        latitude,
-        longitude,
-        category,
-        date,
-        publications,
-      } = item
+    const backupData: BackupData = JSON.parse(fileContent)
 
-      await db.insert(Person).values({
-        name: name,
-        block: block,
-        unit: unit,
-        street: street,
-        category: category,
-        remarks: remarks,
-        contact: contact,
-        date: date,
-        latitude: latitude,
-        longitude: longitude,
-        publications: publications,
-      })
-    })
+    // Validate backup data structure
+    if (
+      !backupData.person ||
+      !backupData.report ||
+      !Array.isArray(backupData.person) ||
+      !Array.isArray(backupData.report)
+    ) {
+      throw new Error('Invalid backup file format')
+    }
+
+    // Delete all existing data
+    await db.delete(Person)
+    await db.delete(Report)
+
+    // Restore person records
+    for (const personRecord of backupData.person) {
+      await db.insert(Person).values(personRecord)
+    }
+
+    // Restore report records
+    for (const reportRecord of backupData.report) {
+      // Convert date strings back to Date objects
+      const processedRecord = {
+        ...reportRecord,
+        date: reportRecord.date ? new Date(reportRecord.date) : new Date(),
+        created_at: reportRecord.created_at
+          ? new Date(reportRecord.created_at)
+          : new Date(),
+      }
+      await db.insert(Report).values(processedRecord)
+    }
+
+    // Invalidate both queries to refresh the UI
     queryClient.invalidateQueries({ queryKey: ['persons'] })
-    // queryClient.refetchQueries({ queryKey: ['persons'] })
-    showToast()
+    queryClient.invalidateQueries({ queryKey: ['reports'] })
+
+    toast.success('Data restored successfully 👌')
   } catch (error) {
     if (error instanceof Error) {
-      Alert.alert(error.message)
+      Alert.alert('Restore Error', error.message)
     }
   }
 }

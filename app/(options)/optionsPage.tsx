@@ -1,13 +1,17 @@
+import { StyleSheet, Text, View, Alert } from 'react-native'
 import { Colors } from '@/constants/Colors'
-import { Pressable, StyleSheet, Text, View } from 'react-native'
-import Entypo from '@expo/vector-icons/Entypo'
 import { useQueryClient } from '@tanstack/react-query'
 import { useRouter } from 'expo-router'
+import SingleOption from '@/components/SingleOption'
+import { toast } from 'sonner-native'
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
 
 import uploadRecord from '@/utils/uploadRecord'
 import createBackup from '@/utils/createBackup'
 import restoreRecord from '@/utils/restoreBackup'
 import createDocx from '@/utils/createDocx'
+import deleteAllRecords from '@/utils/deleteAllRecords'
+import deleteAllReports from '@/utils/deleteAllReports'
 
 const optionsPage = () => {
   const queryClient = useQueryClient()
@@ -36,140 +40,172 @@ const optionsPage = () => {
       <View style={styles.sectionContainer}>
         <Text style={styles.sectionHeadTxt}>Backup</Text>
         {/* Create backup */}
-        <Pressable
-          style={({ pressed }) => {
-            return [
-              styles.btn,
-              {
-                backgroundColor: pressed ? Colors.primary100 : Colors.primary50,
-              },
-            ]
-          }}
-          onPress={() => handleBackUp()}
-        >
-          <View style={styles.btnTxtWrapper}>
-            <Text style={styles.btnHeadTxt}>Create backup</Text>
-            <Text style={styles.btnDescTxt}>
-              This file can be used to restore all data later
-            </Text>
-          </View>
-          <Entypo
-            name="chevron-small-right"
-            size={28}
-            color={Colors.primary300}
-          />
-        </Pressable>
+        <SingleOption
+          handler={handleBackUp}
+          headerTxt="Create backup"
+          descTxt="This file can be used to restore all data later"
+        />
         {/* Restore backup */}
-        <Pressable
-          style={({ pressed }) => {
-            return [
-              styles.btn,
-              {
-                backgroundColor: pressed ? Colors.primary100 : Colors.primary50,
-              },
-            ]
-          }}
-          onPress={() => handleRestore()}
-        >
-          <View style={styles.btnTxtWrapper}>
-            <Text style={styles.btnHeadTxt}>Restore backup</Text>
-            <Text style={styles.btnDescTxt}>
-              Find your JSON file to restore all data
-            </Text>
-          </View>
-          <Entypo
-            name="chevron-small-right"
-            size={28}
-            color={Colors.primary300}
-          />
-        </Pressable>
+        <SingleOption
+          handler={handleRestore}
+          headerTxt="Restore backup"
+          descTxt="Find your JSON file to restore all data"
+        />
       </View>
       <View style={styles.sectionContainer}>
         <Text style={styles.sectionHeadTxt}>Shared Record</Text>
         {/* Upload 1 record */}
-        <Pressable
-          style={({ pressed }) => {
-            return [
-              styles.btn,
-              {
-                backgroundColor: pressed ? Colors.primary100 : Colors.primary50,
-              },
-            ]
-          }}
-          onPress={() => {
-            handleUpload()
-          }}
-        >
-          <View style={styles.btnTxtWrapper}>
-            <Text style={styles.btnHeadTxt}>Upload 1 record</Text>
-            <Text style={styles.btnDescTxt}>
-              Upload shared record from another user
-            </Text>
-          </View>
-          <Entypo
-            name="chevron-small-right"
-            size={28}
-            color={Colors.primary300}
-          />
-        </Pressable>
+        <SingleOption
+          handler={handleUpload}
+          headerTxt="Upload 1 record"
+          descTxt="Upload shared record from another user"
+        />
       </View>
       <View style={styles.sectionContainer}>
         <Text style={styles.sectionHeadTxt}>Export Records</Text>
         {/* Export as .docx */}
-        <Pressable
-          style={({ pressed }) => {
-            return [
-              styles.btn,
-              {
-                backgroundColor: pressed ? Colors.primary100 : Colors.primary50,
-              },
-            ]
-          }}
-          onPress={() => {
-            handleCreateDocx()
-          }}
-        >
-          <View style={styles.btnTxtWrapper}>
-            <Text style={styles.btnHeadTxt}>Create a Word Document file</Text>
-            <Text style={styles.btnDescTxt}>
-              Export and view in Google Docs etc.
-            </Text>
-          </View>
-          <Entypo
-            name="chevron-small-right"
-            size={28}
-            color={Colors.primary300}
-          />
-        </Pressable>
+        <SingleOption
+          handler={handleCreateDocx}
+          headerTxt="Create a Word Document file"
+          descTxt="Export and view in Google Docs etc."
+        />
       </View>
       <View style={styles.sectionContainer}>
         <Text style={styles.sectionHeadTxt}>Info</Text>
         {/* info */}
-        <Pressable
-          style={({ pressed }) => {
-            return [
-              styles.btn,
-              {
-                backgroundColor: pressed ? Colors.primary100 : Colors.primary50,
-              },
-            ]
-          }}
-          onPress={() => {
-            router.navigate('/(options)/readmePage')
-          }}
-        >
-          <View style={styles.btnTxtWrapper}>
-            <Text style={styles.btnHeadTxt}>Readme</Text>
-            <Text style={styles.btnDescTxt}>
-              Things to note and new features
-            </Text>
-          </View>
-          <Entypo
-            name="chevron-small-right"
-            size={28}
-            color={Colors.primary300}
-          />
-        </Pressable>
+        <SingleOption
+          handler={() => router.navigate('/(options)/readmePage')}
+          headerTxt="Readme"
+          descTxt="Things to note and new features"
+        />
+      </View>
+      <View style={styles.sectionContainer}>
+        <Text style={[styles.sectionHeadTxt, { color: Colors.rose700 }]}>
+          Reset
+        </Text>
+        {/* deletion buttons!!!! */}
+        <SingleOption
+          handler={() =>
+            Alert.alert(
+              'Delete all Records',
+              'Please make sure you have a backup before proceeding',
+              [
+                {
+                  text: 'Cancel',
+                  onPress: () => console.log('Cancel Pressed'),
+                  style: 'cancel',
+                },
+                {
+                  text: 'Proceed',
+                  onPress: () => {
+                    deleteAllRecords()
+                    router.replace('/(tabs)/recordsPage')
+                    toast.custom(
+                      <View
+                        style={{
+                          alignSelf: 'center',
+                          flexDirection: 'row',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: 4,
+                          backgroundColor: Colors.black,
+                          width: 240,
+                          paddingHorizontal: 8,
+                          paddingVertical: 10,
+                          borderRadius: 8,
+                        }}
+                      >
+                        <MaterialCommunityIcons
+                          name="delete"
+                          size={23}
+                          color={Colors.rose500}
+                        />
+                        <Text
+                          style={{
+                            fontFamily: 'IBM-Regular',
+                            fontSize: 15,
+                            color: Colors.white,
+                          }}
+                        >
+                          All Records deleted
+                        </Text>
+                      </View>,
+                      {
+                        duration: 3000,
+                      }
+                    )
+                  },
+                  style: 'destructive',
+                },
+              ]
+            )
+          }
+          headerTxt="Delete all Records"
+          descTxt="This will delete all records permanently"
+          styleTxt={{ color: Colors.rose700 }}
+          styleBtn={{ backgroundColor: Colors.rose100 }}
+        />
+        <SingleOption
+          handler={() =>
+            Alert.alert(
+              'Delete all Reports',
+              'Please make sure you have a backup before proceeding',
+              [
+                {
+                  text: 'Cancel',
+                  onPress: () => console.log('Cancel Pressed'),
+                  style: 'cancel',
+                },
+                {
+                  text: 'Proceed',
+                  onPress: () => {
+                    deleteAllReports()
+                    router.replace('/(tabs)/reportPage')
+                    toast.custom(
+                      <View
+                        style={{
+                          alignSelf: 'center',
+                          flexDirection: 'row',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: 4,
+                          backgroundColor: Colors.black,
+                          width: 240,
+                          paddingHorizontal: 8,
+                          paddingVertical: 10,
+                          borderRadius: 8,
+                        }}
+                      >
+                        <MaterialCommunityIcons
+                          name="delete"
+                          size={23}
+                          color={Colors.rose500}
+                        />
+                        <Text
+                          style={{
+                            fontFamily: 'IBM-Regular',
+                            fontSize: 15,
+                            color: Colors.white,
+                          }}
+                        >
+                          All Reports deleted
+                        </Text>
+                      </View>,
+                      {
+                        duration: 5000,
+                      }
+                    )
+                  },
+                  style: 'destructive',
+                },
+              ]
+            )
+          }
+          headerTxt="Delete all Reports"
+          descTxt="This will delete all reports permanently"
+          styleTxt={{ color: Colors.rose700 }}
+          styleBtn={{ backgroundColor: Colors.rose100 }}
+        />
       </View>
     </View>
   )
@@ -193,26 +229,5 @@ const styles = StyleSheet.create({
     color: Colors.primary700,
     marginBottom: 3,
     paddingLeft: 3,
-  },
-  btn: {
-    padding: 10,
-    borderRadius: 5,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  btnTxtWrapper: {
-    flexDirection: 'column',
-    gap: 3,
-  },
-  btnHeadTxt: {
-    fontFamily: 'IBM-SemiBold',
-    fontSize: 16,
-    color: Colors.emerald700,
-  },
-  btnDescTxt: {
-    fontFamily: 'IBM-Regular',
-    fontSize: 13,
-    color: Colors.primary700,
   },
 })
