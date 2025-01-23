@@ -18,7 +18,7 @@ const SvcYrDropdown = ({ selectedYr, setItem, svcYrs }: Props) => {
             <Text style={styles.triggerTxt}>
               {`service year ${selectedYr.toString()}`}
             </Text>
-            <Entypo name="chevron-down" size={20} color="black" />
+            <Entypo name="chevron-down" size={20} color={Colors.white} />
           </View>
         </DropdownMenu.Trigger>
         <DropdownMenu.Content>
@@ -45,7 +45,7 @@ const SvcYrDropdown = ({ selectedYr, setItem, svcYrs }: Props) => {
 export default SvcYrDropdown
 const styles = StyleSheet.create({
   trigger: {
-    backgroundColor: Colors.emerald50,
+    backgroundColor: Colors.primary950,
     alignSelf: 'flex-start',
     borderRadius: 5,
     shadowColor: Colors.primary500,
@@ -65,5 +65,6 @@ const styles = StyleSheet.create({
   triggerTxt: {
     fontFamily: 'IBM-Regular',
     fontSize: 16,
+    color: Colors.white,
   },
 })

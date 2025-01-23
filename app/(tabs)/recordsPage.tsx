@@ -5,10 +5,11 @@ import {
   TouchableOpacity,
   Alert,
   Platform,
+  Pressable,
 } from 'react-native'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { StatusBar } from 'expo-status-bar'
-import { router, useFocusEffect } from 'expo-router'
+import { router, useFocusEffect, Tabs } from 'expo-router'
 import { Colors } from '@/constants/Colors'
 import { defaultStyles } from '@/constants/Styles'
 import { useCallback, useMemo, useRef, useState } from 'react'
@@ -32,15 +33,18 @@ import { Person, TPerson } from '@/drizzle/schema'
 import { eq } from 'drizzle-orm'
 // import { useLiveQuery } from 'drizzle-orm/expo-sqlite'
 import { useQuery, QueryClient, useQueryClient } from '@tanstack/react-query'
+import { FontAwesome6 } from '@expo/vector-icons'
 
 const RecordsPage = () => {
   const [menuOpen, setMenuOpen] = useState(false)
   const [refreshing, setRefreshing] = useState(false)
   const selectedPerson = useMyStore((state) => state.selectedPerson)
 
-  const snapPoints = useMemo(() => ['20%', '50%'], [])
+  const snapPoints = useMemo(() => ['23%', '60%'], [])
   const bottomSheetRef = useRef<BottomSheet>(null)
   const queryClient = useQueryClient()
+
+  const { bottom, top } = useSafeAreaInsets()
 
   // const { data: persons } = useLiveQuery(db.select().from(Person))
 
@@ -195,81 +199,50 @@ const RecordsPage = () => {
 
   console.log('recordsPage render')
 
-  // JSX when there no existing records
-  if ((persons === undefined || persons.length) === 0)
-    return (
-      <SafeAreaView
-        style={{
-          flex: 1,
-          justifyContent: 'center',
-          alignItems: 'center',
-          backgroundColor: Colors.primary50,
-          paddingTop: Platform.OS === 'android' ? 5 : 0,
-        }}
-      >
-        <StatusBar style="dark" />
-        <View style={styles.headerContainer}>
-          <TouchableOpacity
-            style={styles.addBtn}
-            onPress={() => {
-              router.navigate('/formPage')
-              if (menuOpen === true) {
-                setMenuOpen(false)
-              }
-            }}
-          >
-            <Ionicons
-              name="create-outline"
-              size={20}
-              color={Colors.emerald900}
-            />
-            <Text
-              style={{
-                fontFamily: 'IBM-Bold',
-                fontSize: 16,
-                color: Colors.emerald900,
+  return (
+    <SafeAreaView style={styles.safeArea} edges={['right', 'left']}>
+      <StatusBar style="dark" />
+      <Tabs.Screen
+        options={{
+          headerTitle: '',
+          headerStyle: {
+            backgroundColor: Colors.primary50,
+            height: top + 45,
+          },
+          headerLeft: () => (
+            <Pressable
+              style={styles.headerLeftBtn}
+              onPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+                router.navigate('/formPage')
+                if (menuOpen === true) {
+                  setMenuOpen(false)
+                }
               }}
             >
-              Create
-            </Text>
-          </TouchableOpacity>
-          <Text style={styles.headerText}>Records</Text>
-          <TouchableOpacity
-            style={styles.burgerContainer}
-            onPress={() => setMenuOpen(!menuOpen)}
-            activeOpacity={0.6}
-          >
-            <Ionicons name="menu" size={30} color={Colors.primary100} />
-          </TouchableOpacity>
-          {menuOpen && (
-            <DropdownMenu
-              handleMenuOpen={handleMenuOpen}
-              existingRecords={false}
-            />
-          )}
-        </View>
-        <View
-          style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
-        >
-          <Text
-            style={{
-              fontFamily: 'IBM-SemiBold',
-              fontSize: 22,
-              color: Colors.primary300,
-            }}
-          >
-            No Records
-          </Text>
-        </View>
-      </SafeAreaView>
-    )
+              <Ionicons
+                name="create-outline"
+                size={20}
+                color={Colors.emerald900}
+              />
+              <Text style={styles.btnTextLeft}>New Record</Text>
+            </Pressable>
+          ),
+          headerRight: () => (
+            <Pressable
+              style={styles.headerRightBtn}
+              onPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+                router.navigate('/optionsPage')
+              }}
+            >
+              <Text style={styles.btnTextRight}>Options</Text>
+            </Pressable>
+          ),
+        }}
+      />
 
-  // JSX when there are records
-  return (
-    <SafeAreaView style={styles.safeArea} edges={['top', 'right', 'left']}>
-      <StatusBar style="dark" />
-
-      <View style={styles.headerContainer}>
+      {/* <View style={styles.headerContainer}>
         <TouchableOpacity
           style={styles.addBtn}
           onPress={() => {
@@ -304,42 +277,57 @@ const RecordsPage = () => {
             existingRecords={true}
           />
         )}
-      </View>
-
-      <View
-        style={{
-          flex: 1,
-          backgroundColor: Colors.primary300,
-          width: '100%',
-        }}
-      >
-        <FlashList
-          contentContainerStyle={{ paddingBottom: 200 }}
-          data={flatMapped}
-          renderItem={({ item }) => {
-            if (typeof item === 'string') {
-              // Rendering header
-              return <Text style={styles.header}>{item}</Text>
-            } else {
-              // Render item
-              return (
-                <SingleRecord
-                  item={item}
-                  handleOpenBtmSheet={handleOpenBtmSheet}
-                  handleActionSheet={handleActionSheet}
-                />
-              )
-            }
+      </View> */}
+      {(persons === undefined || persons.length) === 0 ? (
+        <View
+          style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
+        >
+          <Text
+            style={{
+              fontFamily: 'IBM-SemiBold',
+              fontSize: 18,
+              color: Colors.primary300,
+            }}
+          >
+            Start by creating your first record
+          </Text>
+        </View>
+      ) : (
+        <View
+          style={{
+            flex: 1,
+            backgroundColor: Colors.primary300,
+            // width: '100%',
           }}
-          stickyHeaderIndices={stickyHeaderIndices}
-          getItemType={(item) => {
-            return typeof item === 'string' ? 'sectionHeader' : 'row'
-          }}
-          estimatedItemSize={50}
-          refreshing={refreshing}
-          onRefresh={onRefresh}
-        />
-      </View>
+        >
+          <FlashList
+            contentContainerStyle={{ paddingBottom: 200 }}
+            data={flatMapped}
+            renderItem={({ item }) => {
+              if (typeof item === 'string') {
+                // Rendering header
+                return <Text style={styles.header}>{item}</Text>
+              } else {
+                // Render item
+                return (
+                  <SingleRecord
+                    item={item}
+                    handleOpenBtmSheet={handleOpenBtmSheet}
+                    handleActionSheet={handleActionSheet}
+                  />
+                )
+              }
+            }}
+            stickyHeaderIndices={stickyHeaderIndices}
+            getItemType={(item) => {
+              return typeof item === 'string' ? 'sectionHeader' : 'row'
+            }}
+            estimatedItemSize={50}
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+          />
+        </View>
+      )}
       <BottomSheet
         ref={bottomSheetRef}
         snapPoints={snapPoints}
@@ -589,5 +577,26 @@ const styles = StyleSheet.create({
     color: Colors.primary300,
     letterSpacing: 0.6,
     fontSize: 16,
+  },
+  btnTextLeft: {
+    color: Colors.emerald800,
+    fontFamily: 'IBM-Medium',
+    fontSize: 18,
+  },
+  btnTextRight: {
+    color: Colors.emerald800,
+    fontFamily: 'IBM-Medium',
+    fontSize: 18,
+  },
+  headerLeftBtn: {
+    flexDirection: 'row',
+    gap: 3,
+    alignItems: 'center',
+    marginLeft: 10,
+    padding: 5,
+  },
+  headerRightBtn: {
+    marginRight: 15,
+    padding: 5,
   },
 })

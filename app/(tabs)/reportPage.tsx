@@ -7,6 +7,7 @@ import {
   ScrollView,
   Platform,
 } from 'react-native'
+import { useRouter } from 'expo-router'
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import * as Haptics from 'expo-haptics'
 import { FontAwesome6 } from '@expo/vector-icons'
@@ -25,6 +26,7 @@ import convertFloatToTime from '@/utils/convertFloatToTime'
 const reportPage = () => {
   const { bottom, top } = useSafeAreaInsets()
   const [modalVisible, setModalVisible] = useState(false)
+  const router = useRouter()
 
   useEffect(() => {
     cleanupOldReports()
@@ -99,6 +101,7 @@ const reportPage = () => {
               style={styles.headerRightBtn}
               onPress={() => {
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+                router.navigate('/(options)/optionsPage')
               }}
             >
               <Text style={styles.btnTextRight}>Options</Text>

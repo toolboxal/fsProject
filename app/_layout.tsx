@@ -1,6 +1,8 @@
 import { Stack } from 'expo-router'
 import { useCallback, useEffect, useState } from 'react'
-import { View, Text, TextInput } from 'react-native'
+import { View, Text, TextInput, Pressable } from 'react-native'
+import { useRouter } from 'expo-router'
+
 import { Colors } from '@/constants/Colors'
 import { RootSiblingParent } from 'react-native-root-siblings'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
@@ -42,6 +44,8 @@ const RootLayout = () => {
   const setGeoCoords = useMyStore((state) => state.setGeoCoords)
 
   const queryClient = new QueryClient()
+
+  const router = useRouter()
 
   useEffect(() => {
     async function prepare() {
@@ -160,28 +164,10 @@ const RootLayout = () => {
                       headerTintColor: Colors.primary600,
                     }}
                   />
+
                   <Stack.Screen
-                    name="readmePage"
-                    options={{
-                      presentation: 'card',
-                      // gestureEnabled: false,
-                      headerShown: true,
-                      headerTitle: 'readme',
-                      headerTitleStyle: {
-                        fontFamily: 'IBM-Regular',
-                        color: Colors.primary600,
-                        fontSize: 22,
-                      },
-                      headerBackTitle: 'Back',
-                      headerBackTitleStyle: {
-                        fontFamily: 'Roboto-Regular',
-                        fontSize: 18,
-                      },
-                      headerStyle: {
-                        backgroundColor: Colors.primary50,
-                      },
-                      headerTintColor: Colors.primary600,
-                    }}
+                    name="(options)"
+                    options={{ presentation: 'modal' }}
                   />
                 </Stack>
                 <Toaster position="top-center" richColors />
