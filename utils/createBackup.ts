@@ -28,6 +28,7 @@ const createBackup = async () => {
       person: personDataWithoutId,
       report: reportDataWithoutId,
       backupDate: new Date().toISOString(),
+      backupID: 'fspalbackup',
     }
 
     const jsonData = JSON.stringify(backupData, null, 2)

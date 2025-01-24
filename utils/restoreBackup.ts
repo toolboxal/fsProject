@@ -16,6 +16,7 @@ interface BackupData {
   person: TRestorePerson[]
   report: TRestoreReport[]
   backupDate: string
+  backupID: string
 }
 
 const restoreRecord = async (queryClient: QueryClient) => {
@@ -25,24 +26,15 @@ const restoreRecord = async (queryClient: QueryClient) => {
     })
     if (result.assets === null) {
       throw new Error('Failed to open file')
-    } else if (!result.assets[0].name.includes('fspal_backup')) {
-      throw new Error(
-        'This is not the correct file. File name must be fspal_backup.json'
-      )
     }
 
     const uri = result.assets[0].uri
     const fileContent = await FileSystem.readAsStringAsync(uri)
     const backupData: BackupData = JSON.parse(fileContent)
 
-    // Validate backup data structure
-    if (
-      !backupData.person ||
-      !backupData.report ||
-      !Array.isArray(backupData.person) ||
-      !Array.isArray(backupData.report)
-    ) {
-      throw new Error('Invalid backup file format')
+    // Validate file uploaded is genuine
+    if (backupData.backupID !== 'fspalbackup') {
+      throw new Error('Invalid file format')
     }
 
     // Delete all existing data

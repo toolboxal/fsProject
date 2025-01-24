@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { WebView } from 'react-native-webview'
 import useMyStore from '@/store/store'
 
@@ -50,11 +50,7 @@ const WebMapRender = () => {
       const injectedJavaScript = `
         (function() {
           const mapTiles = document.querySelector('.map-tiles');
-          mapTiles.style.filter = ${
-            isDarkMode
-              ? '"brightness(0.88) saturate(1.3) contrast(1.5)"'
-              : '"brightness(0.6) hue-rotate(220deg) saturate(0.5) contrast(3.3) invert(1)"'
-          };
+          mapTiles.classList.toggle('dark-mode');
         })();
       `
       webRef.current.injectJavaScript(injectedJavaScript)
@@ -136,6 +132,12 @@ const WebMapRender = () => {
         background: #262626; 
         }
          
+        .map-tiles {
+          transition: filter 0.3s ease;
+        }
+        .map-tiles.dark-mode {
+          filter: brightness(0.6) hue-rotate(220deg) saturate(0.5) contrast(3.3) invert(1);
+        }
     </style>
 </head>
 <body>

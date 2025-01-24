@@ -1,4 +1,5 @@
 import { StyleSheet, Text, View, Alert } from 'react-native'
+import * as Haptics from 'expo-haptics'
 import { Colors } from '@/constants/Colors'
 import { useQueryClient } from '@tanstack/react-query'
 import { useRouter } from 'expo-router'
@@ -85,7 +86,8 @@ const optionsPage = () => {
         </Text>
         {/* deletion buttons!!!! */}
         <SingleOption
-          handler={() =>
+          handler={() => {
+            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning)
             Alert.alert(
               'Delete all Records',
               'Please make sure you have a backup before proceeding',
@@ -139,14 +141,15 @@ const optionsPage = () => {
                 },
               ]
             )
-          }
+          }}
           headerTxt="Delete all Records"
           descTxt="This will delete all records permanently"
           styleTxt={{ color: Colors.rose700 }}
           styleBtn={{ backgroundColor: Colors.rose100 }}
         />
         <SingleOption
-          handler={() =>
+          handler={() => {
+            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning)
             Alert.alert(
               'Delete all Reports',
               'Please make sure you have a backup before proceeding',
@@ -200,7 +203,7 @@ const optionsPage = () => {
                 },
               ]
             )
-          }
+          }}
           headerTxt="Delete all Reports"
           descTxt="This will delete all reports permanently"
           styleTxt={{ color: Colors.rose700 }}
