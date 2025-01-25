@@ -14,7 +14,7 @@ const MapsPage = () => {
   const setAddress = useMyStore((state) => state.setAddress)
   const setGeoCoords = useMyStore((state) => state.setGeoCoords)
   const storage = new MMKV()
-  const [showAnnouncement, setShowAnnouncement] = useState(false)
+  const [showAnnouncement, setShowAnnouncement] = useState(true)
 
   useEffect(() => {
     // Check if this version's announcement has been shown

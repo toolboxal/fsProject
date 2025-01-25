@@ -27,6 +27,7 @@ const createBackup = async () => {
     const backupData = {
       person: personDataWithoutId,
       report: reportDataWithoutId,
+      schedule: [],
       backupDate: new Date().toISOString(),
       backupID: 'fspalbackup',
     }

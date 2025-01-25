@@ -11,7 +11,8 @@ const sharePerson = async (personId: number) => {
   try {
     const person = await db.select().from(Person).where(eq(Person.id, personId))
     const { id, ...dataWithoutId } = person[0]
-    const jsonData = JSON.stringify(dataWithoutId)
+    const payload = { data: dataWithoutId, shareId: 'fsPalShare' }
+    const jsonData = JSON.stringify(payload)
 
     const fileUri = FileSystem.documentDirectory + `${person[0].name}.json`
     await FileSystem.writeAsStringAsync(fileUri, jsonData)

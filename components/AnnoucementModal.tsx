@@ -8,7 +8,6 @@ import {
   TouchableWithoutFeedback,
   View,
 } from 'react-native'
-import { useState } from 'react'
 import { Colors } from '@/constants/Colors'
 import EvilIcons from '@expo/vector-icons/EvilIcons'
 
@@ -33,16 +32,34 @@ const AnnoucementModal = ({ visible, onClose }: AnnoucementModalProps) => {
           >
             <Pressable style={styles.modalContent}>
               <Pressable onPress={onClose} style={{ marginLeft: 'auto' }}>
-                <EvilIcons name="close" size={30} color="white" />
+                <EvilIcons name="close" size={30} color={Colors.primary800} />
               </Pressable>
-              <Text style={styles.headerTxt}>Updates 👋</Text>
+              <Text style={styles.headerTxt}>Hello! 👋</Text>
+              <Text style={styles.subHeaderTxt}>To new users - welcome!</Text>
               <Text style={styles.currentUserTxt}>
-                If you are a current user, there are some new updates!
+                Thank you for giving me a try. I hope I can be useful to your
+                ministry.
               </Text>
-              <Text style={[styles.currentUserTxt, { color: Colors.rose300 }]}>
-                Please create a new backup to implement new features.
+              <Text style={styles.subHeaderTxt}>
+                To current users - exciting updates!
               </Text>
-              <Text style={styles.currentUserTxt}>Have a great day!</Text>
+              <Text style={styles.currentUserTxt}>
+                This project began with just a simple Map and Records. Now I am
+                trilled to bring to you a new feature: Reports👏
+              </Text>
+              <Text style={[styles.currentUserTxt]}>
+                Due to continuous structural enhancements,
+              </Text>
+              <Text style={[styles.currentUserTxt, { color: Colors.rose600 }]}>
+                previous Backup files will not be valid. Create a new one as
+                soon as you can.
+              </Text>
+
+              <Text style={styles.currentUserTxt}>
+                Thank you for your patience and support!
+              </Text>
+              <Text style={styles.currentUserTxt}>Agape</Text>
+              <Text style={styles.currentUserTxt}>Your Brother</Text>
             </Pressable>
           </KeyboardAvoidingView>
         </Pressable>
@@ -54,7 +71,7 @@ export default AnnoucementModal
 const styles = StyleSheet.create({
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(220, 220, 220, 0.8)',
+    backgroundColor: 'rgba(20, 20, 20, 0.85)',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -65,7 +82,7 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     marginBottom: 15,
-    backgroundColor: Colors.primary900,
+    backgroundColor: Colors.primary100,
     borderRadius: 20,
     padding: 18,
     width: '90%',
@@ -80,15 +97,22 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   headerTxt: {
+    fontFamily: 'IBM-Bold',
+    fontSize: 18,
+    color: Colors.primary800,
+    marginBottom: 12,
+  },
+  subHeaderTxt: {
     fontFamily: 'IBM-Medium',
-    fontSize: 20,
-    color: Colors.emerald300,
-    marginBottom: 15,
+    fontSize: 17,
+    color: Colors.primary800,
+    marginTop: 7,
+    marginBottom: 5,
   },
   currentUserTxt: {
-    fontFamily: 'IBM-Medium',
+    fontFamily: 'IBM-Italic',
     fontSize: 16,
-    color: Colors.white,
-    marginBottom: 10,
+    color: Colors.primary800,
+    marginBottom: 4,
   },
 })

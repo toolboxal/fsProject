@@ -48,7 +48,26 @@ const optionsPage = () => {
         />
         {/* Restore backup */}
         <SingleOption
-          handler={handleRestore}
+          handler={() => {
+            Alert.alert(
+              'Restore All Records',
+              'Wrong file can cause unintented overwrites. Make sure you select the correct file.',
+              [
+                {
+                  text: 'Cancel',
+                  onPress: () => console.log('Cancel Pressed'),
+                  style: 'cancel',
+                },
+                {
+                  text: 'Proceed',
+                  onPress: () => {
+                    handleRestore()
+                  },
+                  style: 'destructive',
+                },
+              ]
+            )
+          }}
           headerTxt="Restore backup"
           descTxt="Find your JSON file to restore all data"
         />
@@ -67,7 +86,7 @@ const optionsPage = () => {
         {/* Export as .docx */}
         <SingleOption
           handler={handleCreateDocx}
-          headerTxt="Create a Word Document file"
+          headerTxt="Transfer records to Word document"
           descTxt="Export and view in Google Docs etc."
         />
       </View>

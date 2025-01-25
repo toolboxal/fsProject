@@ -12,7 +12,7 @@ import { QueryClient } from '@tanstack/react-query'
 type TRestorePerson = Omit<TPerson, 'id'>
 type TRestoreReport = Omit<TReport, 'id'>
 
-interface BackupData {
+type BackupData = {
   person: TRestorePerson[]
   report: TRestoreReport[]
   backupDate: string

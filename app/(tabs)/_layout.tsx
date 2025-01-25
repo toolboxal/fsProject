@@ -66,7 +66,7 @@ const TabsLayout = () => {
       <Tabs.Screen
         name="reportPage"
         options={{
-          title: 'Report',
+          title: 'Reports',
           tabBarIcon: ({ focused }) => (
             <FontAwesome
               name="list-alt"
