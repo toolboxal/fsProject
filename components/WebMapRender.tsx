@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { WebView } from 'react-native-webview'
 import useMyStore from '@/store/store'
+import { MMKV } from 'react-native-mmkv'
 
 import {
   ActivityIndicator,
@@ -23,7 +24,11 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useQuery } from '@tanstack/react-query'
 
 const WebMapRender = () => {
-  const [isDarkMode, setIsDarkMode] = useState(false)
+  const storage = new MMKV()
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    const savedDarkMode = storage.getBoolean('isDarkMode')
+    return savedDarkMode ?? false
+  })
   const { bottom } = useSafeAreaInsets()
   const setAddress = useMyStore((state) => state.setAddress)
   const setGeoCoords = useMyStore((state) => state.setGeoCoords)
@@ -54,7 +59,9 @@ const WebMapRender = () => {
         })();
       `
       webRef.current.injectJavaScript(injectedJavaScript)
-      setIsDarkMode(!isDarkMode)
+      const newDarkMode = !isDarkMode
+      setIsDarkMode(newDarkMode)
+      storage.set('isDarkMode', newDarkMode)
     }
   }
 

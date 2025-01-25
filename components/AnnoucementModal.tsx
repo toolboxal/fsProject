@@ -98,20 +98,20 @@ const styles = StyleSheet.create({
   },
   headerTxt: {
     fontFamily: 'IBM-Bold',
-    fontSize: 18,
+    fontSize: 20,
     color: Colors.primary800,
     marginBottom: 12,
   },
   subHeaderTxt: {
     fontFamily: 'IBM-Medium',
-    fontSize: 17,
+    fontSize: 18,
     color: Colors.primary800,
     marginTop: 7,
     marginBottom: 5,
   },
   currentUserTxt: {
     fontFamily: 'IBM-Italic',
-    fontSize: 16,
+    fontSize: 17,
     color: Colors.primary800,
     marginBottom: 4,
   },
