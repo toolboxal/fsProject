@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { WebView } from 'react-native-webview'
 import useMyStore from '@/store/store'
-import { MMKV } from 'react-native-mmkv'
 
 import {
   ActivityIndicator,
@@ -22,9 +21,9 @@ import { Person } from '@/drizzle/schema'
 // import { useLiveQuery } from 'drizzle-orm/expo-sqlite'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useQuery } from '@tanstack/react-query'
+import { storage } from '@/store/storage'
 
 const WebMapRender = () => {
-  const storage = new MMKV()
   const [isDarkMode, setIsDarkMode] = useState(() => {
     const savedDarkMode = storage.getBoolean('isDarkMode')
     return savedDarkMode ?? false
@@ -56,6 +55,7 @@ const WebMapRender = () => {
         (function() {
           const mapTiles = document.querySelector('.map-tiles');
           mapTiles.classList.toggle('dark-mode');
+          
         })();
       `
       webRef.current.injectJavaScript(injectedJavaScript)
