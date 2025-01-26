@@ -80,7 +80,7 @@ const EditPage = () => {
     reset()
 
     toast.success('Edit saved 💾')
-    router.navigate('/recordsPage')
+    router.replace('/recordsPage')
   }
 
   const handleNewAddress = async () => {

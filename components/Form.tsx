@@ -87,7 +87,7 @@ const Form = () => {
 
     toast.success(`Record ${name} has been created 👍`)
 
-    router.navigate('/recordsPage')
+    router.replace('/recordsPage')
   }
 
   const handleNewAddress = async () => {
