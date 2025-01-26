@@ -55,7 +55,11 @@ const WebMapRender = () => {
         (function() {
           const mapTiles = document.querySelector('.map-tiles');
           mapTiles.classList.toggle('dark-mode');
-          
+           ${
+             isDarkMode
+               ? "mapTiles.classList.remove('dark-mode');"
+               : "mapTiles.classList.add('dark-mode');"
+           }
         })();
       `
       webRef.current.injectJavaScript(injectedJavaScript)

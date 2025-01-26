@@ -145,7 +145,7 @@ const reportPage = () => {
                   ? '0 days'
                   : formatDistanceStrict(
                       new Date(),
-                      new Date(selectedYr, 8, 1),
+                      new Date(selectedYr, 8, 1, 0, 0, 0),
                       {
                         unit: 'day',
                       }
