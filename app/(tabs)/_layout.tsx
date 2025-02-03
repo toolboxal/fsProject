@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import * as Haptics from 'expo-haptics'
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5'
 import FontAwesome from '@expo/vector-icons/FontAwesome'
+import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 
 const TabsLayout = () => {
   const { bottom } = useSafeAreaInsets()
@@ -70,6 +71,20 @@ const TabsLayout = () => {
           tabBarIcon: ({ focused }) => (
             <FontAwesome
               name="list-alt"
+              size={24}
+              color={`${focused ? Colors.emerald500 : Colors.primary500}`}
+            />
+          ),
+          tabBarActiveTintColor: Colors.emerald500,
+        }}
+      />
+      <Tabs.Screen
+        name="schedulePage"
+        options={{
+          title: 'Schedule',
+          tabBarIcon: ({ focused }) => (
+            <MaterialIcons
+              name="grid-on"
               size={24}
               color={`${focused ? Colors.emerald500 : Colors.primary500}`}
             />
