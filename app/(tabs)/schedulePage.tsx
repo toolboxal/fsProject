@@ -1,3 +1,4 @@
+import { useCallback, useState } from 'react'
 import {
   StyleSheet,
   View,
@@ -7,6 +8,7 @@ import {
   ActivityIndicator,
   Pressable,
   Platform,
+  RefreshControl,
 } from 'react-native'
 import { Tabs, useRouter } from 'expo-router'
 import * as Calendar from 'expo-calendar'
@@ -16,6 +18,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { storage } from '@/store/storage'
 import { Colors } from '@/constants/Colors'
 import { FontAwesome6 } from '@expo/vector-icons'
+import { format } from 'date-fns'
 
 const fetchCalendarEvents = async () => {
   const { status } = await Calendar.requestCalendarPermissionsAsync()
@@ -31,7 +34,7 @@ const fetchCalendarEvents = async () => {
   // Get events for the next 30 days
   const startDate = new Date()
   const endDate = new Date()
-  endDate.setDate(endDate.getDate() + 30)
+  endDate.setDate(endDate.getDate() + 365)
 
   const calendarEvents = await Calendar.getEventsAsync(
     [defaultCalendar.id],
@@ -51,6 +54,7 @@ const schedulePage = () => {
   const router = useRouter()
   const { bottom, top } = useSafeAreaInsets()
   const queryClient = useQueryClient()
+  const [refreshing, setRefreshing] = useState(false)
 
   const {
     data: events = [],
@@ -58,17 +62,35 @@ const schedulePage = () => {
     error,
     refetch,
   } = useQuery({
-    queryKey: ['calendarEvents'],
+    queryKey: ['calendar-events'],
     queryFn: fetchCalendarEvents,
-    // Refresh every minute
-    refetchInterval: 60000,
+    refetchInterval: 600000,
   })
 
   const handleCreateCalendar = async () => {
     await createCalendar()
-    // Invalidate and refetch calendar events after creating a new event
-    queryClient.invalidateQueries({ queryKey: ['calendarEvents'] })
+    refetch()
   }
+
+  console.log(events)
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true)
+    await refetch()
+    setRefreshing(false)
+  }, [refetch])
+
+  // Format events into sections
+  const formatEvents = () => {
+    if (events.length === 0) return { upcoming: [], later: [] }
+
+    return {
+      upcoming: events.slice(0, 1),
+      later: events.slice(1),
+    }
+  }
+
+  const { upcoming, later } = formatEvents()
 
   if (isLoading) {
     return (
@@ -126,11 +148,7 @@ const schedulePage = () => {
           ),
         }}
       />
-      <Text style={styles.title}>Calendar Events</Text>
-      <View style={styles.buttonContainer}>
-        <Button title="Create Event" onPress={handleCreateCalendar} />
-        <Button title="Refresh" onPress={() => refetch()} />
-      </View>
+
       <ScrollView
         style={styles.eventList}
         contentContainerStyle={{
@@ -139,25 +157,79 @@ const schedulePage = () => {
           backgroundColor: Colors.primary50,
         }}
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={Colors.emerald400}
+            colors={[Colors.emerald400]} // Android
+            progressBackgroundColor={Colors.emerald50} // Android
+          />
+        }
       >
         {events.length === 0 ? (
-          <Text style={styles.noEvents}>No events found</Text>
+          <Text style={styles.noEvents}>no upcoming events</Text>
         ) : (
-          events.map((event: any) => (
-            <Pressable
-              key={event.id}
-              style={styles.eventItem}
-              onPress={async () => {
-                await Calendar.editEventInCalendarAsync({ id: event.id })
-                refetch()
-              }}
-            >
-              <Text style={styles.eventTitle}>{event.title}</Text>
-              <Text style={styles.eventTime}>
-                {new Date(event.startDate).toLocaleString()}
-              </Text>
-            </Pressable>
-          ))
+          <View>
+            <Text style={styles.sectionHeader}>Upcoming</Text>
+            {upcoming.map((event, index) => (
+              <Pressable
+                key={event.id + index}
+                style={styles.eventItem}
+                onPress={async () => {
+                  await Calendar.editEventInCalendarAsync({
+                    id: event.id,
+                    instanceStartDate: event.startDate,
+                  })
+
+                  refetch()
+                }}
+              >
+                <Text style={styles.eventTitle}>{event.title}</Text>
+                <Text style={styles.eventTime}>
+                  {format(event.startDate, 'EEE, dd MMM yyyy, h:mmb')}
+                </Text>
+                <Text style={styles.eventNotes}>
+                  {event.notes || 'No additional notes'}
+                </Text>
+              </Pressable>
+            ))}
+
+            {later.length > 0 && (
+              <View>
+                <Text
+                  style={[
+                    styles.sectionHeader,
+                    { fontSize: 18, color: Colors.primary700 },
+                  ]}
+                >
+                  subsequent events...
+                </Text>
+                {later.map((event, index) => (
+                  <Pressable
+                    key={event.id + index * 99999}
+                    style={[styles.eventItem, styles.laterEvent]}
+                    onPress={async () => {
+                      await Calendar.editEventInCalendarAsync({
+                        id: event.id,
+                        instanceStartDate: event.startDate,
+                      })
+
+                      refetch()
+                    }}
+                  >
+                    <Text style={styles.eventTitle}>{event.title}</Text>
+                    <Text style={styles.eventTime}>
+                      {format(event.startDate, 'EEE, dd MMM yyyy, h:mmb')}
+                    </Text>
+                    <Text style={styles.eventNotes}>
+                      {event.notes || 'No additional notes'}
+                    </Text>
+                  </Pressable>
+                ))}
+              </View>
+            )}
+          </View>
         )}
       </ScrollView>
     </SafeAreaView>
@@ -172,35 +244,40 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.primary50,
     paddingHorizontal: 15,
   },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 16,
-    textAlign: 'center',
-  },
+
   eventList: {
     flex: 1,
     marginBottom: 16,
   },
   eventItem: {
-    backgroundColor: Colors.primary200,
+    backgroundColor: Colors.emerald50,
     padding: 16,
     marginBottom: 8,
     borderRadius: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.emerald400,
+    borderLeftWidth: 2,
+    borderLeftColor: Colors.emerald300,
+    borderBottomWidth: 2,
+    borderBottomColor: Colors.emerald300,
   },
   eventTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
+    fontFamily: 'IBM-Bold',
+    fontSize: 17,
     marginBottom: 4,
   },
   eventTime: {
-    color: '#666',
+    fontFamily: 'IBM-Medium',
+    color: Colors.primary600,
+  },
+  eventNotes: {
+    fontFamily: 'IBM-Regular',
+    color: Colors.primary600,
+    fontSize: 14,
   },
   noEvents: {
+    fontFamily: 'IBM-SemiBold',
+    fontSize: 20,
     textAlign: 'center',
-    color: '#666',
+    color: Colors.primary300,
     marginTop: 20,
   },
   errorText: {
@@ -208,10 +285,18 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 16,
   },
-  buttonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    paddingVertical: 16,
+  sectionHeader: {
+    fontSize: 24,
+    fontFamily: 'IBM-MediumItalic',
+    color: Colors.emerald800,
+    marginVertical: 10,
+    paddingHorizontal: 5,
+  },
+  laterEvent: {
+    backgroundColor: Colors.purple50,
+    borderLeftColor: Colors.purple300,
+    borderBottomWidth: 2,
+    borderBottomColor: Colors.purple300, // slightly lighter border for later events
   },
   headerLeftBtn: {
     flexDirection: 'row',
