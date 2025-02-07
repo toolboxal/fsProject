@@ -2,8 +2,9 @@ import en from './languages/en'
 import es from './languages/es'
 import ja from './languages/ja'
 import zh from './languages/zh'
+import ptBR from './languages/ptBR'
 
-export { en, es, ja, zh }
+export { en, es, ja, zh, ptBR }
 
 // const en = {
 //   tabbar: {

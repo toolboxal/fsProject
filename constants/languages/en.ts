@@ -49,16 +49,24 @@ const en = {
     sharingHeader: 'Is sharing available?',
     sharingBody:
       'Yes. You can transfer a record to another person who is also using FsPal.',
-    exportHeader: 'New Feature! - Export as Docs',
+    exportHeader: 'Export as Docs',
     exportBody:
       'You can create a copy of your records in a .docx file, and open it on Google Docs! Or whichever compatible note-taking app you prefer.',
     reportHeader: 'New Feature! - Fs Monthly Report',
     reportBody:
       'Track your hours and bible studies with this new feature. Reports are kept for 2 service years, current and previous. After 2 years, report will auto delete.',
+    scheduleHeader: 'New Feature! - Schedule Page',
+    scheduleBody: 'Create appoinments directly from this app.',
+    translateHeader: 'New Feature! - App available in other languages',
+    translateBody: `The accuracy of translation isn't 100%. I used AI to generate the translations.`,
   },
   settings: {
     tabHeader: 'Settings',
     backBtn: 'Back',
+    languageHeader: 'Languages',
+    supportHeader: 'Support my work',
+    supportDesc:
+      'Only if you really, really, really like the app. Then of course, I humbly accept a cup of coffee.😜',
   },
   records: {
     tabHeaderLeft: 'New Record',
@@ -139,7 +147,8 @@ const en = {
     upcomingHeader: 'Upcoming',
     noAddNotes: 'No additional notes',
     subsequentHeader: 'subsequent events...',
-    fyiTxt: '* Recurring events has an inherent issue with deletion.',
+    fyiTxt:
+      '* Recurring events has an inherent issue with deletion. This is a known issue and will be fixed in the future.',
   },
 }
 

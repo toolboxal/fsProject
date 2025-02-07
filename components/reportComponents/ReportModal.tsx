@@ -24,7 +24,7 @@ import { toast } from 'sonner-native'
 import EvilIcons from '@expo/vector-icons/EvilIcons'
 import AntDesign from '@expo/vector-icons/AntDesign'
 import { useTranslations } from '@/app/_layout'
-import { enUS, es, ja, zhCN } from 'date-fns/locale'
+import { enUS, es, ja, zhCN, ptBR } from 'date-fns/locale'
 import useMyStore from '@/store/store'
 
 type TFormData = Omit<TReport, 'id' | 'created_at' | 'date'>
@@ -40,6 +40,7 @@ const localeMap: Record<string, Locale> = {
   es: es,
   ja: ja,
   zh: zhCN,
+  ptBR: ptBR,
 }
 
 const ModalForm = ({ modalVisible, setModalVisible, svcYrs }: ModalProps) => {

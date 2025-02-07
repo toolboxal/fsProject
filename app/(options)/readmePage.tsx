@@ -1,8 +1,7 @@
 import { Colors } from '@/constants/Colors'
-import { Text, StyleSheet, View, ScrollView } from 'react-native'
+import { Text, StyleSheet, View, ScrollView, Image } from 'react-native'
 import Ionicons from '@expo/vector-icons/Ionicons'
 import { useTranslations } from '../_layout'
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
 
 const ReadmePage = () => {
   const i18n = useTranslations()
@@ -19,17 +18,12 @@ const ReadmePage = () => {
         <Text style={styles.body}>{i18n.t('readme.cloudBody')}</Text>
         <Text style={styles.subheader}>{i18n.t('readme.sharingHeader')}</Text>
         <Text style={styles.body}>{i18n.t('readme.sharingBody')}</Text>
-        <Text
-          style={[
-            styles.subheader,
-            { color: Colors.emerald700, fontFamily: 'IBM-SemiBoldItalic' },
-          ]}
-        >
+        <Text style={[styles.subheader]}>
           {i18n.t('readme.exportHeader')}
           <Ionicons
             name="document-outline"
             size={24}
-            color={Colors.emerald700}
+            color={Colors.primary800}
           />
         </Text>
         <Text style={styles.body}>{i18n.t('readme.exportBody')}</Text>
@@ -42,6 +36,24 @@ const ReadmePage = () => {
           {i18n.t('readme.reportHeader')}
         </Text>
         <Text style={styles.body}>{i18n.t('readme.reportBody')}</Text>
+        <Text
+          style={[
+            styles.subheader,
+            { color: Colors.emerald700, fontFamily: 'IBM-SemiBoldItalic' },
+          ]}
+        >
+          {i18n.t('readme.scheduleHeader')}
+        </Text>
+        <Text style={styles.body}>{i18n.t('readme.scheduleBody')}</Text>
+        <Text
+          style={[
+            styles.subheader,
+            { color: Colors.emerald700, fontFamily: 'IBM-SemiBoldItalic' },
+          ]}
+        >
+          {i18n.t('readme.translateHeader')}
+        </Text>
+        <Text style={styles.body}>{i18n.t('readme.translateBody')}</Text>
       </ScrollView>
     </View>
   )
@@ -76,5 +88,11 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: Colors.primary800,
     marginBottom: 10,
+  },
+  BMCImage: {
+    width: 150,
+    aspectRatio: 'auto',
+    height: 40,
+    marginVertical: 7,
   },
 })

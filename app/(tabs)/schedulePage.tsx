@@ -20,7 +20,7 @@ import { Colors } from '@/constants/Colors'
 import { FontAwesome6 } from '@expo/vector-icons'
 import { format, Locale } from 'date-fns'
 import { useTranslations } from '@/app/_layout'
-import { enUS, es, ja, zhCN } from 'date-fns/locale'
+import { enUS, es, ja, zhCN, ptBR } from 'date-fns/locale'
 import useMyStore from '@/store/store'
 
 const localeMap: Record<string, Locale> = {
@@ -28,6 +28,7 @@ const localeMap: Record<string, Locale> = {
   es: es,
   ja: ja,
   zh: zhCN,
+  ptBR: ptBR,
 }
 
 const fetchCalendarEvents = async () => {
@@ -347,10 +348,11 @@ const styles = StyleSheet.create({
     fontSize: 18,
   },
   fyiTxt: {
-    margin: 10,
+    marginTop: 20,
+    paddingHorizontal: 5,
     fontFamily: 'IBM-Italic',
     fontSize: 14,
-    color: Colors.primary700,
+    color: Colors.primary500,
     textAlign: 'center',
   },
 })

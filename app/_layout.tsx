@@ -18,7 +18,7 @@ import * as Location from 'expo-location'
 import getCurrentLocation from '@/utils/getCurrentLoc'
 import useMyStore from '@/store/store'
 import { I18n } from 'i18n-js'
-import { en, es, ja, zh } from '../constants/localizations'
+import { en, es, ja, zh, ptBR } from '../constants/localizations'
 
 SplashScreen.preventAutoHideAsync()
 
@@ -32,6 +32,7 @@ const i18n = new I18n({
   es: es,
   ja: ja,
   zh: zh,
+  ptBR: ptBR,
 })
 
 const theme = {

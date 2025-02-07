@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import {
   View,
   Text,
@@ -33,6 +34,7 @@ import { Person, TPerson } from '@/drizzle/schema'
 import { eq } from 'drizzle-orm'
 // import { useLiveQuery } from 'drizzle-orm/expo-sqlite'
 import { useQuery, QueryClient, useQueryClient } from '@tanstack/react-query'
+import { checkAndRequestReview } from '@/utils/storeReview'
 
 const RecordsPage = () => {
   const [menuOpen, setMenuOpen] = useState(false)
@@ -45,6 +47,10 @@ const RecordsPage = () => {
   const i18n = useTranslations()
 
   const { top } = useSafeAreaInsets()
+
+  useEffect(() => {
+    checkAndRequestReview()
+  }, [])
 
   // const { data: persons } = useLiveQuery(db.select().from(Person))
 

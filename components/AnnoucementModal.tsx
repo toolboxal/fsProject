@@ -10,6 +10,7 @@ import {
 } from 'react-native'
 import { Colors } from '@/constants/Colors'
 import EvilIcons from '@expo/vector-icons/EvilIcons'
+import { useTranslations } from '@/app/_layout'
 
 interface AnnoucementModalProps {
   visible: boolean
@@ -17,6 +18,8 @@ interface AnnoucementModalProps {
 }
 
 const AnnoucementModal = ({ visible, onClose }: AnnoucementModalProps) => {
+  const i18n = useTranslations()
+
   return (
     <Modal
       animationType="fade"
@@ -44,15 +47,18 @@ const AnnoucementModal = ({ visible, onClose }: AnnoucementModalProps) => {
                 To current users - exciting updates!
               </Text>
               <Text style={styles.currentUserTxt}>
-                This project began with just a simple Map and Records. Now I am
-                trilled to bring to you a new feature: Reports👏
+                - New schedule page to add and manage your field service
+                appointments.
               </Text>
-              <Text style={[styles.currentUserTxt]}>
-                Due to continuous structural enhancements,
-              </Text>
-              <Text style={[styles.currentUserTxt, { color: Colors.rose600 }]}>
-                previous Backup files will not be valid. Create a new one as
-                soon as you can.
+              <Text style={styles.currentUserTxt}>- Change app language.</Text>
+              <Text
+                style={[
+                  styles.currentUserTxt,
+                  { fontFamily: 'IBM-Italic', fontSize: 15 },
+                ]}
+              >
+                Currently available in English, Spanish, Portuguese, Chinese and
+                Japanese.
               </Text>
 
               <Text style={styles.currentUserTxt}>
@@ -110,9 +116,9 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   currentUserTxt: {
-    fontFamily: 'IBM-Italic',
+    fontFamily: 'IBM-Regular',
     fontSize: 17,
     color: Colors.primary800,
-    marginBottom: 4,
+    marginTop: 7,
   },
 })

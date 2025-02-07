@@ -20,7 +20,7 @@ import FontAwesome6 from '@expo/vector-icons/FontAwesome6'
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
 import convertFloatToTime from '@/utils/convertFloatToTime'
 import useMyStore from '@/store/store'
-import { enUS, es, ja, zhCN } from 'date-fns/locale'
+import { enUS, es, ja, zhCN, ptBR } from 'date-fns/locale'
 import { useTranslations } from '@/app/_layout'
 
 const columnHelper = createColumnHelper<TReport>()
@@ -38,6 +38,7 @@ const ReportTable = ({ data }: TProps) => {
     es: es,
     ja: ja,
     zh: zhCN,
+    ptBR: ptBR,
   }
 
   const i18n = useTranslations()
