@@ -6,9 +6,11 @@ import * as Haptics from 'expo-haptics'
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5'
 import FontAwesome from '@expo/vector-icons/FontAwesome'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
+import { useTranslations } from '../_layout'
 
 const TabsLayout = () => {
   const { bottom } = useSafeAreaInsets()
+  const i18n = useTranslations()
   console.log('tabslayout page')
   return (
     <Tabs
@@ -36,7 +38,7 @@ const TabsLayout = () => {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Map',
+          title: i18n.t('tabbar.map'),
           headerShown: false,
           tabBarIcon: ({ focused }) => (
             <FontAwesome5
@@ -52,7 +54,7 @@ const TabsLayout = () => {
       <Tabs.Screen
         name="recordsPage"
         options={{
-          title: 'Records',
+          title: i18n.t('tabbar.records'),
           tabBarIcon: ({ focused }) => (
             <FontAwesome5
               size={24}
@@ -67,7 +69,7 @@ const TabsLayout = () => {
       <Tabs.Screen
         name="reportPage"
         options={{
-          title: 'Reports',
+          title: i18n.t('tabbar.reports'),
           tabBarIcon: ({ focused }) => (
             <FontAwesome
               name="list-alt"
@@ -81,7 +83,7 @@ const TabsLayout = () => {
       <Tabs.Screen
         name="schedulePage"
         options={{
-          title: 'Schedule',
+          title: i18n.t('tabbar.schedule'),
           tabBarIcon: ({ focused }) => (
             <MaterialIcons
               name="grid-on"

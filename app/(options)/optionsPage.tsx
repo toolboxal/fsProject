@@ -1,11 +1,13 @@
-import { StyleSheet, Text, View, Alert } from 'react-native'
+import { StyleSheet, Text, View, Alert, ScrollView } from 'react-native'
 import * as Haptics from 'expo-haptics'
 import { Colors } from '@/constants/Colors'
 import { useQueryClient } from '@tanstack/react-query'
 import { useRouter } from 'expo-router'
 import SingleOption from '@/components/SingleOption'
 import { toast } from 'sonner-native'
+import { useTranslations } from '../_layout'
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
+import Ionicons from '@expo/vector-icons/Ionicons'
 
 import uploadRecord from '@/utils/uploadRecord'
 import createBackup from '@/utils/createBackup'
@@ -17,6 +19,7 @@ import deleteAllReports from '@/utils/deleteAllReports'
 const optionsPage = () => {
   const queryClient = useQueryClient()
   const router = useRouter()
+  const i18n = useTranslations()
 
   const handleBackUp = async () => {
     await createBackup()
@@ -37,209 +40,242 @@ const optionsPage = () => {
     router.dismiss()
   }
   return (
-    <View style={styles.mainContainer}>
-      <View style={styles.sectionContainer}>
-        <Text style={styles.sectionHeadTxt}>Backup</Text>
-        {/* Create backup */}
-        <SingleOption
-          handler={handleBackUp}
-          headerTxt="Create backup"
-          descTxt="This file can be used to restore all data later"
-        />
-        {/* Restore backup */}
-        <SingleOption
-          handler={() => {
-            Alert.alert(
-              'Restore All Records',
-              'Wrong file can cause unintented overwrites. Make sure you select the correct file.',
-              [
-                {
-                  text: 'Cancel',
-                  onPress: () => console.log('Cancel Pressed'),
-                  style: 'cancel',
-                },
-                {
-                  text: 'Proceed',
-                  onPress: () => {
-                    handleRestore()
+    <View style={{ flex: 1 }}>
+      <ScrollView
+        contentContainerStyle={styles.mainContainer}
+        showsVerticalScrollIndicator={false}
+        // bounces={false}
+      >
+        <View style={styles.sectionContainer}>
+          <Ionicons
+            name="cog"
+            size={24}
+            color={Colors.primary500}
+            style={{ marginBottom: 5, paddingLeft: 3 }}
+          />
+          {/* settings page */}
+          <SingleOption
+            handler={() => router.navigate('/(options)/settingsPage')}
+            headerTxt={i18n.t('options.settingsTitle')}
+            descTxt={i18n.t('options.settingsDesc')}
+          />
+        </View>
+        <View style={styles.sectionContainer}>
+          <Text style={styles.sectionHeadTxt}>
+            {i18n.t('options.backupHeader')}
+          </Text>
+          {/* Create backup */}
+          <SingleOption
+            handler={handleBackUp}
+            headerTxt={i18n.t('options.createBackupTitle')}
+            descTxt={i18n.t('options.createBackupDesc')}
+          />
+          {/* Restore backup */}
+          <SingleOption
+            handler={() => {
+              Alert.alert(
+                `${i18n.t('options.restoreAlertTitle')}`,
+                `${i18n.t('options.restoreAlertDesc')}`,
+                [
+                  {
+                    text: i18n.t('options.cancel'),
+                    onPress: () => console.log('Cancel Pressed'),
+                    style: 'cancel',
                   },
-                  style: 'destructive',
-                },
-              ]
-            )
-          }}
-          headerTxt="Restore backup"
-          descTxt="Find your JSON file to restore all data"
-        />
-      </View>
-      <View style={styles.sectionContainer}>
-        <Text style={styles.sectionHeadTxt}>Shared Record</Text>
-        {/* Upload 1 record */}
-        <SingleOption
-          handler={handleUpload}
-          headerTxt="Upload 1 record"
-          descTxt="Upload shared record from another user"
-        />
-      </View>
-      <View style={styles.sectionContainer}>
-        <Text style={styles.sectionHeadTxt}>Export Records</Text>
-        {/* Export as .docx */}
-        <SingleOption
-          handler={handleCreateDocx}
-          headerTxt="Transfer records to Word document"
-          descTxt="Export and view in Google Docs etc."
-        />
-      </View>
-      <View style={styles.sectionContainer}>
-        <Text style={styles.sectionHeadTxt}>Info</Text>
-        {/* info */}
-        <SingleOption
-          handler={() => router.navigate('/(options)/readmePage')}
-          headerTxt="Readme"
-          descTxt="Things to note and new features"
-        />
-      </View>
-      <View style={styles.sectionContainer}>
-        <Text style={[styles.sectionHeadTxt, { color: Colors.rose700 }]}>
-          Reset
-        </Text>
-        {/* deletion buttons!!!! */}
-        <SingleOption
-          handler={() => {
-            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning)
-            Alert.alert(
-              'Delete all Records',
-              'Please make sure you have a backup before proceeding',
-              [
-                {
-                  text: 'Cancel',
-                  onPress: () => console.log('Cancel Pressed'),
-                  style: 'cancel',
-                },
-                {
-                  text: 'Proceed',
-                  onPress: () => {
-                    deleteAllRecords()
-                    router.replace('/(tabs)/recordsPage')
-                    toast.custom(
-                      <View
-                        style={{
-                          alignSelf: 'center',
-                          flexDirection: 'row',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          gap: 4,
-                          backgroundColor: Colors.black,
-                          width: 240,
-                          paddingHorizontal: 8,
-                          paddingVertical: 10,
-                          borderRadius: 8,
-                        }}
-                      >
-                        <MaterialCommunityIcons
-                          name="delete"
-                          size={23}
-                          color={Colors.rose500}
-                        />
-                        <Text
+                  {
+                    text: i18n.t('options.proceed'),
+                    onPress: () => {
+                      handleRestore()
+                    },
+                    style: 'destructive',
+                  },
+                ]
+              )
+            }}
+            headerTxt={i18n.t('options.restoreBackupTitle')}
+            descTxt={i18n.t('options.restoreBackupDesc')}
+          />
+        </View>
+        <View style={styles.sectionContainer}>
+          <Text style={styles.sectionHeadTxt}>
+            {i18n.t('options.sharedHeader')}
+          </Text>
+          {/* Upload 1 record */}
+          <SingleOption
+            handler={handleUpload}
+            headerTxt={i18n.t('options.sharedTitle')}
+            descTxt={i18n.t('options.sharedDesc')}
+          />
+        </View>
+        <View style={styles.sectionContainer}>
+          <Text style={styles.sectionHeadTxt}>
+            {i18n.t('options.exportHeader')}
+          </Text>
+          {/* Export as .docx */}
+          <SingleOption
+            handler={handleCreateDocx}
+            headerTxt={i18n.t('options.exportTitle')}
+            descTxt={i18n.t('options.exportDesc')}
+          />
+        </View>
+        <View style={styles.sectionContainer}>
+          <Text style={styles.sectionHeadTxt}>
+            {i18n.t('options.infoHeader')}
+          </Text>
+          {/* info */}
+          <SingleOption
+            handler={() => router.navigate('/(options)/readmePage')}
+            headerTxt={i18n.t('options.infoTitle')}
+            descTxt={i18n.t('options.infoDesc')}
+          />
+        </View>
+        <View style={styles.sectionContainer}>
+          <Text style={[styles.sectionHeadTxt, { color: Colors.rose700 }]}>
+            {i18n.t('options.resetHeader')}
+          </Text>
+          {/* deletion buttons!!!! */}
+          <SingleOption
+            handler={() => {
+              Haptics.notificationAsync(
+                Haptics.NotificationFeedbackType.Warning
+              )
+              Alert.alert(
+                `${i18n.t('options.deleteRecTitle')}`,
+                `${i18n.t('options.deleteAlertDesc')}`,
+                [
+                  {
+                    text: i18n.t('options.cancel'),
+                    onPress: () => console.log('Cancel Pressed'),
+                    style: 'cancel',
+                  },
+                  {
+                    text: i18n.t('options.proceed'),
+                    onPress: () => {
+                      deleteAllRecords()
+                      router.replace('/(tabs)/recordsPage')
+                      toast.custom(
+                        <View
                           style={{
-                            fontFamily: 'IBM-Regular',
-                            fontSize: 15,
-                            color: Colors.white,
+                            alignSelf: 'center',
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: 4,
+                            backgroundColor: Colors.black,
+                            width: 240,
+                            paddingHorizontal: 8,
+                            paddingVertical: 10,
+                            borderRadius: 8,
                           }}
                         >
-                          All Records deleted
-                        </Text>
-                      </View>,
-                      {
-                        duration: 3000,
-                      }
-                    )
+                          <MaterialCommunityIcons
+                            name="delete"
+                            size={23}
+                            color={Colors.rose500}
+                          />
+                          <Text
+                            style={{
+                              fontFamily: 'IBM-Regular',
+                              fontSize: 15,
+                              color: Colors.white,
+                            }}
+                          >
+                            {i18n.t('options.toastDeleteRecords')}
+                          </Text>
+                        </View>,
+                        {
+                          duration: 3000,
+                        }
+                      )
+                    },
+                    style: 'destructive',
                   },
-                  style: 'destructive',
-                },
-              ]
-            )
-          }}
-          headerTxt="Delete all Records"
-          descTxt="This will delete all records permanently"
-          styleTxt={{ color: Colors.rose700 }}
-          styleBtn={{ backgroundColor: Colors.rose100 }}
-        />
-        <SingleOption
-          handler={() => {
-            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning)
-            Alert.alert(
-              'Delete all Reports',
-              'Please make sure you have a backup before proceeding',
-              [
-                {
-                  text: 'Cancel',
-                  onPress: () => console.log('Cancel Pressed'),
-                  style: 'cancel',
-                },
-                {
-                  text: 'Proceed',
-                  onPress: () => {
-                    deleteAllReports()
-                    router.replace('/(tabs)/reportPage')
-                    toast.custom(
-                      <View
-                        style={{
-                          alignSelf: 'center',
-                          flexDirection: 'row',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          gap: 4,
-                          backgroundColor: Colors.black,
-                          width: 240,
-                          paddingHorizontal: 8,
-                          paddingVertical: 10,
-                          borderRadius: 8,
-                        }}
-                      >
-                        <MaterialCommunityIcons
-                          name="delete"
-                          size={23}
-                          color={Colors.rose500}
-                        />
-                        <Text
+                ]
+              )
+            }}
+            headerTxt={i18n.t('options.deleteRecTitle')}
+            descTxt={i18n.t('options.deleteRecDesc')}
+            styleTxt={{ color: Colors.rose700 }}
+            styleBtn={{ backgroundColor: Colors.rose100 }}
+          />
+          <SingleOption
+            handler={() => {
+              Haptics.notificationAsync(
+                Haptics.NotificationFeedbackType.Warning
+              )
+              Alert.alert(
+                `${i18n.t('options.deleteRepTitle')}`,
+                `${i18n.t('options.deleteAlertDesc')}`,
+                [
+                  {
+                    text: i18n.t('options.cancel'),
+                    onPress: () => console.log('Cancel Pressed'),
+                    style: 'cancel',
+                  },
+                  {
+                    text: i18n.t('options.proceed'),
+                    onPress: () => {
+                      deleteAllReports()
+                      router.replace('/(tabs)/reportPage')
+                      toast.custom(
+                        <View
                           style={{
-                            fontFamily: 'IBM-Regular',
-                            fontSize: 15,
-                            color: Colors.white,
+                            alignSelf: 'center',
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: 4,
+                            backgroundColor: Colors.black,
+                            width: 240,
+                            paddingHorizontal: 8,
+                            paddingVertical: 10,
+                            borderRadius: 8,
                           }}
                         >
-                          All Reports deleted
-                        </Text>
-                      </View>,
-                      {
-                        duration: 5000,
-                      }
-                    )
+                          <MaterialCommunityIcons
+                            name="delete"
+                            size={23}
+                            color={Colors.rose500}
+                          />
+                          <Text
+                            style={{
+                              fontFamily: 'IBM-Regular',
+                              fontSize: 15,
+                              color: Colors.white,
+                            }}
+                          >
+                            {i18n.t('options.toastDeleteReports')}
+                          </Text>
+                        </View>,
+                        {
+                          duration: 5000,
+                        }
+                      )
+                    },
+                    style: 'destructive',
                   },
-                  style: 'destructive',
-                },
-              ]
-            )
-          }}
-          headerTxt="Delete all Reports"
-          descTxt="This will delete all reports permanently"
-          styleTxt={{ color: Colors.rose700 }}
-          styleBtn={{ backgroundColor: Colors.rose100 }}
-        />
-      </View>
+                ]
+              )
+            }}
+            headerTxt={i18n.t('options.deleteRepTitle')}
+            descTxt={i18n.t('options.deleteRepDesc')}
+            styleTxt={{ color: Colors.rose700 }}
+            styleBtn={{ backgroundColor: Colors.rose100 }}
+          />
+        </View>
+      </ScrollView>
     </View>
   )
 }
 export default optionsPage
 const styles = StyleSheet.create({
   mainContainer: {
-    flex: 1,
+    // flex: 1,
     backgroundColor: Colors.primary300,
     paddingVertical: 10,
     paddingHorizontal: 15,
     gap: 10,
+    height: '110%',
   },
   sectionContainer: {
     flexDirection: 'column',

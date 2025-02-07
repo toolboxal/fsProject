@@ -1,73 +1,47 @@
 import { Colors } from '@/constants/Colors'
 import { Text, StyleSheet, View, ScrollView } from 'react-native'
 import Ionicons from '@expo/vector-icons/Ionicons'
+import { useTranslations } from '../_layout'
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
 
 const ReadmePage = () => {
+  const i18n = useTranslations()
   return (
     <View style={styles.container}>
       <ScrollView
         contentContainerStyle={styles.scrollViewContent}
         showsVerticalScrollIndicator={false}
       >
-        <Text style={styles.header}>Welcome to FsPal 👋</Text>
-        <Text style={styles.subheader}>To note.</Text>
-        <Text style={styles.body}>
-          Whenever you create a new record, check the minimap to see whether
-          marker is at the desired location. Sometimes, you will need to press
-          the 'Update Map' button to refresh the marker's location.
-        </Text>
-        <Text style={styles.subheader}>
-          Are the records stored in the cloud?
-        </Text>
-        <Text style={styles.body}>
-          No. The records are stored locally on your phone. No backup is
-          available on a server. If you delete the app, the data will also be
-          deleted. You can do a local backup onto a JSON file and save to your
-          phone's file system. This JSON file can then be used to restore all
-          your data when you reinstall the app.
-        </Text>
-        <Text style={styles.subheader}>Is sharing available?</Text>
-        <Text style={styles.body}>
-          Yes. You can transfer a record to another person who is also using
-          FsPal.
-        </Text>
+        <Text style={styles.header}>{i18n.t('readme.title')}</Text>
+        <Text style={styles.subheader}>{i18n.t('readme.toNoteHeader')}</Text>
+        <Text style={styles.body}>{i18n.t('readme.toNoteBody')}</Text>
+        <Text style={styles.subheader}>{i18n.t('readme.cloudHeader')}</Text>
+        <Text style={styles.body}>{i18n.t('readme.cloudBody')}</Text>
+        <Text style={styles.subheader}>{i18n.t('readme.sharingHeader')}</Text>
+        <Text style={styles.body}>{i18n.t('readme.sharingBody')}</Text>
         <Text
           style={[
             styles.subheader,
             { color: Colors.emerald700, fontFamily: 'IBM-SemiBoldItalic' },
           ]}
         >
-          New Feature! - Export as Docs
+          {i18n.t('readme.exportHeader')}
           <Ionicons
             name="document-outline"
             size={24}
             color={Colors.emerald700}
           />
         </Text>
-        <Text style={styles.body}>
-          You can create a copy of your records in a .docx file, and open it on{' '}
-          {''}
-          <MaterialCommunityIcons
-            name="google"
-            size={20}
-            color={Colors.emerald700}
-          />
-          oogle Docs! Or whichever compatible note-taking app you prefer.
-        </Text>
+        <Text style={styles.body}>{i18n.t('readme.exportBody')}</Text>
         <Text
           style={[
             styles.subheader,
             { color: Colors.emerald700, fontFamily: 'IBM-SemiBoldItalic' },
           ]}
         >
-          New Feature! - Fs Monthly Report
+          {i18n.t('readme.reportHeader')}
         </Text>
-        <Text style={styles.body}>
-          Track your hours and bible studies with this new feature. Reports are
-          kept for 2 service years, current and previous. After 2 years, report
-          will auto delete.
-        </Text>
+        <Text style={styles.body}>{i18n.t('readme.reportBody')}</Text>
       </ScrollView>
     </View>
   )

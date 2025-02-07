@@ -1,11 +1,12 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native'
 import { Colors } from '@/constants/Colors'
 import Entypo from '@expo/vector-icons/Entypo'
+import useMyStore from '@/store/store'
 
 type Props = {
   handler: () => void
   headerTxt: string
-  descTxt: string
+  descTxt?: string
   styleTxt?: {}
   styleBtn?: {}
 }
@@ -17,6 +18,7 @@ const SingleOption = ({
   styleTxt,
   styleBtn,
 }: Props) => {
+  const lang = useMyStore((state) => state.language)
   return (
     <Pressable
       style={({ pressed }) => {
@@ -32,7 +34,15 @@ const SingleOption = ({
     >
       <View style={styles.btnTxtWrapper}>
         <Text style={[styles.btnHeadTxt, styleTxt]}>{headerTxt}</Text>
-        <Text style={[styles.btnDescTxt, styleTxt]}>{descTxt}</Text>
+        <Text
+          style={[
+            styles.btnDescTxt,
+            styleTxt,
+            { fontSize: lang === 'jp' ? 11 : 13 },
+          ]}
+        >
+          {descTxt}
+        </Text>
       </View>
       <Entypo name="chevron-small-right" size={28} color={Colors.primary300} />
     </Pressable>
@@ -46,10 +56,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    minHeight: 60,
   },
   btnTxtWrapper: {
     flexDirection: 'column',
-    gap: 3,
+    gap: 4,
   },
   btnHeadTxt: {
     fontFamily: 'IBM-SemiBold',
@@ -58,7 +69,7 @@ const styles = StyleSheet.create({
   },
   btnDescTxt: {
     fontFamily: 'IBM-Regular',
-    fontSize: 13,
+    // fontSize: 13,
     color: Colors.primary700,
   },
 })

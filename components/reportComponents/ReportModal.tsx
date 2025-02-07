@@ -13,7 +13,7 @@ import {
 } from 'react-native'
 import { Colors } from '@/constants/Colors'
 
-import { format, isToday } from 'date-fns'
+import { format, isToday, Locale } from 'date-fns'
 import { useForm, Controller } from 'react-hook-form'
 import * as Haptics from 'expo-haptics'
 import DateTimePicker from '@react-native-community/datetimepicker'
@@ -23,6 +23,9 @@ import { useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner-native'
 import EvilIcons from '@expo/vector-icons/EvilIcons'
 import AntDesign from '@expo/vector-icons/AntDesign'
+import { useTranslations } from '@/app/_layout'
+import { enUS, es, ja, zhCN } from 'date-fns/locale'
+import useMyStore from '@/store/store'
 
 type TFormData = Omit<TReport, 'id' | 'created_at' | 'date'>
 
@@ -32,11 +35,21 @@ type ModalProps = {
   svcYrs: { currentYr: number; previousYr: number }
 }
 
+const localeMap: Record<string, Locale> = {
+  en: enUS,
+  es: es,
+  ja: ja,
+  zh: zhCN,
+}
+
 const ModalForm = ({ modalVisible, setModalVisible, svcYrs }: ModalProps) => {
   const queryClient = useQueryClient()
   const today = new Date()
   const [datePick, setDatePick] = useState(today)
   const [openPicker, setOpenPicker] = useState(false)
+
+  const i18n = useTranslations()
+  const lang = useMyStore((state) => state.language)
 
   const { control, handleSubmit, reset, watch } = useForm({
     defaultValues: {
@@ -89,7 +102,11 @@ const ModalForm = ({ modalVisible, setModalVisible, svcYrs }: ModalProps) => {
             fontSize: 15,
             color: Colors.white,
           }}
-        >{`Record for ${format(datePick, 'dd MMM')} created`}</Text>
+        >
+          {lang === 'en'
+            ? `Record for ${format(datePick, 'dd MMM')} created`
+            : `${i18n.t('reportsModal.toastDelete')}`}
+        </Text>
       </View>,
       {
         duration: 3000,
@@ -126,8 +143,10 @@ const ModalForm = ({ modalVisible, setModalVisible, svcYrs }: ModalProps) => {
               <View style={styles.dateContainer}>
                 <Text style={styles.dateTxt}>
                   {isToday(datePick)
-                    ? 'Today'
-                    : format(datePick, 'dd MMM yyyy')}
+                    ? i18n.t('reportsModal.today')
+                    : format(datePick, 'dd MMM yyyy', {
+                        locale: localeMap[lang] || enUS,
+                      })}
                 </Text>
                 {Platform.OS === 'android' && (
                   <Pressable
@@ -137,7 +156,7 @@ const ModalForm = ({ modalVisible, setModalVisible, svcYrs }: ModalProps) => {
                     }}
                     style={styles.dateChangeBtn}
                   >
-                    <Text>Open Calendar</Text>
+                    <Text>{i18n.t('reportsModal.openCalendarTxt')}</Text>
                   </Pressable>
                 )}
                 <Pressable
@@ -154,6 +173,7 @@ const ModalForm = ({ modalVisible, setModalVisible, svcYrs }: ModalProps) => {
               {Platform.OS === 'ios' && (
                 <DateTimePicker
                   value={datePick}
+                  locale={lang || 'en'}
                   mode="date"
                   display="inline"
                   accentColor={Colors.emerald600}
@@ -188,7 +208,9 @@ const ModalForm = ({ modalVisible, setModalVisible, svcYrs }: ModalProps) => {
 
               <View style={styles.rowContainer}>
                 <View style={styles.inputContainers}>
-                  <Text style={styles.label}>hours</Text>
+                  <Text style={styles.label}>
+                    {i18n.t('reportsModal.hoursLabel')}
+                  </Text>
                   <View style={styles.inputBox}>
                     <Controller
                       control={control}
@@ -209,7 +231,7 @@ const ModalForm = ({ modalVisible, setModalVisible, svcYrs }: ModalProps) => {
                           }}
                           onBlur={onBlur}
                           selectionColor={Colors.primary700}
-                          placeholder="1.75"
+                          placeholder=""
                           placeholderTextColor={Colors.primary300}
                           autoFocus
                           style={styles.hrsInput}
@@ -221,7 +243,9 @@ const ModalForm = ({ modalVisible, setModalVisible, svcYrs }: ModalProps) => {
                   </View>
                 </View>
                 <View style={[styles.inputContainers]}>
-                  <Text style={styles.label}>no. bible studies</Text>
+                  <Text style={styles.label}>
+                    {i18n.t('reportsModal.bsLabel')}
+                  </Text>
                   <View style={styles.inputBox}>
                     <Controller
                       control={control}
@@ -264,7 +288,9 @@ const ModalForm = ({ modalVisible, setModalVisible, svcYrs }: ModalProps) => {
                   onPressOut={handleSubmit(submitPressed)}
                 >
                   <EvilIcons name="arrow-up" size={22} color="white" />
-                  <Text style={styles.submitBtnTxt}>Submit</Text>
+                  <Text style={styles.submitBtnTxt}>
+                    {i18n.t('reportsModal.submitBtn')}
+                  </Text>
                 </Pressable>
               </View>
               <Text style={styles.watchedTxt}>{watchedOutput}</Text>

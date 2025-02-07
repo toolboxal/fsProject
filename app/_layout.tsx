@@ -1,6 +1,6 @@
 import { Stack } from 'expo-router'
 import { useCallback, useEffect, useState } from 'react'
-import { View, Text, TextInput, Pressable } from 'react-native'
+import { View, Text, TextInput } from 'react-native'
 
 import { Colors } from '@/constants/Colors'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
@@ -17,12 +17,21 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import * as Location from 'expo-location'
 import getCurrentLocation from '@/utils/getCurrentLoc'
 import useMyStore from '@/store/store'
+import { I18n } from 'i18n-js'
+import { en, es, ja, zh } from '../constants/localizations'
 
 SplashScreen.preventAutoHideAsync()
 
 SplashScreen.setOptions({
-  duration: 3000,
+  duration: 2000,
   fade: true,
+})
+
+const i18n = new I18n({
+  en: en,
+  es: es,
+  ja: ja,
+  zh: zh,
 })
 
 const theme = {
@@ -40,6 +49,10 @@ const RootLayout = () => {
 
   const setAddress = useMyStore((state) => state.setAddress)
   const setGeoCoords = useMyStore((state) => state.setGeoCoords)
+  const lang = useMyStore((state) => state.language)
+
+  i18n.enableFallback = true
+  i18n.locale = lang
 
   const queryClient = new QueryClient()
 
@@ -118,13 +131,13 @@ const RootLayout = () => {
                     presentation: 'card',
                     // gestureEnabled: false,
                     headerShown: true,
-                    headerTitle: 'Create New Record',
+                    headerTitle: i18n.t('form.tabHeader'),
                     headerTitleStyle: {
                       fontFamily: 'IBM-Regular',
                       color: Colors.primary600,
                       fontSize: 22,
                     },
-                    headerBackTitle: 'Back',
+                    headerBackTitle: i18n.t('form.tabHeaderLeft'),
                     headerBackTitleStyle: {
                       fontFamily: 'Roboto-Regular',
                       fontSize: 18,
@@ -141,13 +154,13 @@ const RootLayout = () => {
                     presentation: 'card',
                     // gestureEnabled: false,
                     headerShown: true,
-                    headerTitle: 'Edit Record',
+                    headerTitle: i18n.t('editForm.tabHeader'),
                     headerTitleStyle: {
                       fontFamily: 'IBM-Regular',
                       color: Colors.primary600,
                       fontSize: 22,
                     },
-                    headerBackTitle: 'Back',
+                    headerBackTitle: i18n.t('editForm.tabHeaderLeft'),
                     headerBackTitleStyle: {
                       fontFamily: 'Roboto-Regular',
                       fontSize: 18,
@@ -172,6 +185,10 @@ const RootLayout = () => {
       </GestureHandlerRootView>
     </QueryClientProvider>
   )
+}
+
+export const useTranslations = () => {
+  return i18n
 }
 
 export default RootLayout

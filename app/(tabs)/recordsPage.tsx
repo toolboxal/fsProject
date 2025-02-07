@@ -26,6 +26,7 @@ import FontAwesome from '@expo/vector-icons/FontAwesome6'
 import { Ionicons } from '@expo/vector-icons'
 import { toast } from 'sonner-native'
 import sharePerson from '@/utils/sharePerson'
+import { useTranslations } from '../_layout'
 
 import { db } from '@/drizzle/db'
 import { Person, TPerson } from '@/drizzle/schema'
@@ -41,8 +42,9 @@ const RecordsPage = () => {
   const snapPoints = useMemo(() => ['23%', '60%'], [])
   const bottomSheetRef = useRef<BottomSheet>(null)
   const queryClient = useQueryClient()
+  const i18n = useTranslations()
 
-  const { bottom, top } = useSafeAreaInsets()
+  const { top } = useSafeAreaInsets()
 
   // const { data: persons } = useLiveQuery(db.select().from(Person))
 
@@ -83,29 +85,38 @@ const RecordsPage = () => {
   )
 
   const handleDeleteAlert = (personId: number) => {
-    Alert.alert('Record will be deleted', 'Ok to proceed?', [
-      {
-        text: 'Confirm',
-        onPress: async () => {
-          await db.delete(Person).where(eq(Person.id, personId))
-          queryClient.invalidateQueries({ queryKey: ['persons'] })
-          handleOpenBtmSheet('close')
+    Alert.alert(
+      i18n.t('records.deleteAlertTitle'),
+      i18n.t('records.deleteAlertDesc'),
+      [
+        {
+          text: i18n.t('records.confirm'),
+          onPress: async () => {
+            await db.delete(Person).where(eq(Person.id, personId))
+            queryClient.invalidateQueries({ queryKey: ['persons'] })
+            handleOpenBtmSheet('close')
 
-          toast.success('Record has been deleted 🗑️')
-          console.log('confirm delete')
+            toast.success(`${i18n.t('records.deleteToast')} 🗑️`)
+            console.log('confirm delete')
+          },
+          style: 'destructive',
         },
-        style: 'destructive',
-      },
-      {
-        text: 'Cancel',
-        onPress: () => console.log('Cancel Pressed'),
-        style: 'cancel',
-      },
-    ])
+        {
+          text: i18n.t('records.cancel'),
+          onPress: () => console.log('Cancel Pressed'),
+          style: 'cancel',
+        },
+      ]
+    )
   }
 
   const actionSheetPressed = (personId: number) => {
-    const options = ['Delete', 'Share', 'Edit', 'Cancel']
+    const options = [
+      i18n.t('records.actionDelete'),
+      i18n.t('records.actionShare'),
+      i18n.t('records.actionEdit'),
+      i18n.t('records.actionCancel'),
+    ]
     const destructiveButtonIndex = 0
     const cancelButtonIndex = 3
     showActionSheetWithOptions(
@@ -205,7 +216,9 @@ const RecordsPage = () => {
                 size={20}
                 color={Colors.emerald900}
               />
-              <Text style={styles.btnTextLeft}>New Record</Text>
+              <Text style={styles.btnTextLeft}>
+                {i18n.t('records.tabHeaderLeft')}
+              </Text>
             </Pressable>
           ),
           headerRight: () => (
@@ -216,7 +229,9 @@ const RecordsPage = () => {
                 router.navigate('/optionsPage')
               }}
             >
-              <Text style={styles.btnTextRight}>Options</Text>
+              <Text style={styles.btnTextRight}>
+                {i18n.t('records.tabHeaderRight')}
+              </Text>
             </Pressable>
           ),
         }}
@@ -324,7 +339,9 @@ const RecordsPage = () => {
             }}
           >
             <FontAwesome name="grip" size={22} color={Colors.sky100} />
-            <Text style={{ color: Colors.sky100 }}>menu</Text>
+            <Text style={{ color: Colors.sky100 }}>
+              {i18n.t('records.menu')}
+            </Text>
           </TouchableOpacity>
         </BottomSheetView>
         <BottomSheetScrollView
@@ -355,7 +372,7 @@ const RecordsPage = () => {
             </Text>
           </BottomSheetView>
           <Text style={[defaultStyles.textH2, styles.contactText]}>
-            {`contact: ${selectedPerson.contact}`}
+            {`${i18n.t('records.contact')}: ${selectedPerson.contact}`}
           </Text>
           <Text style={styles.dateText}>{selectedPerson.date}</Text>
           {selectedPerson.publications && (

@@ -24,6 +24,7 @@ import { Person, TPerson } from '@/drizzle/schema'
 import WebView from 'react-native-webview'
 import { SegmentedButtons } from 'react-native-paper'
 import { useQueryClient } from '@tanstack/react-query'
+import { useTranslations } from '@/app/_layout'
 
 type TFormData = Omit<TPerson, 'id' | 'category' | 'latitude' | 'longitude'>
 
@@ -33,12 +34,15 @@ const Form = () => {
   const geoCoords = useMyStore((state) => state.geoCoords)
   const setGeoCoords = useMyStore((state) => state.setGeoCoords)
   const address = useMyStore((state) => state.address)
+  const lang = useMyStore((state) => state.language)
   let { latitude, longitude } = geoCoords
 
   const [updatedLat, setUpdatedLat] = useState(latitude)
   const [updatedLng, setUpdatedLng] = useState(longitude)
 
   const { todayDate } = getTimeDate()
+
+  const i18n = useTranslations()
 
   const { street, streetNumber } = address
   const displayBlock = streetNumber?.split(' ')[1]
@@ -85,7 +89,11 @@ const Form = () => {
     console.log('submitted new user')
     reset()
 
-    toast.success(`Record ${name} has been created 👍`)
+    toast.success(
+      lang === 'en'
+        ? `Record ${name} has been created 👍`
+        : i18n.t('form.toastSuccess')
+    )
 
     router.replace('/recordsPage')
   }
@@ -170,7 +178,7 @@ const Form = () => {
                 value={value.toUpperCase()}
                 onChangeText={onChange}
                 onBlur={onBlur}
-                label="house no."
+                label={i18n.t('form.houseLabel')}
                 placeholderText="unit"
                 extraStyles={{ width: 110 }}
                 // autoFocus={true}
@@ -185,7 +193,7 @@ const Form = () => {
                 value={value.toUpperCase()}
                 onChangeText={onChange}
                 onBlur={onBlur}
-                label="apartment"
+                label={i18n.t('form.aptLabel')}
                 placeholderText="blk no."
                 extraStyles={{ width: 110 }}
               />
@@ -198,16 +206,17 @@ const Form = () => {
               padding: 6,
               paddingHorizontal: 10,
               backgroundColor: Colors.primary900,
-              borderRadius: 10,
+              borderRadius: 8,
               alignSelf: 'flex-end',
               flexDirection: 'row',
               alignItems: 'center',
-              gap: 3,
+              gap: 5,
               shadowColor: '#000',
               shadowOffset: { width: 2, height: 2 },
               shadowOpacity: 0.3,
               shadowRadius: 5,
               elevation: 5,
+              minWidth: 80,
             }}
             onPress={handleNewAddress}
           >
@@ -224,7 +233,7 @@ const Form = () => {
                 textAlign: 'center',
               }}
             >
-              {` Update\n Map`}
+              {i18n.t('form.updateMapLabel')}
             </Text>
           </TouchableOpacity>
         </View>
@@ -236,7 +245,7 @@ const Form = () => {
               value={value}
               onChangeText={onChange}
               onBlur={onBlur}
-              label="street"
+              label={i18n.t('form.streetLabel')}
               placeholderText="kingdom ave."
               extraStyles={{ width: '100%' }}
             />
@@ -276,7 +285,7 @@ const Form = () => {
                 value={value}
                 onChangeText={onChange}
                 onBlur={onBlur}
-                label="name"
+                label={i18n.t('form.nameLabel')}
                 placeholderText="nicodemus"
                 extraStyles={{ width: 175 }}
               />
@@ -290,7 +299,7 @@ const Form = () => {
                 value={value}
                 onChangeText={onChange}
                 onBlur={onBlur}
-                label="contact"
+                label={i18n.t('form.contactLabel')}
                 placeholderText="hp no."
                 extraStyles={{ width: 140 }}
               />
@@ -305,7 +314,7 @@ const Form = () => {
               value={value}
               onChangeText={onChange}
               onBlur={onBlur}
-              label="publications"
+              label={i18n.t('form.pubLabel')}
               placeholderText="stopped at lff lesson3 pt5"
               extraStyles={{ width: '100%' }}
             />
@@ -319,7 +328,7 @@ const Form = () => {
               value={value}
               onChangeText={onChange}
               onBlur={onBlur}
-              label="remarks"
+              label={i18n.t('form.remarksLabel')}
               placeholderText="....."
               extraStyles={{
                 width: '100%',
@@ -338,7 +347,7 @@ const Form = () => {
                 value={value}
                 onChangeText={onChange}
                 onBlur={onBlur}
-                label="date"
+                label={i18n.t('form.dateLabel')}
                 placeholderText=""
                 extraStyles={{ width: 130 }}
               />
@@ -354,15 +363,15 @@ const Form = () => {
           buttons={[
             {
               value: 'CA',
-              label: 'Call Again',
+              label: i18n.t('form.callAgain'),
             },
             {
               value: 'RV',
-              label: 'Return Visit',
+              label: i18n.t('form.returnVisit'),
             },
             {
               value: 'BS',
-              label: 'Bible Study',
+              label: i18n.t('form.bibleStudy'),
             },
           ]}
         />
@@ -372,7 +381,7 @@ const Form = () => {
           activeOpacity={0.8}
         >
           <FontAwesome name="check" size={22} color={Colors.white} />
-          <Text style={styles.buttonText}>Save</Text>
+          <Text style={styles.buttonText}>{i18n.t('form.saveLabel')}</Text>
         </TouchableOpacity>
       </ScrollView>
     </View>

@@ -6,6 +6,7 @@ import {
   Pressable,
   ScrollView,
   Platform,
+  RefreshControl,
 } from 'react-native'
 import { useRouter } from 'expo-router'
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
@@ -19,14 +20,26 @@ import { useQuery } from '@tanstack/react-query'
 import ReportTable from '@/components/reportComponents/reportTable'
 import { Tabs } from 'expo-router'
 import SvcYrDropdown from '@/components/reportComponents/SvcYrDropdown'
-import { isAfter, isBefore, formatDistanceStrict } from 'date-fns'
+import { isAfter, isBefore, formatDistanceStrict, Locale } from 'date-fns'
 import { cleanupOldReports } from '@/utils/cleanupOldReports'
 import convertFloatToTime from '@/utils/convertFloatToTime'
+import { useTranslations } from '../_layout'
+import { enUS, es, ja, zhCN } from 'date-fns/locale'
+import useMyStore from '@/store/store'
+
+const localeMap: Record<string, Locale> = {
+  en: enUS,
+  es: es,
+  ja: ja,
+  zh: zhCN,
+}
 
 const reportPage = () => {
   const { bottom, top } = useSafeAreaInsets()
   const [modalVisible, setModalVisible] = useState(false)
   const router = useRouter()
+  const i18n = useTranslations()
+  const lang = useMyStore((state) => state.language)
 
   useEffect(() => {
     cleanupOldReports()
@@ -50,7 +63,7 @@ const reportPage = () => {
   const [selectedYr, setSelectedYr] = useState(svcYrs.currentYr)
   console.log(selectedYr)
 
-  const { data } = useQuery({
+  const { data, refetch, isRefetching } = useQuery({
     queryKey: ['reports'],
     queryFn: () => {
       const result = db.select().from(Report).all()
@@ -93,7 +106,9 @@ const reportPage = () => {
               }}
             >
               <FontAwesome6 name="add" size={13} color={Colors.primary900} />
-              <Text style={styles.btnTextLeft}>New Report</Text>
+              <Text style={styles.btnTextLeft}>
+                {i18n.t('reports.tabHeaderLeft')}
+              </Text>
             </Pressable>
           ),
           headerRight: () => (
@@ -104,7 +119,9 @@ const reportPage = () => {
                 router.navigate('/(options)/optionsPage')
               }}
             >
-              <Text style={styles.btnTextRight}>Options</Text>
+              <Text style={styles.btnTextRight}>
+                {i18n.t('reports.tabHeaderRight')}
+              </Text>
             </Pressable>
           ),
         }}
@@ -113,6 +130,15 @@ const reportPage = () => {
         style={{
           flex: 1,
         }}
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefetching}
+            onRefresh={refetch}
+            tintColor={Colors.emerald300}
+            colors={[Colors.emerald300]}
+            progressBackgroundColor={Colors.emerald50}
+          />
+        }
         contentContainerStyle={{
           paddingBottom: Platform.OS === 'android' ? bottom + 100 : bottom + 75,
           paddingTop: 10,
@@ -125,29 +151,36 @@ const reportPage = () => {
           <View style={styles.totalRow}>
             <View style={styles.totalValues}>
               <Text style={styles.totalYrHeader}>
-                {'Viewing service year: ' + selectedYr}
+                {i18n.t('reports.stickyHeader1') + selectedYr}
               </Text>
-              <Text style={styles.totalLabel}>Total:</Text>
+              <Text style={styles.totalLabel}>
+                {i18n.t('reports.stickyHeader2')}
+              </Text>
               <Text style={styles.totalText}>
                 {convertFloatToTime(totals.hrs)}
               </Text>
             </View>
             <View style={[styles.totalValues, { alignItems: 'flex-end' }]}>
-              <Text style={styles.totalLabel}>Remaining hours:</Text>
+              <Text style={styles.totalLabel}>
+                {i18n.t('reports.stickyHeader3')}
+              </Text>
               <Text style={styles.remainingHrs}>
                 {600 - totals.hrs <= 0
                   ? '0h 0m'
                   : convertFloatToTime(600 - totals.hrs)}
               </Text>
-              <Text style={styles.totalLabel}>Days to new Svc Year:</Text>
+              <Text style={[styles.totalLabel, { textAlign: 'right' }]}>
+                {i18n.t('reports.stickyHeader4')}
+              </Text>
               <Text style={styles.remainingHrs}>
                 {selectedYr === svcYrs.previousYr
-                  ? '0 days'
+                  ? `0${i18n.t('reports.stickyDays')}`
                   : formatDistanceStrict(
                       new Date(),
                       new Date(selectedYr, 8, 1, 0, 0, 0),
                       {
                         unit: 'day',
+                        locale: localeMap[lang] || enUS,
                       }
                     )}
               </Text>
@@ -180,8 +213,8 @@ const reportPage = () => {
               }}
             >
               {selectedYr === svcYrs.previousYr
-                ? 'service year has ended'
-                : 'Start by creating your first report'}
+                ? i18n.t('reports.backgroundTxt1')
+                : i18n.t('reports.backgroundTxt2')}
             </Text>
           </View>
         ) : (

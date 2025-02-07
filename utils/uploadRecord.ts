@@ -5,6 +5,8 @@ import { toast } from 'sonner-native'
 import { Person, TPerson } from '@/drizzle/schema'
 import { db } from '@/drizzle/db'
 import { QueryClient } from '@tanstack/react-query'
+import { useTranslations } from '@/app/_layout'
+import useMyStore from '@/store/store'
 
 type TSharedPerson = Omit<TPerson, 'id'>
 
@@ -14,6 +16,8 @@ type TRestoreFile = {
 }
 
 const uploadRecord = async (queryClient: QueryClient) => {
+  const i18n = useTranslations()
+  const lang = useMyStore((state) => state.language)
   try {
     const result = await DocumentPicker.getDocumentAsync({
       type: 'application/json',
@@ -35,7 +39,11 @@ const uploadRecord = async (queryClient: QueryClient) => {
       ...data.data,
     })
     queryClient.invalidateQueries({ queryKey: ['persons'] })
-    toast.success(`Record ${data.data.name} has been upload 👍`)
+    toast.success(
+      lang === 'en'
+        ? `Record ${data.data.name} has been uploaded 👍`
+        : i18n.t('uploadRecordFunc.toastSuccess')
+    )
   } catch (error) {
     if (error instanceof Error) {
       Alert.alert(error.message)

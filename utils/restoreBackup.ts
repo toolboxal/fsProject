@@ -8,6 +8,7 @@ import { toast } from 'sonner-native'
 import { db } from '@/drizzle/db'
 import { Person, TPerson, Report, TReport } from '@/drizzle/schema'
 import { QueryClient } from '@tanstack/react-query'
+import { useTranslations } from '@/app/_layout'
 
 type TRestorePerson = Omit<TPerson, 'id'>
 type TRestoreReport = Omit<TReport, 'id'>
@@ -20,6 +21,7 @@ type BackupData = {
 }
 
 const restoreRecord = async (queryClient: QueryClient) => {
+  const i18n = useTranslations()
   try {
     const result = await DocumentPicker.getDocumentAsync({
       type: 'application/json',
@@ -63,7 +65,7 @@ const restoreRecord = async (queryClient: QueryClient) => {
     queryClient.invalidateQueries({ queryKey: ['persons'] })
     queryClient.invalidateQueries({ queryKey: ['reports'] })
 
-    toast.success('Data restored successfully 👌')
+    toast.success(i18n.t('restoreBackupFunc.toastSuccess'))
   } catch (error) {
     if (error instanceof Error) {
       Alert.alert('Restore Error', error.message)

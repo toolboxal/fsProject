@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { TPerson } from '@/drizzle/schema'
+import { storage } from '@/store/storage'
 
 type TAddress = {
   city: string | null
@@ -26,6 +27,8 @@ type Store = {
   setAddress: (location: TAddress) => void
   setGeoCoords: (geo: { latitude: number; longitude: number }) => void
   setSelectedPerson: (selected: TPerson) => void
+  language: string
+  setLanguage: (lang: string) => void
 }
 
 const initialAddress = {
@@ -55,6 +58,7 @@ const initialPerson = {
   date: '',
   latitude: 0,
   longitude: 0,
+  publications: '',
 }
 
 const useMyStore = create<Store>((set) => ({
@@ -64,6 +68,8 @@ const useMyStore = create<Store>((set) => ({
   setAddress: (location) => set({ address: location }),
   setGeoCoords: (geo) => set({ geoCoords: geo }),
   setSelectedPerson: (selected) => set({ selectedPerson: selected }),
+  language: storage.getString('language') || 'en',
+  setLanguage: (lang: string) => set({ language: lang }),
 }))
 
 export default useMyStore

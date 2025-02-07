@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { Pressable, StyleSheet, Text, View } from 'react-native'
 import {
   useReactTable,
@@ -11,54 +12,18 @@ import { db } from '@/drizzle/db'
 import { eq } from 'drizzle-orm'
 import { Report, TReport } from '@/drizzle/schema'
 import { useQueryClient } from '@tanstack/react-query'
-import { format } from 'date-fns'
+import { format, Locale } from 'date-fns'
 import { useActionSheet } from '@expo/react-native-action-sheet'
 import { Colors } from '@/constants/Colors'
 import { toast } from 'sonner-native'
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6'
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
 import convertFloatToTime from '@/utils/convertFloatToTime'
+import useMyStore from '@/store/store'
+import { enUS, es, ja, zhCN } from 'date-fns/locale'
+import { useTranslations } from '@/app/_layout'
 
 const columnHelper = createColumnHelper<TReport>()
-
-const columns = [
-  columnHelper.accessor('date', {
-    header: () => <Text style={styles.headerTxt}>Date</Text>,
-    cell: (info) => {
-      const date = info.getValue()
-      const formattedDate = format(date!, 'dd MMM')
-      return <Text style={styles.cellTxt}>{formattedDate}</Text>
-    },
-    sortingFn: 'datetime',
-    getGroupingValue: (row) => format(row.date!, 'yyyy-MM'),
-  }),
-  columnHelper.accessor('bs', {
-    header: () => <Text style={styles.headerTxt}>BS</Text>,
-    cell: (info) => <Text style={styles.cellTxt}>{info.getValue()}</Text>,
-    aggregationFn: 'sum',
-  }),
-  columnHelper.accessor('hrs', {
-    header: () => <Text style={styles.headerTxt}>Hrs</Text>,
-    cell: (info) => (
-      <Text style={styles.cellTxt}>
-        {convertFloatToTime(info.getValue() || 0)}
-      </Text>
-    ),
-    aggregationFn: 'sum',
-  }),
-  columnHelper.display({
-    id: 'actions',
-    cell: (info) => (
-      <View>
-        <FontAwesome6
-          name="ellipsis-vertical"
-          size={18}
-          color={Colors.primary300}
-        />
-      </View>
-    ),
-  }),
-]
 
 type TProps = {
   data: TReport[]
@@ -66,6 +31,64 @@ type TProps = {
 
 const ReportTable = ({ data }: TProps) => {
   const queryClient = useQueryClient()
+  const lang = useMyStore((state) => state.language)
+
+  const localeMap: Record<string, Locale> = {
+    en: enUS,
+    es: es,
+    ja: ja,
+    zh: zhCN,
+  }
+
+  const i18n = useTranslations()
+
+  const columns = useMemo(() => {
+    return [
+      columnHelper.accessor('date', {
+        header: () => (
+          <Text style={styles.headerTxt}>
+            {i18n.t('reports.tableHeadDate')}
+          </Text>
+        ),
+        cell: (info) => {
+          const date = info.getValue()
+          const formattedDate = format(date!, 'dd MMM', {
+            locale: localeMap[lang] || enUS,
+          })
+          return <Text style={styles.cellTxt}>{formattedDate}</Text>
+        },
+        sortingFn: 'datetime',
+        getGroupingValue: (row) => format(row.date!, 'yyyy-MM'),
+      }),
+      columnHelper.accessor('bs', {
+        header: () => <Text style={styles.headerTxt}>BS</Text>,
+        cell: (info) => <Text style={styles.cellTxt}>{info.getValue()}</Text>,
+        aggregationFn: 'sum',
+      }),
+      columnHelper.accessor('hrs', {
+        header: () => <Text style={styles.headerTxt}>Hrs</Text>,
+        cell: (info) => (
+          <Text style={styles.cellTxt}>
+            {convertFloatToTime(info.getValue() || 0)}
+          </Text>
+        ),
+        aggregationFn: 'sum',
+      }),
+      columnHelper.display({
+        id: 'actions',
+        cell: (info) => (
+          <View>
+            <FontAwesome6
+              name="ellipsis-vertical"
+              size={18}
+              color={Colors.primary300}
+            />
+          </View>
+        ),
+      }),
+    ]
+  }, [])
+
   const table = useReactTable({
     columns,
     data: data || [],
@@ -88,12 +111,14 @@ const ReportTable = ({ data }: TProps) => {
   const groupedRows = table
     .getGroupedRowModel()
     .rows.sort((a, b) => String(a.id).localeCompare(String(b.id)))
-
   const { showActionSheetWithOptions } = useActionSheet()
 
   const handleActionSheet = (rowId: number, rowDate: Date) => {
     const title = format(rowDate, 'dd MMM yyyy')
-    const options = ['Delete', 'Cancel']
+    const options = [
+      i18n.t('reports.actionDelete'),
+      i18n.t('reports.actionCancel'),
+    ]
     const destructiveButtonIndex = 0
     const cancelButtonIndex = 1
     showActionSheetWithOptions(
@@ -146,7 +171,7 @@ const ReportTable = ({ data }: TProps) => {
             color: Colors.white,
           }}
         >
-          Report deleted
+          {i18n.t('reportsModal.toastDelete')}
         </Text>
       </View>,
       {
@@ -161,7 +186,9 @@ const ReportTable = ({ data }: TProps) => {
         <View key={monthGroup.id} style={styles.monthContainer}>
           <View style={styles.monthHeader}>
             <Text style={styles.monthTitle}>
-              {format(new Date(monthGroup.getValue('date')), 'MMMM yyyy')}
+              {format(new Date(monthGroup.getValue('date')), 'MMMM yyyy', {
+                locale: localeMap[lang] || enUS,
+              })}
             </Text>
           </View>
 
@@ -225,7 +252,9 @@ const ReportTable = ({ data }: TProps) => {
             {/* Subtotal Row */}
             <View style={styles.subtotalRow}>
               <View style={[styles.cell, { flex: 1 }]}>
-                <Text style={styles.subtotalText}>Subtotal</Text>
+                <Text style={styles.subtotalText}>
+                  {i18n.t('reports.tableSubtotalLabel')}
+                </Text>
               </View>
               <View style={[styles.cell, { flex: 1 }]}>
                 <Text style={styles.subtotalText}>

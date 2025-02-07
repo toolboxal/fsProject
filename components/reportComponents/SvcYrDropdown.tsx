@@ -2,6 +2,7 @@ import { StyleSheet, Text, View } from 'react-native'
 import * as DropdownMenu from 'zeego/dropdown-menu'
 import Entypo from '@expo/vector-icons/Entypo'
 import { Colors } from '@/constants/Colors'
+import { useTranslations } from '@/app/_layout'
 
 type Props = {
   selectedYr: number
@@ -10,26 +11,27 @@ type Props = {
 }
 
 const SvcYrDropdown = ({ selectedYr, setItem, svcYrs }: Props) => {
+  const i18n = useTranslations()
   return (
     <View style={styles.trigger}>
       <DropdownMenu.Root>
         <DropdownMenu.Trigger>
           <View style={styles.triggerContainer}>
             <Text style={styles.triggerTxt}>
-              {`service year ${selectedYr.toString()}`}
+              {`${i18n.t('reports.dropDownTitle')}${selectedYr.toString()}`}
             </Text>
             <Entypo name="chevron-down" size={20} color={Colors.white} />
           </View>
         </DropdownMenu.Trigger>
         <DropdownMenu.Content>
           <DropdownMenu.Item
-            key="previous"
+            key={i18n.t('reports.dropDownPrevious')}
             onSelect={() => setItem(svcYrs.previousYr)}
           >
             <DropdownMenu.ItemTitle>previous</DropdownMenu.ItemTitle>
           </DropdownMenu.Item>
           <DropdownMenu.Item
-            key="current"
+            key={i18n.t('reports.dropDownCurrent')}
             onSelect={() => setItem(svcYrs.currentYr)}
           >
             <DropdownMenu.ItemTitle>

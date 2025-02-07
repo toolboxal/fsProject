@@ -18,7 +18,17 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { storage } from '@/store/storage'
 import { Colors } from '@/constants/Colors'
 import { FontAwesome6 } from '@expo/vector-icons'
-import { format } from 'date-fns'
+import { format, Locale } from 'date-fns'
+import { useTranslations } from '@/app/_layout'
+import { enUS, es, ja, zhCN } from 'date-fns/locale'
+import useMyStore from '@/store/store'
+
+const localeMap: Record<string, Locale> = {
+  en: enUS,
+  es: es,
+  ja: ja,
+  zh: zhCN,
+}
 
 const fetchCalendarEvents = async () => {
   const { status } = await Calendar.requestCalendarPermissionsAsync()
@@ -55,6 +65,8 @@ const schedulePage = () => {
   const { bottom, top } = useSafeAreaInsets()
   const queryClient = useQueryClient()
   const [refreshing, setRefreshing] = useState(false)
+  const i18n = useTranslations()
+  const lang = useMyStore((state) => state.language)
 
   const {
     data: events = [],
@@ -132,7 +144,9 @@ const schedulePage = () => {
               }}
             >
               <FontAwesome6 name="add" size={13} color={Colors.primary900} />
-              <Text style={styles.btnTextLeft}>New Schedule</Text>
+              <Text style={styles.btnTextLeft}>
+                {i18n.t('schedule.tabHeaderLeft')}
+              </Text>
             </Pressable>
           ),
           headerRight: () => (
@@ -143,7 +157,9 @@ const schedulePage = () => {
                 router.navigate('/(options)/optionsPage')
               }}
             >
-              <Text style={styles.btnTextRight}>Options</Text>
+              <Text style={styles.btnTextRight}>
+                {i18n.t('schedule.tabHeaderRight')}
+              </Text>
             </Pressable>
           ),
         }}
@@ -168,10 +184,14 @@ const schedulePage = () => {
         }
       >
         {events.length === 0 ? (
-          <Text style={styles.noEvents}>no upcoming events</Text>
+          <Text style={styles.noEvents}>
+            {i18n.t('schedule.backgroundTxt1')}
+          </Text>
         ) : (
           <View>
-            <Text style={styles.sectionHeader}>Upcoming</Text>
+            <Text style={styles.sectionHeader}>
+              {i18n.t('schedule.upcomingHeader')}
+            </Text>
             {upcoming.map((event, index) => (
               <Pressable
                 key={event.id + index}
@@ -187,10 +207,12 @@ const schedulePage = () => {
               >
                 <Text style={styles.eventTitle}>{event.title}</Text>
                 <Text style={styles.eventTime}>
-                  {format(event.startDate, 'EEE, dd MMM yyyy, h:mmb')}
+                  {format(event.startDate, 'EEE, dd MMM yyyy, h:mmb', {
+                    locale: localeMap[lang] || enUS,
+                  })}
                 </Text>
                 <Text style={styles.eventNotes}>
-                  {event.notes || 'No additional notes'}
+                  {event.notes || i18n.t('schedule.noAddNotes')}
                 </Text>
               </Pressable>
             ))}
@@ -203,7 +225,7 @@ const schedulePage = () => {
                     { fontSize: 18, color: Colors.primary700 },
                   ]}
                 >
-                  subsequent events...
+                  {i18n.t('schedule.subsequentHeader')}
                 </Text>
                 {later.map((event, index) => (
                   <Pressable
@@ -220,16 +242,21 @@ const schedulePage = () => {
                   >
                     <Text style={styles.eventTitle}>{event.title}</Text>
                     <Text style={styles.eventTime}>
-                      {format(event.startDate, 'EEE, dd MMM yyyy, h:mmb')}
+                      {format(event.startDate, 'EEE, dd MMM yyyy, h:mmb', {
+                        locale: localeMap[lang] || enUS,
+                      })}
                     </Text>
                     <Text style={styles.eventNotes}>
-                      {event.notes || 'No additional notes'}
+                      {event.notes || i18n.t('schedule.noAddNotes')}
                     </Text>
                   </Pressable>
                 ))}
               </View>
             )}
           </View>
+        )}
+        {events.length !== 0 && (
+          <Text style={styles.fyiTxt}>{i18n.t('schedule.fyiTxt')}</Text>
         )}
       </ScrollView>
     </SafeAreaView>
@@ -318,5 +345,12 @@ const styles = StyleSheet.create({
     color: Colors.emerald800,
     fontFamily: 'IBM-Medium',
     fontSize: 18,
+  },
+  fyiTxt: {
+    margin: 10,
+    fontFamily: 'IBM-Italic',
+    fontSize: 14,
+    color: Colors.primary700,
+    textAlign: 'center',
   },
 })

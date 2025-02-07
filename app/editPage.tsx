@@ -29,6 +29,7 @@ import { eq } from 'drizzle-orm'
 import { SegmentedButtons } from 'react-native-paper'
 import WebView from 'react-native-webview'
 import { useQueryClient } from '@tanstack/react-query'
+import { useTranslations } from '@/app/_layout'
 
 type TFormData = Omit<TPerson, 'id' | 'category' | 'latitude' | 'longitude'>
 
@@ -53,6 +54,8 @@ const EditPage = () => {
       publications: selectedPerson.publications || '',
     },
   })
+
+  const i18n = useTranslations()
 
   const submitPressed = async (data: TFormData) => {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
@@ -79,7 +82,7 @@ const EditPage = () => {
     console.log('edit done')
     reset()
 
-    toast.success('Edit saved 💾')
+    toast.success(i18n.t('editForm.toastSuccess'))
     router.replace('/recordsPage')
   }
 
@@ -175,7 +178,7 @@ const EditPage = () => {
                     value={value.toUpperCase()}
                     onChangeText={onChange}
                     onBlur={onBlur}
-                    label="house no."
+                    label={i18n.t('form.houseLabel')}
                     placeholderText="unit"
                     extraStyles={{
                       width: 110,
@@ -191,7 +194,7 @@ const EditPage = () => {
                     value={value.toUpperCase()}
                     onChangeText={onChange}
                     onBlur={onBlur}
-                    label="apartment"
+                    label={i18n.t('form.aptLabel')}
                     placeholderText="blk no."
                     extraStyles={{
                       width: 110,
@@ -206,16 +209,17 @@ const EditPage = () => {
                   padding: 6,
                   paddingHorizontal: 10,
                   backgroundColor: Colors.primary900,
-                  borderRadius: 10,
+                  borderRadius: 8,
                   alignSelf: 'flex-end',
                   flexDirection: 'row',
                   alignItems: 'center',
-                  gap: 3,
+                  gap: 5,
                   shadowColor: '#000',
                   shadowOffset: { width: 2, height: 2 },
                   shadowOpacity: 0.3,
                   shadowRadius: 5,
                   elevation: 5,
+                  minWidth: 80,
                 }}
                 onPress={handleNewAddress}
               >
@@ -232,7 +236,7 @@ const EditPage = () => {
                     textAlign: 'center',
                   }}
                 >
-                  {` Update\n Map`}
+                  {i18n.t('form.updateMapLabel')}
                 </Text>
               </TouchableOpacity>
             </View>
@@ -244,7 +248,7 @@ const EditPage = () => {
                   value={value}
                   onChangeText={onChange}
                   onBlur={onBlur}
-                  label="street"
+                  label={i18n.t('form.streetLabel')}
                   placeholderText="kingdom ave."
                   extraStyles={{
                     width: '100%',
@@ -286,7 +290,7 @@ const EditPage = () => {
                     value={value}
                     onChangeText={onChange}
                     onBlur={onBlur}
-                    label="name"
+                    label={i18n.t('form.nameLabel')}
                     placeholderText="nicodemus"
                     extraStyles={{
                       width: 175,
@@ -302,7 +306,7 @@ const EditPage = () => {
                     value={value}
                     onChangeText={onChange}
                     onBlur={onBlur}
-                    label="contact"
+                    label={i18n.t('form.contactLabel')}
                     placeholderText="hp no."
                     extraStyles={{
                       width: 140,
@@ -319,7 +323,7 @@ const EditPage = () => {
                   value={value}
                   onChangeText={onChange}
                   onBlur={onBlur}
-                  label="publications"
+                  label={i18n.t('form.pubLabel')}
                   placeholderText="stopped at lff lesson3 pt5"
                   extraStyles={{ width: '100%' }}
                 />
@@ -333,7 +337,7 @@ const EditPage = () => {
                   value={value}
                   onChangeText={onChange}
                   onBlur={onBlur}
-                  label="remarks"
+                  label={i18n.t('form.remarksLabel')}
                   placeholderText="....."
                   extraStyles={{
                     width: '100%',
@@ -352,7 +356,7 @@ const EditPage = () => {
                     value={value}
                     onChangeText={onChange}
                     onBlur={onBlur}
-                    label="date"
+                    label={i18n.t('form.dateLabel')}
                     placeholderText=""
                     extraStyles={{
                       width: 130,
@@ -369,15 +373,15 @@ const EditPage = () => {
               buttons={[
                 {
                   value: 'CA',
-                  label: 'Call Again',
+                  label: i18n.t('form.callAgain'),
                 },
                 {
                   value: 'RV',
-                  label: 'Return Visit',
+                  label: i18n.t('form.returnVisit'),
                 },
                 {
                   value: 'BS',
-                  label: 'Bible Study',
+                  label: i18n.t('form.bibleStudy'),
                 },
               ]}
             />
@@ -391,7 +395,9 @@ const EditPage = () => {
                 size={22}
                 color={Colors.white}
               />
-              <Text style={styles.buttonText}>Save Edit</Text>
+              <Text style={styles.buttonText}>
+                {i18n.t('editForm.saveLabel')}
+              </Text>
             </TouchableOpacity>
           </ScrollView>
         </View>
