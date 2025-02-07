@@ -12,7 +12,7 @@ const MapsPage = () => {
   const setAddress = useMyStore((state) => state.setAddress)
   const setGeoCoords = useMyStore((state) => state.setGeoCoords)
 
-  const [showAnnouncement, setShowAnnouncement] = useState(true)
+  const [showAnnouncement, setShowAnnouncement] = useState(false)
 
   useEffect(() => {
     // Check if this version's announcement has been shown
