@@ -15,7 +15,7 @@
       "supportsTablet": false
     },
     "ios": {
-      "buildNumber": "12",
+      "buildNumber": "13",
       "supportsTablet": false,
       "bundleIdentifier": "com.toolboxal.fsProject",
       "infoPlist": {
