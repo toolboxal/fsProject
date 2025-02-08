@@ -231,6 +231,7 @@ const Form = () => {
                 fontSize: 14,
                 color: Colors.primary100,
                 textAlign: 'center',
+                lineHeight: 18,
               }}
             >
               {i18n.t('form.updateMapLabel')}
@@ -411,7 +412,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginVertical: 7,
     width: '100%',
-    alignItems: 'center',
+    alignItems: 'flex-end',
     // borderWidth: 1,
     // borderColor: 'red',
   },

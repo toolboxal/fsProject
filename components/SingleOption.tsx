@@ -38,7 +38,7 @@ const SingleOption = ({
           style={[
             styles.btnDescTxt,
             styleTxt,
-            { fontSize: lang === 'jp' ? 11 : 13 },
+            { fontSize: lang === 'ja' ? 10.5 : 12 },
           ]}
         >
           {descTxt}
@@ -64,7 +64,7 @@ const styles = StyleSheet.create({
   },
   btnHeadTxt: {
     fontFamily: 'IBM-SemiBold',
-    fontSize: 16,
+    fontSize: 15,
     color: Colors.emerald700,
   },
   btnDescTxt: {

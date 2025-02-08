@@ -124,7 +124,7 @@ const ja = {
     remarksLabel: '備考',
     dateLabel: '日付',
     saveLabel: '保存',
-    updateMapLabel: 'マップを更新',
+    updateMapLabel: 'マップ\nを更新',
     callAgain: '再度電話する',
     returnVisit: '再訪',
     bibleStudy: '聖書研究',

@@ -26,7 +26,7 @@ import { storage } from '@/store/storage'
 const WebMapRender = () => {
   const [isDarkMode, setIsDarkMode] = useState(() => {
     const savedDarkMode = storage.getBoolean('isDarkMode')
-    return savedDarkMode ?? false
+    return savedDarkMode || false
   })
   const { bottom } = useSafeAreaInsets()
   const setAddress = useMyStore((state) => state.setAddress)

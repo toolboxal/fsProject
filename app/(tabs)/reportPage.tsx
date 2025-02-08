@@ -134,7 +134,10 @@ const reportPage = () => {
         refreshControl={
           <RefreshControl
             refreshing={isRefetching}
-            onRefresh={refetch}
+            onRefresh={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
+              refetch()
+            }}
             tintColor={Colors.emerald300}
             colors={[Colors.emerald300]}
             progressBackgroundColor={Colors.emerald50}
@@ -281,7 +284,7 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     flex: 1,
     // backgroundColor: Colors.primary400,
-    gap: 3,
+    gap: 2,
   },
   totalYrHeader: {
     fontFamily: 'Lora-SemiBoldItalic',
@@ -295,12 +298,12 @@ const styles = StyleSheet.create({
   },
   totalText: {
     fontFamily: 'Lora-SemiBoldItalic',
-    fontSize: 35,
+    fontSize: 38,
     color: Colors.emerald900,
   },
   remainingHrs: {
     fontFamily: 'Lora-SemiBoldItalic',
-    fontSize: 20,
+    fontSize: 18,
     color: Colors.emerald900,
   },
   dropDownContainer: {

@@ -31,6 +31,18 @@ const localeMap: Record<string, Locale> = {
   ptBR: ptBR,
 }
 
+const createCalendar = async () => {
+  const newCalendarID = await Calendar.createCalendarAsync({
+    title: 'FsPalCalendar',
+    color: Colors.emerald500,
+    entityType: Calendar.EntityTypes.EVENT,
+    name: 'FsPalCalendar',
+    ownerAccount: 'personal',
+    accessLevel: Calendar.CalendarAccessLevel.OWNER,
+  })
+  return newCalendarID
+}
+
 const fetchCalendarEvents = async () => {
   const { status } = await Calendar.requestCalendarPermissionsAsync()
   if (status !== 'granted') {
@@ -38,27 +50,34 @@ const fetchCalendarEvents = async () => {
   }
 
   const calendars = await Calendar.getCalendarsAsync(Calendar.EntityTypes.EVENT)
-  const defaultCalendar = calendars[0]
-  //   console.log(calendars)
-  storage.set('calendar.id', defaultCalendar.id)
+  const fsPalCalendar = calendars.find(
+    (calendar) => calendar.title === 'FsPalCalendar'
+  )
+  if (!fsPalCalendar) {
+    const newCalendarID = await createCalendar()
+    storage.set('calendar.id', newCalendarID)
+  } else {
+    storage.set('calendar.id', fsPalCalendar.id)
+  }
+  console.log(calendars)
 
-  // Get events for the next 30 days
+  // Get events for the next 365 days
   const startDate = new Date()
   const endDate = new Date()
   endDate.setDate(endDate.getDate() + 365)
 
   const calendarEvents = await Calendar.getEventsAsync(
-    [defaultCalendar.id],
+    [storage.getString('calendar.id')!],
     startDate,
     endDate
   )
   return calendarEvents
 }
 
-async function createCalendar() {
+async function createCalendarEvent() {
   const id = storage.getString('calendar.id') || ''
-  const event = await Calendar.createEventInCalendarAsync()
-  console.log('storage id -------> ', id)
+  const event = await Calendar.createEventInCalendarAsync({ calendarId: id })
+  // console.log('storage id -------> ', id)
 }
 
 const schedulePage = () => {
@@ -81,13 +100,14 @@ const schedulePage = () => {
   })
 
   const handleCreateCalendar = async () => {
-    await createCalendar()
+    await createCalendarEvent()
     refetch()
   }
 
   console.log(events)
 
   const onRefresh = useCallback(async () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
     setRefreshing(true)
     await refetch()
     setRefreshing(false)
@@ -108,8 +128,8 @@ const schedulePage = () => {
   if (isLoading) {
     return (
       <View style={styles.container}>
-        <ActivityIndicator size="large" color="#0000ff" />
-        <Text>Loading events...</Text>
+        <ActivityIndicator size="large" color={Colors.emerald600} />
+        <Text style={styles.noEvents}>Loading events...</Text>
       </View>
     )
   }
@@ -197,7 +217,8 @@ const schedulePage = () => {
               <Pressable
                 key={event.id + index}
                 style={styles.eventItem}
-                onPress={async () => {
+                onLongPress={async () => {
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
                   await Calendar.editEventInCalendarAsync({
                     id: event.id,
                     instanceStartDate: event.startDate,
@@ -232,7 +253,8 @@ const schedulePage = () => {
                   <Pressable
                     key={event.id + index * 99999}
                     style={[styles.eventItem, styles.laterEvent]}
-                    onPress={async () => {
+                    onLongPress={async () => {
+                      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
                       await Calendar.editEventInCalendarAsync({
                         id: event.id,
                         instanceStartDate: event.startDate,
@@ -278,7 +300,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   eventItem: {
-    backgroundColor: Colors.emerald50,
+    backgroundColor: Colors.emerald100,
     padding: 16,
     marginBottom: 8,
     borderRadius: 8,
@@ -321,10 +343,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 5,
   },
   laterEvent: {
-    backgroundColor: Colors.purple50,
-    borderLeftColor: Colors.purple300,
+    backgroundColor: Colors.primary50,
+    borderLeftColor: Colors.primary200,
     borderBottomWidth: 2,
-    borderBottomColor: Colors.purple300, // slightly lighter border for later events
+    borderBottomColor: Colors.primary200, // slightly lighter border for later events
   },
   headerLeftBtn: {
     flexDirection: 'row',
