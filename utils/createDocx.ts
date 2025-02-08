@@ -25,7 +25,7 @@ const createDocx = async () => {
               children: [
                 new TextRun({
                   text: 'FsPalRecords',
-                  font: 'Calibri',
+                  font: 'Helvetica',
                   size: 48,
                   bold: true,
                   color: '#022c22',
@@ -36,21 +36,21 @@ const createDocx = async () => {
             ...dataWithoutId.map((record) => {
               const personName = new TextRun({
                 text: record.name || '-',
-                font: 'Calibri',
+                font: 'Helvetica',
                 size: 24,
                 bold: true,
                 break: 1,
               })
               const category = new TextRun({
                 text: record.category || '-',
-                font: 'Calibri',
+                font: 'Helvetica',
                 size: 24,
                 bold: true,
                 break: 1,
               })
               const block = new TextRun({
                 text: record.block || '-',
-                font: 'Calibri',
+                font: 'Helvetica',
                 size: 20,
                 bold: true,
                 italics: true,
@@ -59,7 +59,7 @@ const createDocx = async () => {
               })
               const unit = new TextRun({
                 text: '#' + record.unit || '-',
-                font: 'Calibri',
+                font: 'Helvetica',
                 size: 20,
                 italics: true,
                 color: '#022c22',
@@ -67,7 +67,7 @@ const createDocx = async () => {
               })
               const street = new TextRun({
                 text: record.street || '-',
-                font: 'Calibri',
+                font: 'Helvetica',
                 size: 20,
                 italics: true,
                 break: 1,
@@ -75,26 +75,26 @@ const createDocx = async () => {
               })
               const contact = new TextRun({
                 text: 'contact: ' + record.contact || '-',
-                font: 'Calibri',
+                font: 'Helvetica',
                 size: 20,
                 break: 1,
               })
               const date = new TextRun({
                 text: record.date || '-',
-                font: 'Calibri',
+                font: 'Helvetica',
                 size: 20,
                 break: 1,
               })
               const publications = new TextRun({
                 text: 'Publications used: ' + record.publications || '-',
-                font: 'Calibri',
+                font: 'Helvetica',
                 size: 20,
                 bold: true,
                 break: 1,
               })
               const remarks = new TextRun({
                 text: record.remarks || '-',
-                font: 'Calibri',
+                font: 'Helvetica',
                 size: 20,
                 bold: true,
                 break: 1,

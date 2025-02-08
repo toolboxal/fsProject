@@ -6,6 +6,7 @@ import { useRouter } from 'expo-router'
 import SingleOption from '@/components/SingleOption'
 import { toast } from 'sonner-native'
 import { useTranslations } from '../_layout'
+import useMyStore from '@/store/store'
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
 import Ionicons from '@expo/vector-icons/Ionicons'
 
@@ -20,6 +21,7 @@ const optionsPage = () => {
   const queryClient = useQueryClient()
   const router = useRouter()
   const i18n = useTranslations()
+  const lang = useMyStore((state) => state.language)
 
   const handleBackUp = async () => {
     await createBackup()
@@ -31,7 +33,7 @@ const optionsPage = () => {
   }
   const handleUpload = async () => {
     console.log('pressed handle')
-    await uploadRecord(queryClient)
+    await uploadRecord(queryClient, lang, i18n)
     router.dismiss()
   }
 
