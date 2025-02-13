@@ -459,7 +459,6 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: Colors.primary50,
-    paddingTop: Platform.OS === 'android' ? 5 : 0,
   },
   btmSheetContent: {
     flex: 1,

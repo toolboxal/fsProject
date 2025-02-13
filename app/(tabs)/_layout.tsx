@@ -27,7 +27,10 @@ const TabsLayout = () => {
         },
         tabBarHideOnKeyboard: true,
         tabBarStyle: {
-          backgroundColor: 'rgba(30,30,30,0.88)',
+          backgroundColor:
+            Platform.OS === 'android'
+              ? 'rgba(35,35,35,0.92)'
+              : 'rgba(35,35,35,0.82) ',
           height: Platform.OS === 'android' ? 75 : bottom + 62,
           position: 'absolute',
           paddingTop: 5,

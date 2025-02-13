@@ -144,6 +144,7 @@ const en = {
     tabHeaderLeft: 'New Schedule',
     tabHeaderRight: 'Options',
     backgroundTxt1: 'no upcoming events',
+    eventReminder: `Important: Do not save to default calendar.\nAlways choose and save to "FsPalCalendar" for appointments to show up here.`,
     upcomingHeader: 'Upcoming',
     noAddNotes: 'No additional notes',
     subsequentHeader: 'subsequent events...',

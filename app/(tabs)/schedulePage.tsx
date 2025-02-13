@@ -14,7 +14,7 @@ import { Tabs, useRouter } from 'expo-router'
 import * as Calendar from 'expo-calendar'
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import * as Haptics from 'expo-haptics'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { storage } from '@/store/storage'
 import { Colors } from '@/constants/Colors'
 import { FontAwesome6 } from '@expo/vector-icons'
@@ -39,6 +39,10 @@ const createCalendar = async () => {
     name: 'FsPalCalendar',
     ownerAccount: 'personal',
     accessLevel: Calendar.CalendarAccessLevel.OWNER,
+    source:
+      Platform.OS === 'android'
+        ? { isLocalAccount: true, name: 'FsPalCalendar', type: 'local' }
+        : undefined,
   })
   return newCalendarID
 }
@@ -48,42 +52,47 @@ const fetchCalendarEvents = async () => {
   if (status !== 'granted') {
     throw new Error('Calendar permission not granted')
   }
-
+  // console.log('fetching calendars.....')
   const calendars = await Calendar.getCalendarsAsync(Calendar.EntityTypes.EVENT)
+  // console.log('all calendars ----> ', calendars)
   const fsPalCalendar = calendars.find(
     (calendar) => calendar.title === 'FsPalCalendar'
   )
+  console.log('fsPalCalendar ----> ', fsPalCalendar)
   if (!fsPalCalendar) {
     const newCalendarID = await createCalendar()
     storage.set('calendar.id', newCalendarID)
   } else {
     storage.set('calendar.id', fsPalCalendar.id)
   }
-  console.log(calendars)
 
   // Get events for the next 365 days
   const startDate = new Date()
   const endDate = new Date()
   endDate.setDate(endDate.getDate() + 365)
-
+  const calId = storage.getString('calendar.id')
+  console.log('calId', calId)
   const calendarEvents = await Calendar.getEventsAsync(
     [storage.getString('calendar.id')!],
     startDate,
     endDate
   )
+  // console.log('events --->', calendarEvents)
   return calendarEvents
 }
 
 async function createCalendarEvent() {
-  const id = storage.getString('calendar.id') || ''
-  const event = await Calendar.createEventInCalendarAsync({ calendarId: id })
+  const id = storage.getString('calendar.id')
+  const event = await Calendar.createEventInCalendarAsync(
+    { calendarId: id },
+    { startNewActivityTask: false }
+  )
   // console.log('storage id -------> ', id)
 }
 
 const schedulePage = () => {
   const router = useRouter()
   const { bottom, top } = useSafeAreaInsets()
-  const queryClient = useQueryClient()
   const [refreshing, setRefreshing] = useState(false)
   const i18n = useTranslations()
   const lang = useMyStore((state) => state.language)
@@ -99,7 +108,7 @@ const schedulePage = () => {
     refetchInterval: 600000,
   })
 
-  const handleCreateCalendar = async () => {
+  const handleCreateCalendarEvent = async () => {
     await createCalendarEvent()
     refetch()
   }
@@ -151,7 +160,7 @@ const schedulePage = () => {
       <Tabs.Screen
         options={{
           headerTitle: '',
-          //   headerShadowVisible: false,
+          headerShadowVisible: false,
           headerStyle: {
             backgroundColor: Colors.primary50,
             height: top + 45,
@@ -161,7 +170,7 @@ const schedulePage = () => {
               style={styles.headerLeftBtn}
               onPress={() => {
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
-                handleCreateCalendar()
+                handleCreateCalendarEvent()
               }}
             >
               <FontAwesome6 name="add" size={13} color={Colors.primary900} />
@@ -185,12 +194,14 @@ const schedulePage = () => {
           ),
         }}
       />
-
+      <Text style={styles.eventReminder}>
+        {i18n.t('schedule.eventReminder')}
+      </Text>
       <ScrollView
         style={styles.eventList}
         contentContainerStyle={{
           paddingBottom: Platform.OS === 'android' ? bottom + 100 : bottom + 75,
-          paddingTop: 10,
+          // paddingTop: 1,
           backgroundColor: Colors.primary50,
         }}
         showsVerticalScrollIndicator={false}
@@ -216,13 +227,25 @@ const schedulePage = () => {
             {upcoming.map((event, index) => (
               <Pressable
                 key={event.id + index}
-                style={styles.eventItem}
+                style={({ pressed }) => {
+                  return [
+                    styles.eventItem,
+                    {
+                      backgroundColor: pressed
+                        ? Colors.emerald100
+                        : Colors.emerald50,
+                    },
+                  ]
+                }}
                 onLongPress={async () => {
                   Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
-                  await Calendar.editEventInCalendarAsync({
-                    id: event.id,
-                    instanceStartDate: event.startDate,
-                  })
+                  await Calendar.editEventInCalendarAsync(
+                    {
+                      id: event.id,
+                      instanceStartDate: event.startDate,
+                    },
+                    { startNewActivityTask: false }
+                  )
 
                   refetch()
                 }}
@@ -252,13 +275,26 @@ const schedulePage = () => {
                 {later.map((event, index) => (
                   <Pressable
                     key={event.id + index * 99999}
-                    style={[styles.eventItem, styles.laterEvent]}
+                    style={({ pressed }) => {
+                      return [
+                        styles.eventItem,
+                        styles.laterEvent,
+                        {
+                          backgroundColor: pressed
+                            ? Colors.primary100
+                            : Colors.primary50,
+                        },
+                      ]
+                    }}
                     onLongPress={async () => {
                       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
-                      await Calendar.editEventInCalendarAsync({
-                        id: event.id,
-                        instanceStartDate: event.startDate,
-                      })
+                      await Calendar.editEventInCalendarAsync(
+                        {
+                          id: event.id,
+                          instanceStartDate: event.startDate,
+                        },
+                        { startNewActivityTask: false }
+                      )
 
                       refetch()
                     }}
@@ -300,7 +336,6 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   eventItem: {
-    backgroundColor: Colors.emerald100,
     padding: 16,
     marginBottom: 8,
     borderRadius: 8,
@@ -343,7 +378,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 5,
   },
   laterEvent: {
-    backgroundColor: Colors.primary50,
     borderLeftColor: Colors.primary200,
     borderBottomWidth: 2,
     borderBottomColor: Colors.primary200, // slightly lighter border for later events
@@ -373,8 +407,18 @@ const styles = StyleSheet.create({
     marginTop: 20,
     paddingHorizontal: 5,
     fontFamily: 'IBM-Italic',
-    fontSize: 14,
+    fontSize: 12,
     color: Colors.primary500,
     textAlign: 'center',
+  },
+  eventReminder: {
+    marginTop: 7,
+    marginBottom: 5,
+    // paddingHorizontal: 5,
+    fontFamily: 'IBM-Regular',
+    fontSize: 14,
+    color: Colors.primary500,
+    textAlign: 'left',
+    lineHeight: 16,
   },
 })

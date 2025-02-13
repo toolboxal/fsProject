@@ -147,6 +147,7 @@ const es = {
     tabHeaderLeft: 'Nueva Agenda',
     tabHeaderRight: 'Opciones',
     backgroundTxt1: 'sin eventos próximos',
+    eventReminder: `Importante: No guardar en el calendario predeterminado.\nSiempre elegir y guardar en "FsPalCalendar" para que las citas aparezcan aquí.`,
     upcomingHeader: 'Próximos',
     noAddNotes: 'Sin notas adicionales',
     subsequentHeader: 'eventos posteriores...',

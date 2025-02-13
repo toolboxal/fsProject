@@ -142,6 +142,7 @@ const zh = {
     tabHeaderLeft: '新日程',
     tabHeaderRight: '选项',
     backgroundTxt1: '没有即将到来的事件',
+    eventReminder: `重要提示：请勿保存到默认日历\n必须选择并保存到"FsPalCalendar"，预约才能在此显示。`,
     upcomingHeader: '即将到来',
     noAddNotes: '无额外备注',
     subsequentHeader: '后续事件...',

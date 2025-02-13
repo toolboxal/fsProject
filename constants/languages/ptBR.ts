@@ -147,6 +147,7 @@ const ptBR = {
     tabHeaderLeft: 'Nova Agenda',
     tabHeaderRight: 'Opções',
     backgroundTxt1: 'sem eventos próximos',
+    eventReminder: `Importante: Não salve no calendário padrão.\nSempre escolha e salve no "FsPalCalendar" para que os compromissos apareçam aqui.`,
     upcomingHeader: 'Próximos',
     noAddNotes: 'Sem notas adicionais',
     subsequentHeader: 'eventos posteriores...',

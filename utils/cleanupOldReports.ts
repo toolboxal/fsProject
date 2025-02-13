@@ -5,10 +5,10 @@ import { subYears } from 'date-fns'
 
 export const cleanupOldReports = async () => {
   try {
-    const twoYearsAgo = subYears(new Date(), 2)
+    const threeYearsAgo = subYears(new Date(), 3)
 
     // Delete records older than 2 years
-    await db.delete(Report).where(lt(Report.date, twoYearsAgo)).execute()
+    await db.delete(Report).where(lt(Report.date, threeYearsAgo)).execute()
 
     console.log('Successfully cleaned up old records')
   } catch (error) {

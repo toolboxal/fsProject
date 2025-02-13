@@ -94,6 +94,7 @@ const reportPage = () => {
       <Tabs.Screen
         options={{
           headerTitle: '',
+          headerShadowVisible: false,
           headerStyle: {
             backgroundColor: Colors.primary50,
             height: top + 45,

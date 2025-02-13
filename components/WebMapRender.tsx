@@ -239,7 +239,12 @@ const WebMapRender = () => {
       const injectedJavaScript = `
         (function() {
           window.map.setView([${latitude}, ${longitude}], 18);
-         
+           const mapTiles = document.querySelector('.map-tiles');
+          
+            "mapTiles.classList.contains('dark-mode');"
+              ? ""
+              : "mapTiles.classList.add('dark-mode');"
+          
         })();
       `
       webRef.current.injectJavaScript(injectedJavaScript)

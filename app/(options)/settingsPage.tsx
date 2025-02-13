@@ -57,6 +57,7 @@ const settingsPage = () => {
         </Text>
         <Text style={styles.supportTxt}>{i18n.t('settings.supportDesc')}</Text>
         <Pressable
+          style={{ marginTop: 5 }}
           onPress={async () => {
             await Linking.openURL(BUYMEACOFFEE_URL)
           }}

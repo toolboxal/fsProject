@@ -146,6 +146,7 @@ const ja = {
     tabHeaderLeft: '新しいスケジュール',
     tabHeaderRight: 'オプション',
     backgroundTxt1: '近くのイベントはありません',
+    eventReminder: `重要：デフォルトのカレンダーには保存しないでください\n予定がここに表示されるようにするには、必ず「FsPalCalendar」を選択して保存してください。`,
     upcomingHeader: '今後の',
     noAddNotes: '追加のメモはありません',
     subsequentHeader: '後のイベント...',
