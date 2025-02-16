@@ -65,6 +65,9 @@ const ja = {
   settings: {
     tabHeader: '設定',
     backBtn: '戻る',
+    permissionHeader: '権限',
+    permissionTitle: '位置情報とカレンダー',
+    permissionDesc: '位置情報とカレンダーへのアクセスを有効にする',
     languageHeader: '言語',
     supportHeader: '私の仕事をサポート',
     supportDesc:

@@ -66,6 +66,9 @@ const es = {
   settings: {
     tabHeader: 'Configuraciones',
     backBtn: 'Atrás',
+    permissionHeader: 'Permisos',
+    permissionTitle: 'Ubicación y Calendario',
+    permissionDesc: 'Habilitar acceso a Ubicación y Calendario',
     languageHeader: 'Idiomas',
     supportHeader: 'Apoya mi trabajo',
     supportDesc:

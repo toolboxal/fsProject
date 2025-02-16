@@ -61,6 +61,9 @@ const zh = {
   settings: {
     tabHeader: '设置',
     backBtn: '返回',
+    permissionHeader: '权限',
+    permissionTitle: '位置和日历',
+    permissionDesc: '启用位置和日历访问权限',
     languageHeader: '语言',
     supportHeader: '支持我的工作',
     supportDesc:

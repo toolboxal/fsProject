@@ -66,6 +66,9 @@ const ptBR = {
   settings: {
     tabHeader: 'Configurações',
     backBtn: 'Voltar',
+    permissionHeader: 'Permissões',
+    permissionTitle: 'Localização e Calendário',
+    permissionDesc: 'Ativar acesso à Localização e Calendário',
     languageHeader: 'Idiomas',
     supportHeader: 'Apoie meu trabalho',
     supportDesc:

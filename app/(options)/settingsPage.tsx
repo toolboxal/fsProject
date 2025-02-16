@@ -5,6 +5,7 @@ import SingleOption from '@/components/SingleOption'
 import { storage } from '@/store/storage'
 import useMyStore from '@/store/store'
 import { router } from 'expo-router'
+import * as Link from 'expo-linking'
 
 const settingsPage = () => {
   const i18n = useTranslations()
@@ -21,6 +22,16 @@ const settingsPage = () => {
 
   return (
     <View style={styles.mainContainer}>
+      <View style={styles.sectionContainer}>
+        <Text style={styles.sectionHeadTxt}>
+          {i18n.t('settings.permissionHeader')}
+        </Text>
+        <SingleOption
+          handler={() => Link.openSettings()}
+          headerTxt={i18n.t('settings.permissionTitle')}
+          descTxt={i18n.t('settings.permissionDesc')}
+        />
+      </View>
       <View style={styles.sectionContainer}>
         <Text style={styles.sectionHeadTxt}>
           {i18n.t('settings.languageHeader')}

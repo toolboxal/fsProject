@@ -63,6 +63,9 @@ const en = {
   settings: {
     tabHeader: 'Settings',
     backBtn: 'Back',
+    permissionHeader: 'Permissions',
+    permissionTitle: 'Location and Calendar',
+    permissionDesc: 'Enable Location and Calendar access',
     languageHeader: 'Languages',
     supportHeader: 'Support my work',
     supportDesc:
