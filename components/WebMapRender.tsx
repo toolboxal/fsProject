@@ -45,8 +45,8 @@ const WebMapRender = () => {
       const result = db.select().from(Person).all()
       return result
     },
-    refetchOnMount: false,
-    staleTime: Infinity,
+    // refetchOnMount: false,
+    // staleTime: Infinity,
   })
 
   const toggleDarkMap = async () => {
@@ -156,7 +156,7 @@ const WebMapRender = () => {
             L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 maxZoom: 19,
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-                className: 'map-tiles',
+                className: 'map-tiles ${isDarkMode ? ' dark-mode' : ''}',
             }).addTo(window.map);
 
            
@@ -239,11 +239,6 @@ const WebMapRender = () => {
       const injectedJavaScript = `
         (function() {
           window.map.setView([${latitude}, ${longitude}], 18);
-           const mapTiles = document.querySelector('.map-tiles');
-          
-            "mapTiles.classList.contains('dark-mode');"
-              ? ""
-              : "mapTiles.classList.add('dark-mode');"
           
         })();
       `

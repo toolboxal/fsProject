@@ -35,7 +35,7 @@ const SingleRecord = (prop: TProps) => {
       activeOpacity={0.7}
       style={styles.container}
       onPress={() => {
-        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+        // Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
         setSelectedPerson(item)
         handleOpenBtmSheet('expand')
       }}

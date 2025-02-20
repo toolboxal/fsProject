@@ -3,7 +3,7 @@ import { storage } from '@/store/storage'
 
 const FIRST_LAUNCH_KEY = 'app_first_launch_time'
 const REVIEW_REQUESTED_KEY = 'app_review_requested'
-const DAYS_UNTIL_REVIEW = 50
+const DAYS_UNTIL_REVIEW = 30
 
 export const checkAndRequestReview = async () => {
   // If we've already requested a review before, don't ask again

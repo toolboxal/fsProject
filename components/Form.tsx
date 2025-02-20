@@ -109,6 +109,7 @@ const Form = () => {
       // setGeoCoords({ latitude: lat, longitude: lng })
       setUpdatedLat(lat)
       setUpdatedLng(lng)
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
     } catch (error) {
       Alert.alert("This address doesn't exist")
     }

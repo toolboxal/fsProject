@@ -23,7 +23,7 @@ import { en, es, ja, zh, ptBR } from '../constants/localizations'
 SplashScreen.preventAutoHideAsync()
 
 SplashScreen.setOptions({
-  duration: 2000,
+  duration: 1000,
   fade: true,
 })
 

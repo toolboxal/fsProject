@@ -96,6 +96,7 @@ const EditPage = () => {
       const lng = newGeoCode[0].longitude
       setUpdatedLat(lat)
       setUpdatedLng(lng)
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
     } catch (error) {
       Alert.alert("This address doesn't exist")
     }
@@ -165,7 +166,7 @@ const EditPage = () => {
           style={{
             flex: 1,
             backgroundColor: Colors.primary50,
-            paddingTop: 20,
+            // paddingTop: 20,
           }}
         >
           <ScrollView style={styles.scrollViewContainer}>

@@ -58,7 +58,7 @@ const fetchCalendarEvents = async () => {
   const fsPalCalendar = calendars.find(
     (calendar) => calendar.title === 'FsPalCalendar'
   )
-  console.log('fsPalCalendar ----> ', fsPalCalendar)
+  // console.log('fsPalCalendar ----> ', fsPalCalendar)
   if (!fsPalCalendar) {
     const newCalendarID = await createCalendar()
     storage.set('calendar.id', newCalendarID)
@@ -183,7 +183,7 @@ const schedulePage = () => {
             <Pressable
               style={styles.headerRightBtn}
               onPress={() => {
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+                // Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
                 router.navigate('/(options)/optionsPage')
               }}
             >
@@ -250,12 +250,17 @@ const schedulePage = () => {
                   refetch()
                 }}
               >
-                <Text style={styles.eventTitle}>{event.title}</Text>
-                <Text style={styles.eventTime}>
-                  {format(event.startDate, 'EEE, dd MMM yyyy, h:mmb', {
+                <Text style={styles.eventDate}>
+                  {format(event.startDate, 'EEEE, dd MMM yyyy', {
                     locale: localeMap[lang] || enUS,
                   })}
                 </Text>
+                <Text style={styles.eventTime}>
+                  {format(event.startDate, 'h:mmb', {
+                    locale: localeMap[lang] || enUS,
+                  })}
+                </Text>
+                <Text style={styles.eventTitle}>{event.title}</Text>
                 <Text style={styles.eventNotes}>
                   {event.notes || i18n.t('schedule.noAddNotes')}
                 </Text>
@@ -267,7 +272,7 @@ const schedulePage = () => {
                 <Text
                   style={[
                     styles.sectionHeader,
-                    { fontSize: 18, color: Colors.primary700 },
+                    { fontSize: 16, color: Colors.primary700 },
                   ]}
                 >
                   {i18n.t('schedule.subsequentHeader')}
@@ -299,12 +304,17 @@ const schedulePage = () => {
                       refetch()
                     }}
                   >
-                    <Text style={styles.eventTitle}>{event.title}</Text>
-                    <Text style={styles.eventTime}>
-                      {format(event.startDate, 'EEE, dd MMM yyyy, h:mmb', {
+                    <Text style={styles.eventDate}>
+                      {format(event.startDate, 'EEEE, dd MMM yyyy', {
                         locale: localeMap[lang] || enUS,
                       })}
                     </Text>
+                    <Text style={styles.eventTime}>
+                      {format(event.startDate, 'h:mmb', {
+                        locale: localeMap[lang] || enUS,
+                      })}
+                    </Text>
+                    <Text style={styles.eventTitle}>{event.title}</Text>
                     <Text style={styles.eventNotes}>
                       {event.notes || i18n.t('schedule.noAddNotes')}
                     </Text>
@@ -336,7 +346,8 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   eventItem: {
-    padding: 16,
+    paddingHorizontal: 13,
+    paddingVertical: 6,
     marginBottom: 8,
     borderRadius: 8,
     borderLeftWidth: 2,
@@ -344,14 +355,21 @@ const styles = StyleSheet.create({
     borderBottomWidth: 2,
     borderBottomColor: Colors.emerald300,
   },
-  eventTitle: {
-    fontFamily: 'IBM-Bold',
-    fontSize: 17,
-    marginBottom: 4,
+  eventDate: {
+    fontFamily: 'IBM-SemiBold',
+    color: Colors.primary600,
+    fontSize: 16,
   },
   eventTime: {
     fontFamily: 'IBM-Medium',
     color: Colors.primary600,
+    fontSize: 14,
+  },
+  eventTitle: {
+    fontFamily: 'IBM-SemiBold',
+    color: Colors.emerald800,
+    fontSize: 17,
+    marginBottom: 4,
   },
   eventNotes: {
     fontFamily: 'IBM-Regular',
@@ -371,9 +389,9 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   sectionHeader: {
-    fontSize: 24,
+    fontSize: 22,
     fontFamily: 'IBM-MediumItalic',
-    color: Colors.emerald800,
+    color: Colors.primary600,
     marginVertical: 10,
     paddingHorizontal: 5,
   },

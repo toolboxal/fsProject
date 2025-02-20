@@ -117,7 +117,7 @@ const reportPage = () => {
             <Pressable
               style={styles.headerRightBtn}
               onPress={() => {
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+                // Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
                 router.navigate('/(options)/optionsPage')
               }}
             >
