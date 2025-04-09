@@ -38,6 +38,7 @@ import { checkAndRequestReview } from '@/utils/storeReview'
 import * as Linking from 'expo-linking'
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6'
 import Feather from '@expo/vector-icons/Feather'
+import FontAwesome5 from '@expo/vector-icons/FontAwesome5'
 
 const RecordsPage = () => {
   const [menuOpen, setMenuOpen] = useState(false)
@@ -250,6 +251,30 @@ const RecordsPage = () => {
     }
   }
 
+  // Function to open maps with navigation
+  const openMapsForNavigation = async (latitude: number, longitude: number) => {
+    const scheme = Platform.select({
+      ios: 'maps:',
+      android: 'geo:',
+    })
+    const latLng = `${latitude},${longitude}`
+    const label = 'Selected Location'
+    const url = Platform.select({
+      ios: `${scheme}${latLng}?q=${label}@${latLng}`,
+      android: `${scheme}${latLng}?q=${latLng}(${label})`,
+    })
+
+    Linking.canOpenURL(url!).then((supported) => {
+      if (supported) {
+        Linking.openURL(url!)
+      } else {
+        // Fallback to Google Maps web URL
+        const webUrl = `https://www.google.com/maps/search/?api=1&query=${latLng}`
+        Linking.openURL(webUrl)
+      }
+    })
+  }
+
   return (
     <SafeAreaView style={styles.safeArea} edges={['right', 'left']}>
       <StatusBar style="dark" />
@@ -425,11 +450,27 @@ const RecordsPage = () => {
             <Text style={[defaultStyles.textH2, { color: Colors.emerald200 }]}>
               #{selectedPerson.unit}
             </Text>
-            <Text style={[defaultStyles.textH2, { color: Colors.emerald200 }]}>
-              {selectedPerson.street?.length! > 25
-                ? selectedPerson.street?.slice(0, 20) + '...'
-                : selectedPerson.street}
-            </Text>
+            <View
+              style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}
+            >
+              <Text
+                style={[defaultStyles.textH2, { color: Colors.emerald200 }]}
+              >
+                {selectedPerson.street?.length! > 25
+                  ? selectedPerson.street?.slice(0, 20) + '...'
+                  : selectedPerson.street}
+              </Text>
+              <Pressable
+                onPress={() => {
+                  openMapsForNavigation(
+                    selectedPerson.latitude!,
+                    selectedPerson.longitude!
+                  )
+                }}
+              >
+                <FontAwesome5 name="car-alt" size={22} color="white" />
+              </Pressable>
+            </View>
           </BottomSheetView>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 15 }}>
             <Text style={[defaultStyles.textH2, styles.contactText]}>
