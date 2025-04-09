@@ -35,6 +35,9 @@ import { eq } from 'drizzle-orm'
 // import { useLiveQuery } from 'drizzle-orm/expo-sqlite'
 import { useQuery, QueryClient, useQueryClient } from '@tanstack/react-query'
 import { checkAndRequestReview } from '@/utils/storeReview'
+import * as Linking from 'expo-linking'
+import FontAwesome6 from '@expo/vector-icons/FontAwesome6'
+import Feather from '@expo/vector-icons/Feather'
 
 const RecordsPage = () => {
   const [menuOpen, setMenuOpen] = useState(false)
@@ -195,6 +198,57 @@ const RecordsPage = () => {
   // --------end of data formatting----------
 
   console.log('recordsPage render')
+
+  const handleCalling = async (phoneNumber: string) => {
+    if (!phoneNumber) return
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+    try {
+      // Format the phone number (remove any non-numeric characters)
+      const formattedNumber = phoneNumber.replace(/\D/g, '')
+      const callUrl = `tel:${formattedNumber}`
+
+      // Check if the device supports the tel URL scheme
+      const supported = await Linking.canOpenURL(callUrl)
+      if (supported) {
+        await Linking.openURL(callUrl)
+      } else {
+        Alert.alert('Error', 'Phone calling is not supported on this device')
+      }
+    } catch (error) {
+      console.error('Error making call:', error)
+      Alert.alert('Error', 'Unable to make the phone call')
+    }
+  }
+
+  const openWhatsApp = async (phoneNumber: string) => {
+    if (!phoneNumber) return
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+    try {
+      // Format the phone number (remove any non-numeric characters)
+      const formattedNumber = phoneNumber.replace(/\D/g, '')
+
+      // Try the wa.me URL first as it's more reliable
+      const url = `https://wa.me/${formattedNumber}`
+
+      // Check if WhatsApp can handle the URL
+      const supported = await Linking.canOpenURL(url)
+      if (supported) {
+        await Linking.openURL(url)
+      } else {
+        // Fallback to whatsapp:// scheme
+        const fallbackUrl = `whatsapp://send?phone=${formattedNumber}`
+        const fallbackSupported = await Linking.canOpenURL(fallbackUrl)
+        if (fallbackSupported) {
+          await Linking.openURL(fallbackUrl)
+        } else {
+          Alert.alert('Error', 'WhatsApp is not installed on this device')
+        }
+      }
+    } catch (error) {
+      console.log('Error opening WhatsApp:', error)
+      Alert.alert('Error', 'Unable to open WhatsApp')
+    }
+  }
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['right', 'left']}>
@@ -377,9 +431,27 @@ const RecordsPage = () => {
                 : selectedPerson.street}
             </Text>
           </BottomSheetView>
-          <Text style={[defaultStyles.textH2, styles.contactText]}>
-            {`${i18n.t('records.contact')}: ${selectedPerson.contact}`}
-          </Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 15 }}>
+            <Text style={[defaultStyles.textH2, styles.contactText]}>
+              {`${i18n.t('records.contact')}: ${selectedPerson.contact}`}
+            </Text>
+            {selectedPerson.contact && (
+              <View
+                style={{ flexDirection: 'row', alignItems: 'center', gap: 15 }}
+              >
+                <Pressable
+                  onPress={() => handleCalling(selectedPerson.contact ?? '')}
+                >
+                  <Feather name="phone-call" size={22} color="white" />
+                </Pressable>
+                <Pressable
+                  onPress={() => openWhatsApp(selectedPerson.contact ?? '')}
+                >
+                  <FontAwesome6 name="whatsapp" size={24} color={'white'} />
+                </Pressable>
+              </View>
+            )}
+          </View>
           <Text style={styles.dateText}>{selectedPerson.date}</Text>
           {selectedPerson.publications && (
             <Text style={styles.publicationsText}>

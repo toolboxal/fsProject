@@ -21,7 +21,8 @@
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "Your current location will be used to locate the nearest records you create on your phone",
         "NSLocationAlwaysUsageDescription": "Your current location will be used to locate the nearest records you create on your phone",
-        "NSLocationAlwaysAndWhenInUseUsageDescription": "Your current location will be used to locate the nearest records you create on your phone"
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "Your current location will be used to locate the nearest records you create on your phone",
+        "LSApplicationQueriesSchemes": ["whatsapp"]
       }
     },
     "android": {
