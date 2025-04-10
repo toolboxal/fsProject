@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import {
   View,
+  Image,
   Text,
   StyleSheet,
   TouchableOpacity,
@@ -478,7 +479,7 @@ const RecordsPage = () => {
             </Text>
             {selectedPerson.contact && (
               <View
-                style={{ flexDirection: 'row', alignItems: 'center', gap: 15 }}
+                style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}
               >
                 <Pressable
                   onPress={() => handleCalling(selectedPerson.contact ?? '')}
@@ -488,7 +489,10 @@ const RecordsPage = () => {
                 <Pressable
                   onPress={() => openWhatsApp(selectedPerson.contact ?? '')}
                 >
-                  <FontAwesome6 name="whatsapp" size={24} color={'white'} />
+                  <Image
+                    source={require('@/assets/images/whatsapp-logo.png')}
+                    style={styles.whatsAppImage}
+                  />
                 </Pressable>
               </View>
             )}
@@ -677,5 +681,10 @@ const styles = StyleSheet.create({
   headerRightBtn: {
     marginRight: 15,
     padding: 5,
+  },
+  whatsAppImage: {
+    width: 45,
+    aspectRatio: 'auto',
+    height: 45,
   },
 })
