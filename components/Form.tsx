@@ -75,13 +75,12 @@ const Form = () => {
   })
 
   const submitPressed = async (data: TFormData) => {
-    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
     console.log('pressed')
-    const value = data['name']
-    if (value === '' || value === null) {
+    const nameCheck = data['name']
+    if (nameCheck === '' || nameCheck === null) {
       setError('name', { type: 'min', message: 'cannot be empty' })
       return
-    } else if (value.length > 25) {
+    } else if (nameCheck.length > 25) {
       setError('name', { type: 'max', message: 'exceed 25 characters' })
       return
     }
@@ -110,7 +109,7 @@ const Form = () => {
         ? `Record ${name} has been created 👍`
         : i18n.t('form.toastSuccess')
     )
-
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
     router.replace('/recordsPage')
   }
 

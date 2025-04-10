@@ -42,7 +42,14 @@ const EditPage = () => {
   const [updatedLat, setUpdatedLat] = useState(selectedPerson.latitude)
   const [updatedLng, setUpdatedLng] = useState(selectedPerson.longitude)
 
-  const { control, handleSubmit, reset, getValues } = useForm({
+  const {
+    control,
+    handleSubmit,
+    reset,
+    getValues,
+    setError,
+    formState: { errors },
+  } = useForm({
     defaultValues: {
       block: selectedPerson.block || '',
       unit: selectedPerson.unit || '',
@@ -58,7 +65,15 @@ const EditPage = () => {
   const i18n = useTranslations()
 
   const submitPressed = async (data: TFormData) => {
-    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
+    const nameCheck = data['name']
+    if (nameCheck === '' || nameCheck === null) {
+      setError('name', { type: 'min', message: 'cannot be empty' })
+      return
+    } else if (nameCheck.length > 25) {
+      setError('name', { type: 'max', message: 'exceed 25 characters' })
+      return
+    }
+
     const { name, contact, remarks, date, block, unit, street, publications } =
       data
     const toUpperBlock = block === null ? '' : block.toUpperCase()
@@ -81,8 +96,8 @@ const EditPage = () => {
     queryClient.invalidateQueries({ queryKey: ['persons'] })
     console.log('edit done')
     reset()
-
     toast.success(i18n.t('editForm.toastSuccess'))
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
     router.replace('/recordsPage')
   }
 
@@ -283,22 +298,29 @@ const EditPage = () => {
               />
             </View>
             <View style={styles.twoColumnsContainer}>
-              <Controller
-                control={control}
-                name="name"
-                render={({ field: { value, onChange, onBlur } }) => (
-                  <TextInputComponent
-                    value={value}
-                    onChangeText={onChange}
-                    onBlur={onBlur}
-                    label={i18n.t('form.nameLabel')}
-                    placeholderText="nicodemus"
-                    extraStyles={{
-                      width: 175,
-                    }}
-                  />
+              <View style={{ flexDirection: 'column', gap: 1 }}>
+                <Controller
+                  control={control}
+                  name="name"
+                  render={({ field: { value, onChange, onBlur } }) => (
+                    <TextInputComponent
+                      value={value}
+                      onChangeText={onChange}
+                      onBlur={onBlur}
+                      label={i18n.t('form.nameLabel')}
+                      placeholderText="nicodemus"
+                      extraStyles={{
+                        width: 175,
+                      }}
+                    />
+                  )}
+                />
+                {errors['name'] && (
+                  <Text style={styles.errorText}>
+                    {errors['name']?.message?.toString()}
+                  </Text>
                 )}
-              />
+              </View>
               <Controller
                 control={control}
                 name="contact"
@@ -448,5 +470,13 @@ const styles = StyleSheet.create({
     fontFamily: 'IBM-SemiBold',
     fontSize: 18,
     color: Colors.white,
+  },
+  errorText: {
+    fontFamily: 'IBM-Medium',
+    fontSize: 13,
+    color: Colors.rose500,
+    position: 'absolute',
+    top: 2,
+    left: 50,
   },
 })
