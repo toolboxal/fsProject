@@ -53,7 +53,15 @@ const Form = () => {
     setValue('date', todayDate)
   }, [address])
 
-  const { control, handleSubmit, reset, setValue, getValues } = useForm({
+  const {
+    control,
+    handleSubmit,
+    reset,
+    setValue,
+    getValues,
+    setError,
+    formState: { errors },
+  } = useForm({
     defaultValues: {
       block: '',
       unit: '',
@@ -69,6 +77,14 @@ const Form = () => {
   const submitPressed = async (data: TFormData) => {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
     console.log('pressed')
+    const value = data['name']
+    if (value === '' || value === null) {
+      setError('name', { type: 'min', message: 'cannot be empty' })
+      return
+    } else if (value.length > 25) {
+      setError('name', { type: 'max', message: 'exceed 25 characters' })
+      return
+    }
     const toUpperBlock = data.block === null ? '' : data.block.toUpperCase()
     const { name, unit, street, remarks, contact, date, publications } = data
 
@@ -279,20 +295,27 @@ const Form = () => {
           />
         </View>
         <View style={styles.twoColumnsContainer}>
-          <Controller
-            control={control}
-            name="name"
-            render={({ field: { value, onChange, onBlur } }) => (
-              <TextInputComponent
-                value={value}
-                onChangeText={onChange}
-                onBlur={onBlur}
-                label={i18n.t('form.nameLabel')}
-                placeholderText="nicodemus"
-                extraStyles={{ width: 175 }}
-              />
+          <View style={{ flexDirection: 'column', gap: 1 }}>
+            <Controller
+              control={control}
+              name="name"
+              render={({ field: { value, onChange, onBlur } }) => (
+                <TextInputComponent
+                  value={value}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  label={i18n.t('form.nameLabel')}
+                  placeholderText="nicodemus"
+                  extraStyles={{ width: 175 }}
+                />
+              )}
+            />
+            {errors['name'] && (
+              <Text style={styles.errorText}>
+                {errors['name']?.message?.toString()}
+              </Text>
             )}
-          />
+          </View>
           <Controller
             control={control}
             name="contact"
@@ -434,5 +457,13 @@ const styles = StyleSheet.create({
     fontFamily: 'IBM-SemiBold',
     fontSize: 18,
     color: Colors.white,
+  },
+  errorText: {
+    fontFamily: 'IBM-Medium',
+    fontSize: 13,
+    color: Colors.rose500,
+    position: 'absolute',
+    top: 2,
+    left: 50,
   },
 })
