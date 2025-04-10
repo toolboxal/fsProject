@@ -6,6 +6,7 @@ import m0001 from './0001_numerous_ego.sql';
 import m0002 from './0002_boring_invaders.sql';
 import m0003 from './0003_familiar_roxanne_simpson.sql';
 import m0004 from './0004_omniscient_felicia_hardy.sql';
+import m0005 from './0005_tired_jetstream.sql';
 
   export default {
     journal,
@@ -14,7 +15,8 @@ import m0004 from './0004_omniscient_felicia_hardy.sql';
 m0001,
 m0002,
 m0003,
-m0004
+m0004,
+m0005
     }
   }
   

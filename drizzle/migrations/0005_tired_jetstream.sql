@@ -1,0 +1,1 @@
+ALTER TABLE `person` ADD `interest` text DEFAULT 'normal';

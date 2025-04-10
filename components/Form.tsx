@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Alert,
+  Pressable,
 } from 'react-native'
 import { router } from 'expo-router'
 import * as Location from 'expo-location'
@@ -26,11 +27,22 @@ import { SegmentedButtons } from 'react-native-paper'
 import { useQueryClient } from '@tanstack/react-query'
 import { useTranslations } from '@/app/_layout'
 
-type TFormData = Omit<TPerson, 'id' | 'category' | 'latitude' | 'longitude'>
+type TFormData = Omit<
+  TPerson,
+  'id' | 'category' | 'latitude' | 'longitude' | 'interest'
+>
+
+const interestOptions: { type: TPerson['interest']; color: string }[] = [
+  { type: 'cool', color: Colors.sky400 },
+  { type: 'normal', color: Colors.lemon400 },
+  { type: 'interested', color: Colors.orange400 },
+  { type: 'keen', color: Colors.rose400 },
+]
 
 const Form = () => {
   const queryClient = useQueryClient()
   const [category, setCategory] = useState('CA')
+  const [interest, setInterest] = useState<TPerson['interest']>('normal')
   const geoCoords = useMyStore((state) => state.geoCoords)
   const setGeoCoords = useMyStore((state) => state.setGeoCoords)
   const address = useMyStore((state) => state.address)
@@ -52,6 +64,24 @@ const Form = () => {
     setValue('street', street || '')
     setValue('date', todayDate)
   }, [address])
+
+  const categoryOptions = [
+    {
+      color: Colors.emerald400,
+      value: 'CA',
+      label: i18n.t('form.callAgain'),
+    },
+    {
+      color: Colors.emerald600,
+      value: 'RV',
+      label: i18n.t('form.returnVisit'),
+    },
+    {
+      color: Colors.emerald900,
+      value: 'BS',
+      label: i18n.t('form.bibleStudy'),
+    },
+  ]
 
   const {
     control,
@@ -99,6 +129,7 @@ const Form = () => {
       longitude: updatedLng,
       category: category,
       publications: publications,
+      interest: interest,
     })
     queryClient.invalidateQueries({ queryKey: ['persons'] })
     console.log('submitted new user')
@@ -177,6 +208,7 @@ const Form = () => {
 </html>
   `
   console.log('category-->', category)
+  console.log('interest-->', interest)
   return (
     <View
       style={{
@@ -373,32 +405,58 @@ const Form = () => {
                 onBlur={onBlur}
                 label={i18n.t('form.dateLabel')}
                 placeholderText=""
-                extraStyles={{ width: 130 }}
+                extraStyles={{ width: 110 }}
               />
             )}
           />
+          <View style={{ flexDirection: 'column' }}>
+            <Text style={styles.label}>interest level</Text>
+            <View style={{ flexDirection: 'row', gap: 3 }}>
+              {interestOptions.map((option) => (
+                <Pressable
+                  key={option.type}
+                  style={[
+                    styles.interestOption,
+                    option.type === interest && {
+                      borderColor: option.color,
+                      backgroundColor: `${option.color}`,
+                    },
+                  ]}
+                  onPress={() => setInterest(option.type)}
+                >
+                  <Text style={{ fontFamily: 'IBM-Medium', fontSize: 11 }}>
+                    {option.type}
+                  </Text>
+                </Pressable>
+              ))}
+            </View>
+          </View>
         </View>
 
-        <SegmentedButtons
-          value={category}
-          onValueChange={setCategory}
-          density="regular"
-          style={{ marginVertical: 10 }}
-          buttons={[
-            {
-              value: 'CA',
-              label: i18n.t('form.callAgain'),
-            },
-            {
-              value: 'RV',
-              label: i18n.t('form.returnVisit'),
-            },
-            {
-              value: 'BS',
-              label: i18n.t('form.bibleStudy'),
-            },
-          ]}
-        />
+        <View style={{ flexDirection: 'row' }}>
+          {categoryOptions.map((option) => (
+            <Pressable
+              key={option.value}
+              style={[
+                styles.categoryOption,
+                category === option.value && {
+                  borderColor: option.color,
+                  backgroundColor: `${option.color}`,
+                },
+              ]}
+              onPress={() => setCategory(option.value)}
+            >
+              <Text
+                style={[
+                  styles.categoryOptionText,
+                  category === option.value && { color: Colors.white },
+                ]}
+              >
+                {option.label}
+              </Text>
+            </Pressable>
+          ))}
+        </View>
         <TouchableOpacity
           style={styles.buttonStyle}
           onPress={handleSubmit(submitPressed)}
@@ -465,4 +523,30 @@ const styles = StyleSheet.create({
     top: 2,
     left: 50,
   },
+  label: {
+    fontFamily: 'IBM-Regular',
+    color: Colors.primary900,
+    paddingLeft: 3,
+    fontSize: 16,
+    marginBottom: 3,
+  },
+  interestOption: {
+    padding: 11,
+    borderWidth: 1,
+    borderColor: Colors.primary200,
+    backgroundColor: Colors.primary100,
+    borderRadius: 3,
+  },
+  categoryOption: {
+    padding: 11,
+    borderWidth: 1,
+    borderColor: Colors.primary200,
+    backgroundColor: Colors.primary100,
+    borderRadius: 3,
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginVertical: 8,
+  },
+  categoryOptionText: { fontFamily: 'IBM-Medium', fontSize: 14 },
 })
