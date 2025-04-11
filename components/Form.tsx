@@ -23,26 +23,28 @@ import { toast } from 'sonner-native'
 import { db } from '@/drizzle/db'
 import { Person, TPerson } from '@/drizzle/schema'
 import WebView from 'react-native-webview'
-import { SegmentedButtons } from 'react-native-paper'
 import { useQueryClient } from '@tanstack/react-query'
 import { useTranslations } from '@/app/_layout'
 
 type TFormData = Omit<
   TPerson,
-  'id' | 'category' | 'latitude' | 'longitude' | 'interest'
+  'id' | 'category' | 'latitude' | 'longitude' | 'status'
 >
 
-const interestOptions: { type: TPerson['interest']; color: string }[] = [
-  { type: 'cool', color: Colors.sky400 },
-  { type: 'normal', color: Colors.lemon400 },
-  { type: 'interested', color: Colors.orange400 },
-  { type: 'keen', color: Colors.rose400 },
+const statusOptions: {
+  type: TPerson['status']
+  color: string
+  label: string
+}[] = [
+  { type: 'irregular', label: 'hard to find', color: Colors.yellow500 },
+  { type: 'frequent', label: 'frequent visits', color: Colors.orange500 },
+  { type: 'committed', label: 'established', color: Colors.red600 },
 ]
 
 const Form = () => {
   const queryClient = useQueryClient()
-  const [category, setCategory] = useState('CA')
-  const [interest, setInterest] = useState<TPerson['interest']>('normal')
+  const [category, setCategory] = useState('RV')
+  const [status, setStatus] = useState<TPerson['status']>('frequent')
   const geoCoords = useMyStore((state) => state.geoCoords)
   const setGeoCoords = useMyStore((state) => state.setGeoCoords)
   const address = useMyStore((state) => state.address)
@@ -129,7 +131,7 @@ const Form = () => {
       longitude: updatedLng,
       category: category,
       publications: publications,
-      interest: interest,
+      status: status,
     })
     queryClient.invalidateQueries({ queryKey: ['persons'] })
     console.log('submitted new user')
@@ -208,7 +210,7 @@ const Form = () => {
 </html>
   `
   console.log('category-->', category)
-  console.log('interest-->', interest)
+  console.log('interest-->', status)
   return (
     <View
       style={{
@@ -405,27 +407,61 @@ const Form = () => {
                 onBlur={onBlur}
                 label={i18n.t('form.dateLabel')}
                 placeholderText=""
-                extraStyles={{ width: 110 }}
+                extraStyles={{ width: 130 }}
               />
             )}
           />
-          <View style={{ flexDirection: 'column' }}>
-            <Text style={styles.label}>interest level</Text>
-            <View style={{ flexDirection: 'row', gap: 3 }}>
-              {interestOptions.map((option) => (
+        </View>
+        <View style={{ flexDirection: 'row', gap: 10 }}>
+          <View style={{ flexDirection: 'column', flex: 5 }}>
+            <Text style={styles.label}>contactable</Text>
+            <View style={{ flexDirection: 'column', gap: 5 }}>
+              {statusOptions.map((option) => (
                 <Pressable
                   key={option.type}
                   style={[
-                    styles.interestOption,
-                    option.type === interest && {
+                    styles.optionBox,
+                    option.type === status && {
                       borderColor: option.color,
                       backgroundColor: `${option.color}`,
                     },
                   ]}
-                  onPress={() => setInterest(option.type)}
+                  onPress={() => setStatus(option.type)}
                 >
-                  <Text style={{ fontFamily: 'IBM-Medium', fontSize: 11 }}>
-                    {option.type}
+                  <Text
+                    style={[
+                      styles.categoryOptionText,
+                      status === option.type && { color: Colors.white },
+                    ]}
+                  >
+                    {option.label}
+                  </Text>
+                </Pressable>
+              ))}
+            </View>
+          </View>
+          <View style={{ flexDirection: 'column', flex: 4 }}>
+            <Text style={styles.label}>category</Text>
+            <View style={{ flexDirection: 'column', gap: 5 }}>
+              {categoryOptions.map((option) => (
+                <Pressable
+                  key={option.value}
+                  style={[
+                    styles.optionBox,
+                    category === option.value && {
+                      borderColor: option.color,
+                      backgroundColor: `${option.color}`,
+                    },
+                  ]}
+                  onPress={() => setCategory(option.value)}
+                >
+                  <Text
+                    style={[
+                      styles.categoryOptionText,
+                      category === option.value && { color: Colors.white },
+                    ]}
+                  >
+                    {option.label}
                   </Text>
                 </Pressable>
               ))}
@@ -433,30 +469,6 @@ const Form = () => {
           </View>
         </View>
 
-        <View style={{ flexDirection: 'row' }}>
-          {categoryOptions.map((option) => (
-            <Pressable
-              key={option.value}
-              style={[
-                styles.categoryOption,
-                category === option.value && {
-                  borderColor: option.color,
-                  backgroundColor: `${option.color}`,
-                },
-              ]}
-              onPress={() => setCategory(option.value)}
-            >
-              <Text
-                style={[
-                  styles.categoryOptionText,
-                  category === option.value && { color: Colors.white },
-                ]}
-              >
-                {option.label}
-              </Text>
-            </Pressable>
-          ))}
-        </View>
         <TouchableOpacity
           style={styles.buttonStyle}
           onPress={handleSubmit(submitPressed)}
@@ -494,8 +506,6 @@ const styles = StyleSheet.create({
     marginVertical: 7,
     width: '100%',
     alignItems: 'flex-end',
-    // borderWidth: 1,
-    // borderColor: 'red',
   },
   buttonStyle: {
     width: '100%',
@@ -530,23 +540,15 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginBottom: 3,
   },
-  interestOption: {
+  optionBox: {
     padding: 11,
     borderWidth: 1,
     borderColor: Colors.primary200,
     backgroundColor: Colors.primary100,
-    borderRadius: 3,
-  },
-  categoryOption: {
-    padding: 11,
-    borderWidth: 1,
-    borderColor: Colors.primary200,
-    backgroundColor: Colors.primary100,
-    borderRadius: 3,
+    borderRadius: 8,
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    marginVertical: 8,
   },
   categoryOptionText: { fontFamily: 'IBM-Medium', fontSize: 14 },
 })

@@ -14,9 +14,9 @@ export const Person = sqliteTable('person', {
   latitude: real('latitude').default(0),
   longitude: real('longitude').default(0),
   publications: text('publications').default(''),
-  interest: text('interest', {
-    enum: ['cool', 'normal', 'interested', 'keen'],
-  }).default('normal'),
+  status: text('status', {
+    enum: ['irregular', 'frequent', 'committed'],
+  }).default('frequent'),
 })
 
 export type TPerson = InferSelectModel<typeof Person>
