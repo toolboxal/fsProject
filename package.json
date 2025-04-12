@@ -34,7 +34,7 @@
     "expo-constants": "~17.0.7",
     "expo-dev-client": "~5.0.12",
     "expo-document-picker": "~13.0.3",
-    "expo-drizzle-studio-plugin": "^0.1.1",
+    "expo-drizzle-studio-plugin": "^0.1.2",
     "expo-file-system": "~18.0.11",
     "expo-font": "~13.0.4",
     "expo-haptics": "~14.0.1",

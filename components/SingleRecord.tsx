@@ -17,12 +17,21 @@ type TProps = {
   handleOpenBtmSheet: (action: 'close' | 'expand' | 'snapPoint') => void
   handleActionSheet: (personId: number) => void
 }
+const statusOptions: {
+  type: TPerson['status']
+  color: string
+  label: string
+}[] = [
+  { type: 'irregular', label: 'hard to find', color: Colors.primary200 },
+  { type: 'frequent', label: 'frequent', color: Colors.purple200 },
+  { type: 'committed', label: 'established', color: Colors.purple400 },
+]
 
 const SingleRecord = (prop: TProps) => {
   const setSelectedPerson = useMyStore((state) => state.setSelectedPerson)
 
   const { item, handleOpenBtmSheet, handleActionSheet } = prop
-  const { name, block, unit, remarks, id, category } = item
+  const { name, block, unit, remarks, id, category, status } = item
   let formattedRemarks = ''
   if (remarks === null) {
     return
@@ -60,6 +69,20 @@ const SingleRecord = (prop: TProps) => {
           ]}
         >
           <Text style={styles.categoryText}>{category}</Text>
+        </View>
+        <View
+          style={[
+            styles.statusCircle,
+            {
+              backgroundColor: `${
+                statusOptions.find((option) => option.type === status)?.color
+              }`,
+            },
+          ]}
+        >
+          <Text style={styles.statusText}>
+            {statusOptions.find((option) => option.type === status)?.label}
+          </Text>
         </View>
       </View>
       <Text style={styles.textRemarks}>{formattedRemarks}</Text>
@@ -133,5 +156,17 @@ const styles = StyleSheet.create({
     color: Colors.primary900,
     overflow: 'hidden',
     maxHeight: 25,
+  },
+  statusCircle: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 5,
+    borderRadius: 3,
+  },
+  statusText: {
+    fontFamily: 'IBM-SemiBold',
+    fontSize: 10,
+    color: Colors.primary900,
   },
 })

@@ -34,14 +34,17 @@ import { useTranslations } from '@/app/_layout'
 
 type TFormData = Omit<
   TPerson,
-  'id' | 'category' | 'latitude' | 'longitude' | 'interest'
+  'id' | 'category' | 'latitude' | 'longitude' | 'interest' | 'status'
 >
 
-const interestOptions: { type: TPerson['interest']; color: string }[] = [
-  { type: 'cool', color: Colors.sky400 },
-  { type: 'normal', color: Colors.lemon400 },
-  { type: 'interested', color: Colors.orange400 },
-  { type: 'keen', color: Colors.rose400 },
+const statusOptions: {
+  type: TPerson['status']
+  color: string
+  label: string
+}[] = [
+  { type: 'irregular', label: 'hard to find', color: Colors.primary200 },
+  { type: 'frequent', label: 'frequent visits', color: Colors.purple200 },
+  { type: 'committed', label: 'established', color: Colors.purple400 },
 ]
 
 const EditPage = () => {
@@ -49,8 +52,8 @@ const EditPage = () => {
 
   const selectedPerson = useMyStore((state) => state.selectedPerson)
   const [category, setCategory] = useState(selectedPerson.category!)
-  const [interest, setInterest] = useState<TPerson['interest']>(
-    selectedPerson.interest || 'normal'
+  const [status, setStatus] = useState<TPerson['status']>(
+    selectedPerson.status || 'frequent'
   )
 
   const [updatedLat, setUpdatedLat] = useState(selectedPerson.latitude)
@@ -123,6 +126,7 @@ const EditPage = () => {
         latitude: updatedLat,
         longitude: updatedLng,
         publications: publications,
+        status: status,
       })
       .where(eq(Person.id, selectedPerson.id))
     queryClient.invalidateQueries({ queryKey: ['persons'] })
@@ -414,58 +418,63 @@ const EditPage = () => {
                     label={i18n.t('form.dateLabel')}
                     placeholderText=""
                     extraStyles={{
-                      width: 110,
+                      width: 130,
                     }}
                   />
                 )}
               />
-              <View style={{ flexDirection: 'column' }}>
-                <Text style={styles.label}>interest level</Text>
-                <View style={{ flexDirection: 'row', gap: 3 }}>
-                  {interestOptions.map((option) => (
+            </View>
+
+            <View style={{ flexDirection: 'row', gap: 10 }}>
+              <View style={{ flexDirection: 'column', flex: 5 }}>
+                <Text style={styles.label}>contactable</Text>
+                <View style={{ flexDirection: 'column', gap: 5 }}>
+                  {statusOptions.map((option) => (
                     <Pressable
                       key={option.type}
                       style={[
-                        styles.interestOption,
-                        option.type === interest && {
+                        styles.optionBox,
+                        option.type === status && {
                           borderColor: option.color,
                           backgroundColor: `${option.color}`,
                         },
                       ]}
-                      onPress={() => setInterest(option.type)}
+                      onPress={() => setStatus(option.type)}
                     >
-                      <Text style={{ fontFamily: 'IBM-Medium', fontSize: 11 }}>
-                        {option.type}
+                      <Text style={[styles.categoryOptionText]}>
+                        {option.label}
                       </Text>
                     </Pressable>
                   ))}
                 </View>
               </View>
-            </View>
-
-            <View style={{ flexDirection: 'row' }}>
-              {categoryOptions.map((option) => (
-                <Pressable
-                  key={option.value}
-                  style={[
-                    styles.categoryOption,
-                    category === option.value && {
-                      borderColor: option.color,
-                      backgroundColor: `${option.color}`,
-                    },
-                  ]}
-                  onPress={() => setCategory(option.value)}
-                >
-                  <Text
-                    style={[
-                      styles.categoryOptionText,
-                      category === option.value && { color: Colors.white },
-                    ]}
-                  >
-                    {option.label}
-                  </Text>
-                </Pressable>
-              ))}
+              <View style={{ flexDirection: 'column', flex: 4 }}>
+                <Text style={styles.label}>category</Text>
+                <View style={{ flexDirection: 'column', gap: 5 }}>
+                  {categoryOptions.map((option) => (
+                    <Pressable
+                      key={option.value}
+                      style={[
+                        styles.optionBox,
+                        category === option.value && {
+                          borderColor: option.color,
+                          backgroundColor: `${option.color}`,
+                        },
+                      ]}
+                      onPress={() => setCategory(option.value)}
+                    >
+                      <Text
+                        style={[
+                          styles.categoryOptionText,
+                          category === option.value && { color: Colors.white },
+                        ]}
+                      >
+                        {option.label}
+                      </Text>
+                    </Pressable>
+                  ))}
+                </View>
+              </View>
             </View>
             <TouchableOpacity
               style={styles.buttonStyle}
@@ -564,4 +573,14 @@ const styles = StyleSheet.create({
     marginVertical: 8,
   },
   categoryOptionText: { fontFamily: 'IBM-Medium', fontSize: 14 },
+  optionBox: {
+    padding: 11,
+    borderWidth: 1,
+    borderColor: Colors.primary200,
+    backgroundColor: Colors.primary100,
+    borderRadius: 8,
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
 })

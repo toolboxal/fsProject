@@ -36,9 +36,9 @@ const statusOptions: {
   color: string
   label: string
 }[] = [
-  { type: 'irregular', label: 'hard to find', color: Colors.yellow500 },
-  { type: 'frequent', label: 'frequent visits', color: Colors.orange500 },
-  { type: 'committed', label: 'established', color: Colors.red600 },
+  { type: 'irregular', label: 'hard to find', color: Colors.primary200 },
+  { type: 'frequent', label: 'frequent visits', color: Colors.purple200 },
+  { type: 'committed', label: 'established', color: Colors.purple400 },
 ]
 
 const Form = () => {
@@ -428,12 +428,7 @@ const Form = () => {
                   ]}
                   onPress={() => setStatus(option.type)}
                 >
-                  <Text
-                    style={[
-                      styles.categoryOptionText,
-                      status === option.type && { color: Colors.white },
-                    ]}
-                  >
+                  <Text style={[styles.categoryOptionText]}>
                     {option.label}
                   </Text>
                 </Pressable>

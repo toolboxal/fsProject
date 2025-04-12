@@ -19,3 +19,7 @@ INSERT INTO `__new_person`("id", "name", "block", "unit", "street", "contact", "
 DROP TABLE `person`;--> statement-breakpoint
 ALTER TABLE `__new_person` RENAME TO `person`;--> statement-breakpoint
 PRAGMA foreign_keys=ON;
+
+UPDATE person
+SET status = 'frequent'
+WHERE status IS NULL;

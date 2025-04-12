@@ -12,7 +12,8 @@ import { Toaster } from 'sonner-native'
 
 import { migrate } from 'drizzle-orm/expo-sqlite/migrator'
 import migrations from '../drizzle/migrations/migrations'
-import { db } from '@/drizzle/db'
+import { db, expoDb } from '@/drizzle/db'
+import { useDrizzleStudio } from 'expo-drizzle-studio-plugin'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import * as Location from 'expo-location'
 import getCurrentLocation from '@/utils/getCurrentLoc'
@@ -107,6 +108,8 @@ const RootLayout = () => {
 
     prepare()
   }, [])
+
+  useDrizzleStudio(expoDb)
 
   const onLayoutRootView = useCallback(() => {
     if (appIsReady) {
