@@ -258,6 +258,21 @@ const DetailsModal = ({ modalVisible, setModalVisible }: props) => {
     }
   }
 
+  const handleFollowUpDelete = async (id: number) => {
+    try {
+      await db.delete(followUp).where(eq(followUp.id, id))
+      toast.success('Follow-up deleted successfully! 🗑️')
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
+      queryClient.invalidateQueries({
+        queryKey: ['followUps', selectedPerson.id],
+      })
+      setPageView('profile')
+    } catch (error) {
+      console.error('Failed to delete follow-up:', error)
+      toast.error('Failed to delete follow-up. Please try again.')
+    }
+  }
+
   return (
     <Modal
       animationType="slide"
@@ -293,6 +308,7 @@ const DetailsModal = ({ modalVisible, setModalVisible }: props) => {
                   onPress={() => {
                     reset()
                     setPageView('followUp')
+                    setEditMode(false)
                   }}
                 >
                   <CirclePlus
@@ -577,7 +593,6 @@ const DetailsModal = ({ modalVisible, setModalVisible }: props) => {
                     }}
                   >
                     <View style={styles.dateContainer}>
-                      <Text style={styles.labelText}>Date</Text>
                       <Pressable onPress={(e) => e.stopPropagation()}>
                         <DateTimePicker
                           mode="date"
@@ -593,6 +608,25 @@ const DetailsModal = ({ modalVisible, setModalVisible }: props) => {
                         />
                       </Pressable>
                     </View>
+                    {editMode && (
+                      <Pressable
+                        style={[
+                          styles.submitBtn,
+                          { backgroundColor: Colors.rose700 },
+                        ]}
+                        onPress={() => {
+                          if (followUpIdToEdit !== undefined) {
+                            handleFollowUpDelete(followUpIdToEdit)
+                          } else {
+                            toast.error(
+                              'Error: No follow-up selected for deletion'
+                            )
+                          }
+                        }}
+                      >
+                        <Text style={styles.submitTxt}>Delete</Text>
+                      </Pressable>
+                    )}
                     <Pressable
                       style={styles.submitBtn}
                       onPress={handleSubmit(onSubmit)}
