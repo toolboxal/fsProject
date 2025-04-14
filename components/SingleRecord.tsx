@@ -16,6 +16,7 @@ type TProps = {
   item: TPerson
   handleOpenBtmSheet: (action: 'close' | 'expand' | 'snapPoint') => void
   handleActionSheet: (personId: number) => void
+  setModalVisible: React.Dispatch<React.SetStateAction<boolean>>
 }
 const statusOptions: {
   type: TPerson['status']
@@ -30,7 +31,7 @@ const statusOptions: {
 const SingleRecord = (prop: TProps) => {
   const setSelectedPerson = useMyStore((state) => state.setSelectedPerson)
 
-  const { item, handleOpenBtmSheet, handleActionSheet } = prop
+  const { item, handleOpenBtmSheet, handleActionSheet, setModalVisible } = prop
   const { name, block, unit, remarks, id, category, status } = item
   let formattedRemarks = ''
   if (remarks === null) {
@@ -46,7 +47,8 @@ const SingleRecord = (prop: TProps) => {
       onPress={() => {
         // Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
         setSelectedPerson(item)
-        handleOpenBtmSheet('expand')
+        // handleOpenBtmSheet('expand')
+        setModalVisible((prev) => !prev)
       }}
     >
       <Text style={styles.houseUnit}>
@@ -72,7 +74,7 @@ const SingleRecord = (prop: TProps) => {
         </View>
         <View
           style={[
-            styles.statusCircle,
+            styles.statusBox,
             {
               backgroundColor: `${
                 statusOptions.find((option) => option.type === status)?.color
@@ -157,7 +159,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     maxHeight: 25,
   },
-  statusCircle: {
+  statusBox: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',

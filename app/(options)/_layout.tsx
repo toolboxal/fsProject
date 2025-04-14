@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native'
+import { Pressable, Text } from 'react-native'
 import { router, Stack } from 'expo-router'
 import { Colors } from '@/constants/Colors'
 import { useTranslations } from '../_layout'

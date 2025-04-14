@@ -7,6 +7,7 @@ import {
   ActivityIndicator,
   Alert,
   Pressable,
+  FlatList,
 } from 'react-native'
 import { router } from 'expo-router'
 import * as Location from 'expo-location'
@@ -21,9 +22,9 @@ import useMyStore from '@/store/store'
 import getTimeDate from '../utils/getTimeDate'
 import { toast } from 'sonner-native'
 import { db } from '@/drizzle/db'
-import { Person, TPerson } from '@/drizzle/schema'
+import { Person, TPerson, personsToTags } from '@/drizzle/schema'
 import WebView from 'react-native-webview'
-import { useQueryClient } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslations } from '@/app/_layout'
 
 type TFormData = Omit<
@@ -45,6 +46,7 @@ const Form = () => {
   const queryClient = useQueryClient()
   const [category, setCategory] = useState('RV')
   const [status, setStatus] = useState<TPerson['status']>('frequent')
+  const [selectedTags, setSelectedTags] = useState<number[]>([])
   const geoCoords = useMyStore((state) => state.geoCoords)
   const setGeoCoords = useMyStore((state) => state.setGeoCoords)
   const address = useMyStore((state) => state.address)
@@ -85,6 +87,14 @@ const Form = () => {
     },
   ]
 
+  const { data: tags } = useQuery({
+    queryKey: ['tags'],
+    queryFn: async () => {
+      return await db.query.tags.findMany()
+    },
+  })
+  console.log('tags -->', tags)
+
   const {
     control,
     handleSubmit,
@@ -119,22 +129,38 @@ const Form = () => {
     const toUpperBlock = data.block === null ? '' : data.block.toUpperCase()
     const { name, unit, street, remarks, contact, date, publications } = data
 
-    await db.insert(Person).values({
-      name: name,
-      unit: unit,
-      street: street,
-      remarks: remarks,
-      contact: contact,
-      block: toUpperBlock,
-      date: date,
-      latitude: updatedLat,
-      longitude: updatedLng,
-      category: category,
-      publications: publications,
-      status: status,
-    })
+    // Insert the new person record and get its ID
+    const newPerson = await db
+      .insert(Person)
+      .values({
+        name: name,
+        unit: unit,
+        street: street,
+        remarks: remarks,
+        contact: contact,
+        block: toUpperBlock,
+        date: date,
+        latitude: updatedLat,
+        longitude: updatedLng,
+        category: category,
+        publications: publications,
+        status: status,
+      })
+      .returning({ id: Person.id })
+
+    const personId = newPerson[0].id
+
+    // Insert associations for selected tags
+    if (selectedTags.length > 0) {
+      const tagAssociations = selectedTags.map((tagId) => ({
+        personId: personId,
+        tagId: tagId,
+      }))
+      await db.insert(personsToTags).values(tagAssociations)
+    }
+
     queryClient.invalidateQueries({ queryKey: ['persons'] })
-    console.log('submitted new user')
+    console.log('submitted new user with tags')
     reset()
 
     toast.success(
@@ -209,8 +235,8 @@ const Form = () => {
 </body>
 </html>
   `
-  console.log('category-->', category)
-  console.log('interest-->', status)
+  // console.log('category-->', category)
+  // console.log('interest-->', status)
   return (
     <View
       style={{
@@ -412,6 +438,48 @@ const Form = () => {
             )}
           />
         </View>
+        <Text style={styles.label}>tags</Text>
+        <FlatList
+          style={{
+            padding: 3,
+            marginBottom: 10,
+          }}
+          horizontal
+          showsHorizontalScrollIndicator={true}
+          data={tags}
+          renderItem={({ item }) => (
+            <Pressable
+              key={item.id}
+              style={[
+                styles.tag,
+                selectedTags.includes(item.id) && {
+                  backgroundColor: Colors.primary700,
+                  borderColor: Colors.primary700,
+                },
+              ]}
+              onPress={() => {
+                setSelectedTags((prev) => {
+                  if (prev.includes(item.id)) {
+                    return prev.filter((id) => id !== item.id)
+                  } else {
+                    return [...prev, item.id]
+                  }
+                })
+              }}
+            >
+              <Text
+                style={[
+                  styles.tagText,
+                  selectedTags.includes(item.id) && {
+                    color: Colors.white,
+                  },
+                ]}
+              >
+                {item.tagName}
+              </Text>
+            </Pressable>
+          )}
+        />
         <View style={{ flexDirection: 'row', gap: 10 }}>
           <View style={{ flexDirection: 'column', flex: 5 }}>
             <Text style={styles.label}>contactable</Text>
@@ -546,4 +614,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   categoryOptionText: { fontFamily: 'IBM-Medium', fontSize: 14 },
+  tag: {
+    borderRadius: 8,
+    padding: 10,
+    marginHorizontal: 3,
+    minWidth: 80,
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: Colors.primary400,
+  },
+  tagText: {
+    fontFamily: 'IBM-Regular',
+    fontSize: 13,
+    color: Colors.primary900,
+  },
 })

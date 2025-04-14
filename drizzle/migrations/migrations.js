@@ -8,6 +8,8 @@ import m0003 from './0003_familiar_roxanne_simpson.sql';
 import m0004 from './0004_omniscient_felicia_hardy.sql';
 import m0005 from './0005_tired_jetstream.sql';
 import m0006 from './0006_polite_shooting_star.sql';
+import m0007 from './0007_vengeful_psynapse.sql';
+import m0008 from './0008_clammy_dazzler.sql';
 
   export default {
     journal,
@@ -18,7 +20,9 @@ m0002,
 m0003,
 m0004,
 m0005,
-m0006
+m0006,
+m0007,
+m0008
     }
   }
   

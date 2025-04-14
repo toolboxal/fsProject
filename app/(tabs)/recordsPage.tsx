@@ -34,17 +34,19 @@ import { db } from '@/drizzle/db'
 import { Person, TPerson } from '@/drizzle/schema'
 import { eq } from 'drizzle-orm'
 // import { useLiveQuery } from 'drizzle-orm/expo-sqlite'
-import { useQuery, QueryClient, useQueryClient } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { checkAndRequestReview } from '@/utils/storeReview'
 import * as Linking from 'expo-linking'
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6'
 import Feather from '@expo/vector-icons/Feather'
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5'
+import DetailsModal from '@/components/DetailsModal'
 
 const RecordsPage = () => {
   const [menuOpen, setMenuOpen] = useState(false)
   const [refreshing, setRefreshing] = useState(false)
   const selectedPerson = useMyStore((state) => state.selectedPerson)
+  const [modalVisible, setModalVisible] = useState(false)
 
   const snapPoints = useMemo(() => ['23%', '60%'], [])
   const bottomSheetRef = useRef<BottomSheet>(null)
@@ -359,6 +361,7 @@ const RecordsPage = () => {
                     item={item}
                     handleOpenBtmSheet={handleOpenBtmSheet}
                     handleActionSheet={handleActionSheet}
+                    setModalVisible={setModalVisible}
                   />
                 )
               }
@@ -373,7 +376,11 @@ const RecordsPage = () => {
           />
         </View>
       )}
-      <BottomSheet
+      <DetailsModal
+        modalVisible={modalVisible}
+        setModalVisible={setModalVisible}
+      />
+      {/* <BottomSheet
         ref={bottomSheetRef}
         snapPoints={snapPoints}
         index={-1}
@@ -515,7 +522,7 @@ const RecordsPage = () => {
             <Text style={styles.remarksText}>{selectedPerson.remarks}</Text>
           </BottomSheetView>
         </BottomSheetScrollView>
-      </BottomSheet>
+      </BottomSheet> */}
     </SafeAreaView>
   )
 }

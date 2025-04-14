@@ -50,6 +50,20 @@
       "when": 1744351082591,
       "tag": "0006_polite_shooting_star",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "6",
+      "when": 1744470785639,
+      "tag": "0007_vengeful_psynapse",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "6",
+      "when": 1744600300335,
+      "tag": "0008_clammy_dazzler",
+      "breakpoints": true
     }
   ]
 }
