@@ -98,7 +98,7 @@ export default SingleRecord
 
 const styles = StyleSheet.create({
   container: {
-    padding: 10,
+    padding: 9,
     backgroundColor: Colors.primary50,
     marginVertical: 3,
     borderRadius: 5,

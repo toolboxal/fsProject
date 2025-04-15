@@ -1,7 +1,7 @@
 import { View, Text, StyleSheet, Pressable } from 'react-native'
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { StatusBar } from 'expo-status-bar'
-import { router, Tabs } from 'expo-router'
+import { router, Stack, Tabs } from 'expo-router'
 import { Colors } from '@/constants/Colors'
 
 import { useState, useEffect } from 'react'
@@ -11,7 +11,7 @@ import SingleRecord from '@/components/SingleRecord'
 import * as Haptics from 'expo-haptics'
 import useMyStore from '@/store/store'
 import { Ionicons } from '@expo/vector-icons'
-import { useTranslations } from '../_layout'
+import { useTranslations } from '../../_layout'
 
 import { db } from '@/drizzle/db'
 import { Person, TPerson } from '@/drizzle/schema'
@@ -25,6 +25,7 @@ const RecordsPage = () => {
   const [refreshing, setRefreshing] = useState(false)
   // const selectedPerson = useMyStore((state) => state.selectedPerson)
   const [modalVisible, setModalVisible] = useState(false)
+  const [searchBarQuery, setSearchBarQuery] = useState('')
 
   const queryClient = useQueryClient()
   const i18n = useTranslations()
@@ -43,6 +44,10 @@ const RecordsPage = () => {
     },
   })
 
+  const filteredPersons = persons?.filter((person) => {
+    return person.name?.toLowerCase().includes(searchBarQuery.toLowerCase())
+  })
+
   const onRefresh = async () => {
     setRefreshing(true)
     // Refetch the data
@@ -54,7 +59,7 @@ const RecordsPage = () => {
 
   const categoryMap: { [key: string]: TPerson[] } = {}
 
-  persons?.forEach((person) => {
+  filteredPersons?.forEach((person) => {
     const place = person.block || person.street
     if (!categoryMap[place ?? '']) {
       categoryMap[place ?? ''] = []
@@ -93,12 +98,27 @@ const RecordsPage = () => {
   return (
     <SafeAreaView style={styles.safeArea} edges={['right', 'left']}>
       <StatusBar style="dark" />
-      <Tabs.Screen
+      <Stack.Screen
         options={{
           headerTitle: '',
           headerStyle: {
             backgroundColor: Colors.primary50,
-            height: top + 45,
+            // height: top + 45,
+          },
+          headerSearchBarOptions: {
+            tintColor: Colors.primary700,
+            textColor: Colors.primary50,
+            hintTextColor: 'white',
+            placeholder: 'search by name',
+            barTintColor: Colors.primary700,
+            onChangeText: (event) => {
+              const text = event.nativeEvent.text
+              setSearchBarQuery(text)
+              console.log(text)
+            },
+            onCancelButtonPress: () => {
+              setSearchBarQuery('')
+            },
           },
           headerLeft: () => (
             <Pressable
@@ -160,7 +180,8 @@ const RecordsPage = () => {
           }}
         >
           <FlashList
-            contentContainerStyle={{ paddingBottom: 200 }}
+            contentInsetAdjustmentBehavior="automatic"
+            contentContainerStyle={{ paddingBottom: 120 }}
             data={flatMapped}
             renderItem={({ item }) => {
               if (typeof item === 'string') {

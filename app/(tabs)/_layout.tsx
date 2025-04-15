@@ -58,6 +58,7 @@ const TabsLayout = () => {
         name="recordsPage"
         options={{
           title: i18n.t('tabbar.records'),
+          headerShown: false,
           tabBarIcon: ({ focused }) => (
             <FontAwesome5
               size={24}
