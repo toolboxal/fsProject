@@ -1,55 +1,31 @@
-import { useEffect } from 'react'
-import {
-  View,
-  Image,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  Alert,
-  Platform,
-  Pressable,
-} from 'react-native'
+import { View, Text, StyleSheet, Pressable } from 'react-native'
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { StatusBar } from 'expo-status-bar'
-import { router, useFocusEffect, Tabs } from 'expo-router'
+import { router, Tabs } from 'expo-router'
 import { Colors } from '@/constants/Colors'
-import { defaultStyles } from '@/constants/Styles'
-import { useCallback, useMemo, useRef, useState } from 'react'
+
+import { useState, useEffect } from 'react'
 import { FlashList } from '@shopify/flash-list'
 import SingleRecord from '@/components/SingleRecord'
-import BottomSheet, {
-  BottomSheetScrollView,
-  BottomSheetView,
-} from '@gorhom/bottom-sheet'
+
 import * as Haptics from 'expo-haptics'
 import useMyStore from '@/store/store'
-import { useActionSheet } from '@expo/react-native-action-sheet'
-import FontAwesome from '@expo/vector-icons/FontAwesome6'
 import { Ionicons } from '@expo/vector-icons'
-import { toast } from 'sonner-native'
-import sharePerson from '@/utils/sharePerson'
 import { useTranslations } from '../_layout'
 
 import { db } from '@/drizzle/db'
 import { Person, TPerson } from '@/drizzle/schema'
-import { eq } from 'drizzle-orm'
-// import { useLiveQuery } from 'drizzle-orm/expo-sqlite'
+
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { checkAndRequestReview } from '@/utils/storeReview'
-import * as Linking from 'expo-linking'
-import FontAwesome6 from '@expo/vector-icons/FontAwesome6'
-import Feather from '@expo/vector-icons/Feather'
-import FontAwesome5 from '@expo/vector-icons/FontAwesome5'
 import DetailsModal from '@/components/DetailsModal'
 
 const RecordsPage = () => {
   const [menuOpen, setMenuOpen] = useState(false)
   const [refreshing, setRefreshing] = useState(false)
-  const selectedPerson = useMyStore((state) => state.selectedPerson)
+  // const selectedPerson = useMyStore((state) => state.selectedPerson)
   const [modalVisible, setModalVisible] = useState(false)
 
-  const snapPoints = useMemo(() => ['23%', '60%'], [])
-  const bottomSheetRef = useRef<BottomSheet>(null)
   const queryClient = useQueryClient()
   const i18n = useTranslations()
 
@@ -58,8 +34,6 @@ const RecordsPage = () => {
   useEffect(() => {
     checkAndRequestReview()
   }, [])
-
-  // const { data: persons } = useLiveQuery(db.select().from(Person))
 
   const { data: persons } = useQuery({
     queryKey: ['persons'],
@@ -74,93 +48,6 @@ const RecordsPage = () => {
     // Refetch the data
     await queryClient.invalidateQueries({ queryKey: ['persons'] })
     setRefreshing(false)
-  }
-
-  const { showActionSheetWithOptions } = useActionSheet()
-
-  const handleOpenBtmSheet = (
-    action: 'close' | 'expand' | 'snapPoint',
-    index: number = 0
-  ) => {
-    if (action === 'close') {
-      bottomSheetRef.current?.close()
-    } else if (action === 'expand') {
-      bottomSheetRef.current?.expand()
-    } else {
-      bottomSheetRef.current?.snapToIndex(index)
-    }
-  }
-
-  useFocusEffect(
-    useCallback(() => {
-      handleOpenBtmSheet('close')
-    }, [])
-  )
-
-  const handleDeleteAlert = (personId: number) => {
-    Alert.alert(
-      i18n.t('records.deleteAlertTitle'),
-      i18n.t('records.deleteAlertDesc'),
-      [
-        {
-          text: i18n.t('records.confirm'),
-          onPress: async () => {
-            await db.delete(Person).where(eq(Person.id, personId))
-            queryClient.invalidateQueries({ queryKey: ['persons'] })
-            handleOpenBtmSheet('close')
-
-            toast.success(`${i18n.t('records.deleteToast')} 🗑️`)
-            console.log('confirm delete')
-          },
-          style: 'destructive',
-        },
-        {
-          text: i18n.t('records.cancel'),
-          onPress: () => console.log('Cancel Pressed'),
-          style: 'cancel',
-        },
-      ]
-    )
-  }
-
-  const actionSheetPressed = (personId: number) => {
-    const options = [
-      i18n.t('records.actionDelete'),
-      i18n.t('records.actionShare'),
-      i18n.t('records.actionEdit'),
-      i18n.t('records.actionCancel'),
-    ]
-    const destructiveButtonIndex = 0
-    const cancelButtonIndex = 3
-    showActionSheetWithOptions(
-      {
-        options,
-        destructiveButtonIndex,
-        cancelButtonIndex,
-      },
-      (selectedIndex: number | undefined) => {
-        switch (selectedIndex) {
-          case destructiveButtonIndex:
-            // console.log('deleted', personId)
-            handleDeleteAlert(personId)
-            break
-          case 1:
-            // console.log('to share', personId)
-            sharePerson(personId)
-            break
-          case 2:
-            console.log('to edit', personId)
-            router.push('/editPage')
-            break
-          case cancelButtonIndex:
-            console.log('canceled', personId)
-        }
-      }
-    )
-  }
-
-  const handleActionSheet = (personId: number) => {
-    actionSheetPressed(personId)
   }
 
   // --------data formatting----------
@@ -202,81 +89,6 @@ const RecordsPage = () => {
   // --------end of data formatting----------
 
   console.log('recordsPage render')
-
-  const handleCalling = async (phoneNumber: string) => {
-    if (!phoneNumber) return
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
-    try {
-      // Format the phone number (remove any non-numeric characters)
-      const formattedNumber = phoneNumber.replace(/\D/g, '')
-      const callUrl = `tel:${formattedNumber}`
-
-      // Check if the device supports the tel URL scheme
-      const supported = await Linking.canOpenURL(callUrl)
-      if (supported) {
-        await Linking.openURL(callUrl)
-      } else {
-        Alert.alert('Error', 'Phone calling is not supported on this device')
-      }
-    } catch (error) {
-      console.error('Error making call:', error)
-      Alert.alert('Error', 'Unable to make the phone call')
-    }
-  }
-
-  const openWhatsApp = async (phoneNumber: string) => {
-    if (!phoneNumber) return
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
-    try {
-      // Format the phone number (remove any non-numeric characters)
-      const formattedNumber = phoneNumber.replace(/\D/g, '')
-
-      // Try the wa.me URL first as it's more reliable
-      const url = `https://wa.me/${formattedNumber}`
-
-      // Check if WhatsApp can handle the URL
-      const supported = await Linking.canOpenURL(url)
-      if (supported) {
-        await Linking.openURL(url)
-      } else {
-        // Fallback to whatsapp:// scheme
-        const fallbackUrl = `whatsapp://send?phone=${formattedNumber}`
-        const fallbackSupported = await Linking.canOpenURL(fallbackUrl)
-        if (fallbackSupported) {
-          await Linking.openURL(fallbackUrl)
-        } else {
-          Alert.alert('Error', 'WhatsApp is not installed on this device')
-        }
-      }
-    } catch (error) {
-      console.log('Error opening WhatsApp:', error)
-      Alert.alert('Error', 'Unable to open WhatsApp')
-    }
-  }
-
-  // Function to open maps with navigation
-  const openMapsForNavigation = async (latitude: number, longitude: number) => {
-    const scheme = Platform.select({
-      ios: 'maps:',
-      android: 'geo:',
-    })
-    const latLng = `${latitude},${longitude}`
-    const label = 'Selected Location'
-    const url = Platform.select({
-      ios: `${scheme}${latLng}?q=${label}@${latLng}`,
-      android: `${scheme}${latLng}?q=${latLng}(${label})`,
-    })
-
-    Linking.canOpenURL(url!).then((supported) => {
-      if (supported) {
-        Linking.openURL(url!)
-      } else {
-        // Fallback to Google Maps web URL
-        const webUrl = `https://www.google.com/maps/search/?api=1&query=${latLng}`
-        Linking.openURL(webUrl)
-      }
-    })
-  }
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['right', 'left']}>
@@ -357,12 +169,7 @@ const RecordsPage = () => {
               } else {
                 // Render item
                 return (
-                  <SingleRecord
-                    item={item}
-                    handleOpenBtmSheet={handleOpenBtmSheet}
-                    handleActionSheet={handleActionSheet}
-                    setModalVisible={setModalVisible}
-                  />
+                  <SingleRecord item={item} setModalVisible={setModalVisible} />
                 )
               }
             }}
@@ -380,149 +187,6 @@ const RecordsPage = () => {
         modalVisible={modalVisible}
         setModalVisible={setModalVisible}
       />
-      {/* <BottomSheet
-        ref={bottomSheetRef}
-        snapPoints={snapPoints}
-        index={-1}
-        backgroundStyle={{ backgroundColor: Colors.primary800 }}
-        handleIndicatorStyle={{ backgroundColor: Colors.primary100 }}
-        style={{ flex: 1, paddingHorizontal: 10 }}
-      >
-        <BottomSheetView
-          style={{
-            paddingTop: 12,
-            paddingBottom: 10,
-            // backgroundColor: 'lightpink',
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-          }}
-        >
-          <BottomSheetView>
-            <Text style={styles.btmSheetHeader}>
-              {selectedPerson.name?.length! > 18
-                ? selectedPerson.name?.slice(0, 15) + '..'
-                : selectedPerson.name}
-            </Text>
-            <BottomSheetView
-              style={[
-                styles.categoryCircle,
-                {
-                  backgroundColor: `${
-                    selectedPerson.category === 'RV'
-                      ? Colors.emerald600
-                      : selectedPerson.category === 'BS'
-                      ? Colors.emerald900
-                      : Colors.emerald400
-                  }`,
-                },
-              ]}
-            >
-              <Text style={styles.categoryText}>{selectedPerson.category}</Text>
-            </BottomSheetView>
-          </BottomSheetView>
-          <TouchableOpacity
-            onPress={() => handleActionSheet(selectedPerson.id)}
-            style={{
-              // position: 'absolute',
-              // top: 10,
-              // right: 20,
-              alignItems: 'center',
-              paddingRight: 5,
-            }}
-          >
-            <FontAwesome name="grip" size={22} color={Colors.sky100} />
-            <Text style={{ color: Colors.sky100 }}>
-              {i18n.t('records.menu')}
-            </Text>
-          </TouchableOpacity>
-        </BottomSheetView>
-        <BottomSheetScrollView
-          contentContainerStyle={{
-            flexGrow: 1,
-            // backgroundColor: 'lightgrey',
-            paddingBottom: 120,
-          }}
-        >
-          <BottomSheetView
-            style={{
-              flexDirection: 'row',
-              alignItems: 'baseline',
-              justifyContent: 'flex-start',
-              gap: 6,
-            }}
-          >
-            <Text style={[defaultStyles.textH2, { color: Colors.emerald200 }]}>
-              {selectedPerson.block ? 'Apt.' + selectedPerson.block : ''}
-            </Text>
-            <Text style={[defaultStyles.textH2, { color: Colors.emerald200 }]}>
-              #{selectedPerson.unit}
-            </Text>
-            <View
-              style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}
-            >
-              <Text
-                style={[defaultStyles.textH2, { color: Colors.emerald200 }]}
-              >
-                {selectedPerson.street?.length! > 25
-                  ? selectedPerson.street?.slice(0, 20) + '...'
-                  : selectedPerson.street}
-              </Text>
-              <Pressable
-                onPress={() => {
-                  openMapsForNavigation(
-                    selectedPerson.latitude!,
-                    selectedPerson.longitude!
-                  )
-                }}
-              >
-                <FontAwesome5 name="car-alt" size={22} color="white" />
-              </Pressable>
-            </View>
-          </BottomSheetView>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 15 }}>
-            <Text style={[defaultStyles.textH2, styles.contactText]}>
-              {`${i18n.t('records.contact')}: ${selectedPerson.contact}`}
-            </Text>
-            {selectedPerson.contact && (
-              <View
-                style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}
-              >
-                <Pressable
-                  onPress={() => handleCalling(selectedPerson.contact ?? '')}
-                >
-                  <Feather name="phone-call" size={22} color="white" />
-                </Pressable>
-                <Pressable
-                  onPress={() => openWhatsApp(selectedPerson.contact ?? '')}
-                >
-                  <Image
-                    source={require('@/assets/images/whatsapp-logo.png')}
-                    style={styles.whatsAppImage}
-                  />
-                </Pressable>
-              </View>
-            )}
-          </View>
-          <Text style={styles.dateText}>{selectedPerson.date}</Text>
-          {selectedPerson.publications && (
-            <Text style={styles.publicationsText}>
-              {selectedPerson.publications}
-            </Text>
-          )}
-          <BottomSheetView
-            style={{
-              padding: 15,
-              paddingBottom: 15,
-              backgroundColor: Colors.primary600,
-              borderRadius: 5,
-              marginVertical: 10,
-            }}
-          >
-            <Text style={styles.remarksText}>{selectedPerson.remarks}</Text>
-          </BottomSheetView>
-        </BottomSheetScrollView>
-      </BottomSheet> */}
     </SafeAreaView>
   )
 }

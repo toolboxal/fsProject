@@ -38,6 +38,7 @@ import { TextInput } from 'react-native-gesture-handler'
 import { Controller, useForm } from 'react-hook-form'
 import { format } from 'date-fns'
 import { useRouter } from 'expo-router'
+import sharePerson from '@/utils/sharePerson'
 
 type props = {
   modalVisible: boolean
@@ -304,7 +305,10 @@ const DetailsModal = ({ modalVisible, setModalVisible }: props) => {
                 >
                   <Text style={styles.menuTxt}>Edit</Text>
                 </Pressable>
-                <Pressable style={styles.menuBtn}>
+                <Pressable
+                  style={styles.menuBtn}
+                  onPress={() => sharePerson(id)}
+                >
                   <Text style={styles.menuTxt}>Share</Text>
                 </Pressable>
                 <Pressable

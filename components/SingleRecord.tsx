@@ -15,8 +15,6 @@ import { useQueryClient } from '@tanstack/react-query'
 
 type TProps = {
   item: TPerson
-  handleOpenBtmSheet: (action: 'close' | 'expand' | 'snapPoint') => void
-  handleActionSheet: (personId: number) => void
   setModalVisible: React.Dispatch<React.SetStateAction<boolean>>
 }
 const statusOptions: {
@@ -33,7 +31,7 @@ const SingleRecord = (prop: TProps) => {
   const queryClient = useQueryClient()
   const setSelectedPerson = useMyStore((state) => state.setSelectedPerson)
 
-  const { item, handleOpenBtmSheet, handleActionSheet, setModalVisible } = prop
+  const { item, setModalVisible } = prop
   const { name, block, unit, remarks, id, category, status } = item
   let formattedRemarks = ''
   if (remarks === null) {
@@ -93,25 +91,6 @@ const SingleRecord = (prop: TProps) => {
         </View>
       </View>
       <Text style={styles.textRemarks}>{formattedRemarks}</Text>
-      <Pressable
-        style={{
-          position: 'absolute',
-          top: '15%',
-          right: 5,
-          padding: 10,
-        }}
-        onPress={() => {
-          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft)
-          setSelectedPerson(item)
-          handleActionSheet(id)
-        }}
-      >
-        <FontAwesome
-          name="ellipsis-vertical"
-          size={22}
-          color={Colors.primary400}
-        />
-      </Pressable>
     </TouchableOpacity>
   )
 }
