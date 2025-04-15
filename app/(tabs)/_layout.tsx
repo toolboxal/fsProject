@@ -14,13 +14,11 @@ const TabsLayout = () => {
   console.log('tabslayout page')
   return (
     <Tabs
-      screenListeners={
-        {
-          // tabPress: () => {
-          //   Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft)
-          // },
-        }
-      }
+      screenListeners={{
+        tabPress: () => {
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft)
+        },
+      }}
       screenOptions={{
         headerShown: true,
         tabBarShowLabel: true,

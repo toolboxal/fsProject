@@ -51,9 +51,9 @@ const statusOptions: {
   color: string
   label: string
 }[] = [
-  { type: 'irregular', label: 'hard to find', color: Colors.primary200 },
-  { type: 'frequent', label: 'frequent visits', color: Colors.purple200 },
-  { type: 'committed', label: 'established', color: Colors.purple400 },
+  { type: 'irregular', label: 'hard to find', color: Colors.sky200 },
+  { type: 'frequent', label: 'frequent visits', color: Colors.purple100 },
+  { type: 'committed', label: 'established', color: Colors.purple300 },
 ]
 
 const EditPage = () => {
@@ -282,7 +282,10 @@ const EditPage = () => {
           // paddingTop: 20,
         }}
       >
-        <ScrollView style={styles.scrollViewContainer}>
+        <ScrollView
+          style={styles.scrollViewContainer}
+          keyboardShouldPersistTaps="handled"
+        >
           <View style={styles.twoColumnsContainer}>
             <Controller
               control={control}
@@ -525,7 +528,7 @@ const EditPage = () => {
                   borderRadius: 10,
                 }}
                 horizontal
-                showsHorizontalScrollIndicator={true}
+                showsHorizontalScrollIndicator={false}
                 data={tags}
                 renderItem={({ item }) => (
                   <Pressable

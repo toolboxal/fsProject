@@ -14,6 +14,7 @@ import { db } from '@/drizzle/db'
 import { toast } from 'sonner-native'
 import * as Haptics from 'expo-haptics'
 import { useQueryClient } from '@tanstack/react-query'
+import { eq } from 'drizzle-orm'
 
 type props = {
   openTagModal: boolean
@@ -53,6 +54,22 @@ const FormTagModal = ({
     const formattedTag = data.tagName.trim().toLowerCase()
 
     try {
+      // Check if tag already exists
+      const existingTag = await db
+        .select({ id: tags.id })
+        .from(tags)
+        .where(eq(tags.tagName, formattedTag))
+        .limit(1)
+
+      if (existingTag.length > 0) {
+        setError('tagName', {
+          type: 'duplicate',
+          message: 'Tag already exists',
+        })
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error)
+        return
+      }
+
       const newTag = await db
         .insert(tags)
         .values({
@@ -71,6 +88,7 @@ const FormTagModal = ({
     } catch (error) {
       console.error('Failed to add tag:', error)
       toast.error('Failed to add tag. Please try again.')
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error)
     }
   }
 
