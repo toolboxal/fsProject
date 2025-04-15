@@ -26,6 +26,8 @@ import { Person, TPerson, personsToTags } from '@/drizzle/schema'
 import WebView from 'react-native-webview'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslations } from '@/app/_layout'
+import { CirclePlusIcon } from 'lucide-react-native'
+import FormTagModal from './reportComponents/FormTagModal'
 
 type TFormData = Omit<
   TPerson,
@@ -47,6 +49,7 @@ const Form = () => {
   const [category, setCategory] = useState('RV')
   const [status, setStatus] = useState<TPerson['status']>('frequent')
   const [selectedTags, setSelectedTags] = useState<number[]>([])
+  const [openTagModal, setOpenTagModal] = useState(false)
   const geoCoords = useMyStore((state) => state.geoCoords)
   const setGeoCoords = useMyStore((state) => state.setGeoCoords)
   const address = useMyStore((state) => state.address)
@@ -438,48 +441,79 @@ const Form = () => {
             )}
           />
         </View>
+
         <Text style={styles.label}>tags</Text>
-        <FlatList
+        <View
           style={{
-            padding: 3,
-            marginBottom: 10,
+            flexDirection: 'row',
+            gap: 6,
+            alignItems: 'center',
+            marginBottom: 7,
+            // backgroundColor: 'green',
           }}
-          horizontal
-          showsHorizontalScrollIndicator={true}
-          data={tags}
-          renderItem={({ item }) => (
-            <Pressable
-              key={item.id}
-              style={[
-                styles.tag,
-                selectedTags.includes(item.id) && {
-                  backgroundColor: Colors.primary700,
-                  borderColor: Colors.primary700,
-                },
-              ]}
-              onPress={() => {
-                setSelectedTags((prev) => {
-                  if (prev.includes(item.id)) {
-                    return prev.filter((id) => id !== item.id)
-                  } else {
-                    return [...prev, item.id]
-                  }
-                })
-              }}
+        >
+          <Pressable
+            onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+              setOpenTagModal(true)
+            }}
+          >
+            <CirclePlusIcon
+              size={30}
+              color={Colors.primary700}
+              strokeWidth={1}
+            />
+          </Pressable>
+          {tags?.length === 0 ? (
+            <Text
+              style={{ color: Colors.primary600, fontFamily: 'IBM-Regular' }}
             >
-              <Text
-                style={[
-                  styles.tagText,
-                  selectedTags.includes(item.id) && {
-                    color: Colors.white,
-                  },
-                ]}
-              >
-                {item.tagName}
-              </Text>
-            </Pressable>
+              add your first tag
+            </Text>
+          ) : (
+            <FlatList
+              style={{
+                padding: 3,
+                borderRadius: 10,
+              }}
+              horizontal
+              showsHorizontalScrollIndicator={true}
+              data={tags}
+              renderItem={({ item }) => (
+                <Pressable
+                  key={item.id}
+                  style={[
+                    styles.tag,
+                    selectedTags.includes(item.id) && {
+                      backgroundColor: Colors.emerald600,
+                      borderColor: Colors.emerald600,
+                    },
+                  ]}
+                  onPress={() => {
+                    setSelectedTags((prev) => {
+                      if (prev.includes(item.id)) {
+                        return prev.filter((id) => id !== item.id)
+                      } else {
+                        return [...prev, item.id]
+                      }
+                    })
+                  }}
+                >
+                  <Text
+                    style={[
+                      styles.tagText,
+                      selectedTags.includes(item.id) && {
+                        color: Colors.white,
+                      },
+                    ]}
+                  >
+                    {item.tagName}
+                  </Text>
+                </Pressable>
+              )}
+            />
           )}
-        />
+        </View>
         <View style={{ flexDirection: 'row', gap: 10 }}>
           <View style={{ flexDirection: 'column', flex: 5 }}>
             <Text style={styles.label}>contactable</Text>
@@ -541,6 +575,11 @@ const Form = () => {
           <Text style={styles.buttonText}>{i18n.t('form.saveLabel')}</Text>
         </TouchableOpacity>
       </ScrollView>
+      <FormTagModal
+        openTagModal={openTagModal}
+        setOpenTagModal={setOpenTagModal}
+        setSelectedTags={setSelectedTags}
+      />
     </View>
   )
 }

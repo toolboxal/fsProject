@@ -543,7 +543,7 @@ const DetailsModal = ({ modalVisible, setModalVisible }: props) => {
               </View>
               <ScrollView
                 style={styles.scrollContainer}
-                contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}
+                contentContainerStyle={{ flexGrow: 1, paddingBottom: 10 }}
                 keyboardShouldPersistTaps="handled"
               >
                 <View style={[styles.contentContainer, { paddingVertical: 0 }]}>
@@ -573,7 +573,7 @@ const DetailsModal = ({ modalVisible, setModalVisible }: props) => {
                             height: 100,
                             backgroundColor: Colors.primary700,
                             padding: 10,
-                            borderRadius: 10,
+                            borderRadius: 5,
                             marginVertical: 15,
                             fontFamily: 'IBM-Regular',
                             fontSize: 16,
@@ -668,7 +668,7 @@ const styles = StyleSheet.create({
   },
   cardContainer2: {
     width: '96%',
-    marginBottom: 100,
+    // marginBottom: 100,
     marginHorizontal: 'auto',
     borderRadius: 20,
     backgroundColor: Colors.primary950,
@@ -815,7 +815,7 @@ const styles = StyleSheet.create({
   },
   submitBtn: {
     padding: 8,
-    backgroundColor: Colors.emerald500,
+    backgroundColor: Colors.emerald700,
     borderRadius: 5,
   },
   submitTxt: {
