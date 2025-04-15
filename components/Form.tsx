@@ -488,8 +488,8 @@ const Form = () => {
                   style={[
                     styles.tag,
                     selectedTags.includes(item.id) && {
-                      backgroundColor: Colors.emerald600,
-                      borderColor: Colors.emerald600,
+                      backgroundColor: Colors.emerald900,
+                      borderColor: Colors.emerald900,
                     },
                   ]}
                   onPress={() => {

@@ -95,6 +95,12 @@ export const Report = sqliteTable('report', {
 
 export type TPerson = InferSelectModel<typeof Person>
 
+export type TPersonWithTags = InferSelectModel<typeof Person> & {
+  personsToTags: Array<{
+    tag: InferSelectModel<typeof tags>
+  }>
+}
+
 export type TReport = InferSelectModel<typeof Report>
 
 export const tagsSelectSchema = createSelectSchema(tags)

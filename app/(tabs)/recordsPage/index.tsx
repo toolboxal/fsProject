@@ -14,18 +14,26 @@ import { Ionicons } from '@expo/vector-icons'
 import { useTranslations } from '../../_layout'
 
 import { db } from '@/drizzle/db'
-import { Person, TPerson } from '@/drizzle/schema'
+import { Person, TPerson, TPersonWithTags } from '@/drizzle/schema'
 
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { checkAndRequestReview } from '@/utils/storeReview'
 import DetailsModal from '@/components/DetailsModal'
+import { FlatList } from 'react-native-gesture-handler'
+
+const filterOptions = [
+  { type: 'all', label: 'All' },
+  { type: 'irregular', label: 'hard to find' },
+  { type: 'frequent', label: 'frequent visits' },
+  { type: 'committed', label: 'established' },
+]
 
 const RecordsPage = () => {
-  const [menuOpen, setMenuOpen] = useState(false)
   const [refreshing, setRefreshing] = useState(false)
   // const selectedPerson = useMyStore((state) => state.selectedPerson)
   const [modalVisible, setModalVisible] = useState(false)
   const [searchBarQuery, setSearchBarQuery] = useState('')
+  const [selectedTags, setSelectedTags] = useState<number[]>([])
 
   const queryClient = useQueryClient()
   const i18n = useTranslations()
@@ -38,14 +46,40 @@ const RecordsPage = () => {
 
   const { data: persons } = useQuery({
     queryKey: ['persons'],
-    queryFn: () => {
-      const result = db.select().from(Person).all()
-      return result
+    queryFn: async () => {
+      const result = await db.query.Person.findMany({
+        with: {
+          personsToTags: {
+            with: {
+              tag: true,
+            },
+          },
+        },
+      })
+      return result as TPersonWithTags[]
+    },
+  })
+  console.log(persons)
+
+  const { data: tags } = useQuery({
+    queryKey: ['tags'],
+    queryFn: async () => {
+      return await db.query.tags.findMany()
     },
   })
 
   const filteredPersons = persons?.filter((person) => {
-    return person.name?.toLowerCase().includes(searchBarQuery.toLowerCase())
+    const matchesName = person.name
+      ?.toLowerCase()
+      .includes(searchBarQuery.toLowerCase())
+    if (selectedTags.length === 0) {
+      return matchesName
+    }
+    const personTagIds = person.personsToTags.map((pt) => pt.tag.id)
+    const matchesTags = selectedTags.some((tagId) =>
+      personTagIds.includes(tagId)
+    )
+    return matchesName && matchesTags
   })
 
   const onRefresh = async () => {
@@ -57,7 +91,7 @@ const RecordsPage = () => {
 
   // --------data formatting----------
 
-  const categoryMap: { [key: string]: TPerson[] } = {}
+  const categoryMap: { [key: string]: TPersonWithTags[] } = {}
 
   filteredPersons?.forEach((person) => {
     const place = person.block || person.street
@@ -126,9 +160,6 @@ const RecordsPage = () => {
               onPress={() => {
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
                 router.navigate('/formPage')
-                if (menuOpen === true) {
-                  setMenuOpen(false)
-                }
               }}
             >
               <Ionicons
@@ -201,6 +232,61 @@ const RecordsPage = () => {
             estimatedItemSize={50}
             refreshing={refreshing}
             onRefresh={onRefresh}
+            ListHeaderComponent={
+              tags?.length === 0 ? (
+                <Text
+                  style={{
+                    color: Colors.primary600,
+                    fontFamily: 'IBM-Regular',
+                  }}
+                >
+                  currently no tags created
+                </Text>
+              ) : (
+                <FlatList
+                  style={{
+                    paddingVertical: 6,
+                    backgroundColor: Colors.primary50,
+                  }}
+                  horizontal
+                  contentInsetAdjustmentBehavior="automatic"
+                  showsHorizontalScrollIndicator={false}
+                  data={tags}
+                  renderItem={({ item }) => (
+                    <Pressable
+                      key={item.id}
+                      style={[
+                        styles.tag,
+                        selectedTags.includes(item.id) && {
+                          backgroundColor: Colors.emerald900,
+                          borderColor: Colors.emerald900,
+                        },
+                      ]}
+                      onPress={() => {
+                        setSelectedTags((prev) => {
+                          if (prev.includes(item.id)) {
+                            return prev.filter((id) => id !== item.id)
+                          } else {
+                            return [...prev, item.id]
+                          }
+                        })
+                      }}
+                    >
+                      <Text
+                        style={[
+                          styles.tagText,
+                          selectedTags.includes(item.id) && {
+                            color: Colors.white,
+                          },
+                        ]}
+                      >
+                        {item.tagName}
+                      </Text>
+                    </Pressable>
+                  )}
+                />
+              )
+            }
           />
         </View>
       )}
@@ -245,18 +331,6 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 30,
   },
-  apartmentBtnsContainer: {
-    paddingHorizontal: 20,
-    paddingVertical: 15,
-    gap: 15,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 7,
-    elevation: 5,
-    backgroundColor: Colors.primary50,
-  },
-
   header: {
     fontFamily: 'IBM-Bold',
     fontSize: 20,
@@ -268,90 +342,6 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: Colors.primary50,
-  },
-  btmSheetContent: {
-    flex: 1,
-  },
-  btmSheetHeaderContainer: {
-    paddingHorizontal: 20,
-    paddingTop: 12,
-    backgroundColor: 'lightpink',
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  btmSheetHeader: {
-    fontFamily: 'IBM-Bold',
-    fontSize: 26,
-    color: Colors.white,
-  },
-  categoryCircle: {
-    width: 33,
-    height: 33,
-    borderRadius: 50,
-    position: 'absolute',
-    top: -10,
-    right: -40,
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#fff',
-  },
-  categoryText: {
-    fontFamily: 'IBM-Bold',
-    fontSize: 15,
-    color: Colors.white,
-  },
-  btmSheetScrollViewContent: {
-    flexGrow: 1,
-    padding: 20,
-    paddingBottom: 40,
-    backgroundColor: 'lightgreen',
-  },
-  btmSheetAddContainer: {
-    flexDirection: 'row',
-    alignItems: 'baseline',
-    justifyContent: 'flex-start',
-    gap: 6,
-  },
-  remarksBox: {
-    flexGrow: 1,
-    backgroundColor: Colors.primary600,
-    padding: 15,
-    borderRadius: 8,
-    position: 'relative',
-    // marginBottom: 120,
-  },
-  remarksText: {
-    fontFamily: 'IBM-Regular',
-    fontSize: 18,
-    color: Colors.primary100,
-  },
-  publicationsText: {
-    fontFamily: 'IBM-SemiBoldItalic',
-    fontSize: 18,
-    color: Colors.lemon100,
-    marginTop: 5,
-  },
-  burgerContainer: {
-    width: 40,
-    height: 40,
-    backgroundColor: Colors.primary900,
-    borderRadius: 50,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginLeft: 25,
-  },
-  contactText: {
-    marginVertical: 10,
-    fontFamily: 'IBM-MediumItalic',
-    fontSize: 18,
-    color: Colors.emerald200,
-  },
-  dateText: {
-    color: Colors.primary300,
-    letterSpacing: 0.6,
-    fontSize: 16,
   },
   btnTextLeft: {
     color: Colors.emerald800,
@@ -374,9 +364,20 @@ const styles = StyleSheet.create({
     marginRight: 15,
     padding: 5,
   },
-  whatsAppImage: {
-    width: 45,
-    aspectRatio: 'auto',
-    height: 45,
+  tag: {
+    borderRadius: 8,
+    padding: 10,
+    marginHorizontal: 3,
+    minWidth: 80,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: Colors.primary400,
+  },
+  tagText: {
+    fontFamily: 'IBM-Regular',
+    fontSize: 13,
+    color: Colors.primary900,
   },
 })
