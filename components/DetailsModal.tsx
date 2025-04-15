@@ -37,6 +37,7 @@ import DateTimePicker from '@react-native-community/datetimepicker'
 import { TextInput } from 'react-native-gesture-handler'
 import { Controller, useForm } from 'react-hook-form'
 import { format } from 'date-fns'
+import { useRouter } from 'expo-router'
 
 type props = {
   modalVisible: boolean
@@ -54,6 +55,7 @@ const statusOptions: {
 ]
 
 const DetailsModal = ({ modalVisible, setModalVisible }: props) => {
+  const router = useRouter()
   const selectedPerson = useMyStore((state) => state.selectedPerson)
   const [followUpDate, setFollowUpDate] = useState<Date>(new Date())
   const [editMode, setEditMode] = useState(false)
@@ -89,7 +91,9 @@ const DetailsModal = ({ modalVisible, setModalVisible }: props) => {
         .where(eq(personsToTags.personId, id))
     },
   })
-  //   console.log('tags -->', tagsArr)
+
+  console.log('tags array -->', tagsArr)
+
   const { data: followUpsArr } = useQuery({
     queryKey: ['followUps', id],
     queryFn: async () => {
@@ -291,7 +295,13 @@ const DetailsModal = ({ modalVisible, setModalVisible }: props) => {
           <View style={styles.cardContainer}>
             <View style={styles.topBar}>
               <View style={styles.btnGroup}>
-                <Pressable style={styles.menuBtn}>
+                <Pressable
+                  style={styles.menuBtn}
+                  onPress={() => {
+                    setModalVisible(false)
+                    router.push('/editPage')
+                  }}
+                >
                   <Text style={styles.menuTxt}>Edit</Text>
                 </Pressable>
                 <Pressable style={styles.menuBtn}>
@@ -378,12 +388,12 @@ const DetailsModal = ({ modalVisible, setModalVisible }: props) => {
                     horizontal
                     showsHorizontalScrollIndicator={true}
                     data={tagsArr}
+                    keyExtractor={(item, index) => index.toString()}
                     renderItem={({ item }) => (
                       <View style={styles.tagBox}>
                         <Text style={styles.tagText}>{item.tagName}</Text>
                       </View>
                     )}
-                    //   keyExtractor={(item, index) => index.toString()}
                   />
                 )}
                 <View
@@ -464,19 +474,14 @@ const DetailsModal = ({ modalVisible, setModalVisible }: props) => {
                 </View>
                 {followUpsArr?.length! > 0 && (
                   <View>
-                    <Text
-                      style={[
-                        styles.labelText,
-                        { paddingLeft: 2, color: Colors.emerald400 },
-                      ]}
-                    >
-                      follow ups
+                    <Text style={styles.labelText}>
+                      follow ups - long press to edit
                     </Text>
                     {sortedFollowUps?.map((followUp) => (
                       <Pressable
                         key={followUp.id}
                         style={[styles.remarksBox, { marginBottom: 0 }]}
-                        onPress={() => {
+                        onLongPress={() => {
                           Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
                           setEditMode(true)
                           setFollowUpIdToEdit(followUp.id)
@@ -589,7 +594,7 @@ const DetailsModal = ({ modalVisible, setModalVisible }: props) => {
                     style={{
                       flexDirection: 'row',
                       alignItems: 'center',
-                      justifyContent: 'space-around',
+                      justifyContent: 'space-between',
                     }}
                   >
                     <View style={styles.dateContainer}>
@@ -803,10 +808,10 @@ const styles = StyleSheet.create({
     color: Colors.primary300,
   },
   labelText: {
-    fontFamily: 'IBM-Medium',
+    fontFamily: 'IBM-MediumItalic',
     fontSize: 14,
     color: Colors.primary300,
-    paddingLeft: 10,
+    paddingLeft: 6,
   },
   dateContainer: {
     flexDirection: 'row',
@@ -815,6 +820,7 @@ const styles = StyleSheet.create({
   },
   submitBtn: {
     padding: 8,
+    paddingHorizontal: 12,
     backgroundColor: Colors.emerald700,
     borderRadius: 5,
   },

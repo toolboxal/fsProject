@@ -11,6 +11,7 @@ import {
 import * as Haptics from 'expo-haptics'
 import FontAwesome from '@expo/vector-icons/FontAwesome6'
 import { TPerson } from '@/drizzle/schema'
+import { useQueryClient } from '@tanstack/react-query'
 
 type TProps = {
   item: TPerson
@@ -29,6 +30,7 @@ const statusOptions: {
 ]
 
 const SingleRecord = (prop: TProps) => {
+  const queryClient = useQueryClient()
   const setSelectedPerson = useMyStore((state) => state.setSelectedPerson)
 
   const { item, handleOpenBtmSheet, handleActionSheet, setModalVisible } = prop
@@ -49,6 +51,9 @@ const SingleRecord = (prop: TProps) => {
         setSelectedPerson(item)
         // handleOpenBtmSheet('expand')
         setModalVisible((prev) => !prev)
+        queryClient.invalidateQueries({
+          queryKey: ['tags', id],
+        })
       }}
     >
       <Text style={styles.houseUnit}>

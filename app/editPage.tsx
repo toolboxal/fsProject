@@ -12,12 +12,13 @@ import {
   ActivityIndicator,
   Alert,
   Pressable,
+  FlatList,
 } from 'react-native'
 import * as Location from 'expo-location'
 import useMyStore from '@/store/store'
 import { useForm, Controller } from 'react-hook-form'
 import TextInputComponent from '@/components/TextInputComponent'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6'
 import { router } from 'expo-router'
 
@@ -25,12 +26,20 @@ import { toast } from 'sonner-native'
 import * as Haptics from 'expo-haptics'
 
 import { db } from '@/drizzle/db'
-import { Person, TPerson } from '@/drizzle/schema'
+import {
+  Person,
+  personsToTags,
+  TPerson,
+  TPersonsToTags,
+  TTags,
+} from '@/drizzle/schema'
 import { eq } from 'drizzle-orm'
 import { SegmentedButtons } from 'react-native-paper'
 import WebView from 'react-native-webview'
-import { useQueryClient } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslations } from '@/app/_layout'
+import { CirclePlusIcon } from 'lucide-react-native'
+import FormTagModal from '@/components/reportComponents/FormTagModal'
 
 type TFormData = Omit<
   TPerson,
@@ -56,10 +65,41 @@ const EditPage = () => {
     selectedPerson.status || 'frequent'
   )
 
+  const [openTagModal, setOpenTagModal] = useState(false)
+
   const [updatedLat, setUpdatedLat] = useState(selectedPerson.latitude)
   const [updatedLng, setUpdatedLng] = useState(selectedPerson.longitude)
 
   const i18n = useTranslations()
+
+  const { data: personsTag } = useQuery({
+    queryKey: ['tags', selectedPerson.id],
+    queryFn: async () => {
+      return await db.query.personsToTags.findMany({
+        where: (personsToTags, { eq }) =>
+          eq(personsToTags.personId, selectedPerson.id),
+        columns: {
+          tagId: true,
+        },
+      })
+    },
+  })
+  const [selectedTags, setSelectedTags] = useState<number[]>([])
+
+  useEffect(() => {
+    if (personsTag) {
+      setSelectedTags(personsTag.map((tag) => tag.tagId))
+    }
+  }, [personsTag])
+
+  // console.log('selectedTags', selectedTags)
+
+  const { data: tags } = useQuery({
+    queryKey: ['tags'],
+    queryFn: async () => {
+      return await db.query.tags.findMany()
+    },
+  })
 
   const categoryOptions = [
     {
@@ -129,12 +169,34 @@ const EditPage = () => {
         status: status,
       })
       .where(eq(Person.id, selectedPerson.id))
+
+    // Update associations for selected tags
+    if (selectedTags.length > 0) {
+      // First, delete existing associations for this person
+      await db
+        .delete(personsToTags)
+        .where(eq(personsToTags.personId, selectedPerson.id))
+
+      // Then, insert new associations based on selectedTags
+      const tagAssociations = selectedTags.map((tagId) => ({
+        personId: selectedPerson.id,
+        tagId: tagId,
+      }))
+      await db.insert(personsToTags).values(tagAssociations)
+    } else {
+      // If no tags are selected, delete all associations for this person
+      await db
+        .delete(personsToTags)
+        .where(eq(personsToTags.personId, selectedPerson.id))
+    }
+
     queryClient.invalidateQueries({ queryKey: ['persons'] })
+    queryClient.invalidateQueries({ queryKey: ['tags', selectedPerson.id] })
     console.log('edit done')
     reset()
     toast.success(i18n.t('editForm.toastSuccess'))
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
-    router.replace('/recordsPage')
+    router.back()
   }
 
   const handleNewAddress = async () => {
@@ -204,295 +266,372 @@ const EditPage = () => {
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
-      <KeyboardAvoidingView
+      {/* <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={{
           flex: 1,
           backgroundColor: Colors.primary50,
         }}
+      > */}
+      <StatusBar barStyle={'dark-content'} />
+
+      <View
+        style={{
+          flex: 1,
+          backgroundColor: Colors.primary50,
+          // paddingTop: 20,
+        }}
       >
-        <StatusBar barStyle={'dark-content'} />
-
-        <View
-          style={{
-            flex: 1,
-            backgroundColor: Colors.primary50,
-            // paddingTop: 20,
-          }}
-        >
-          <ScrollView style={styles.scrollViewContainer}>
-            <View style={styles.twoColumnsContainer}>
-              <Controller
-                control={control}
-                name="unit"
-                render={({ field: { value, onChange, onBlur } }) => (
-                  <TextInputComponent
-                    value={value.toUpperCase()}
-                    onChangeText={onChange}
-                    onBlur={onBlur}
-                    label={i18n.t('form.houseLabel')}
-                    placeholderText="unit"
-                    extraStyles={{
-                      width: 110,
-                    }}
-                  />
-                )}
-              />
-              <Controller
-                control={control}
-                name="block"
-                render={({ field: { value, onChange, onBlur } }) => (
-                  <TextInputComponent
-                    value={value.toUpperCase()}
-                    onChangeText={onChange}
-                    onBlur={onBlur}
-                    label={i18n.t('form.aptLabel')}
-                    placeholderText="blk no."
-                    extraStyles={{
-                      width: 110,
-                    }}
-                  />
-                )}
-              />
-
-              <TouchableOpacity
-                activeOpacity={0.8}
-                style={{
-                  padding: 6,
-                  paddingHorizontal: 10,
-                  backgroundColor: Colors.primary900,
-                  borderRadius: 8,
-                  alignSelf: 'flex-end',
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  gap: 5,
-                  shadowColor: '#000',
-                  shadowOffset: { width: 2, height: 2 },
-                  shadowOpacity: 0.3,
-                  shadowRadius: 5,
-                  elevation: 5,
-                  minWidth: 80,
-                }}
-                onPress={handleNewAddress}
-              >
-                <FontAwesome6
-                  name="location-arrow"
-                  size={20}
-                  color={Colors.primary100}
-                />
-                <Text
-                  style={{
-                    fontFamily: 'IBM-SemiBold',
-                    fontSize: 14,
-                    color: Colors.primary100,
-                    textAlign: 'center',
-                  }}
-                >
-                  {i18n.t('form.updateMapLabel')}
-                </Text>
-              </TouchableOpacity>
-            </View>
+        <ScrollView style={styles.scrollViewContainer}>
+          <View style={styles.twoColumnsContainer}>
             <Controller
               control={control}
-              name="street"
+              name="unit"
               render={({ field: { value, onChange, onBlur } }) => (
                 <TextInputComponent
-                  value={value}
+                  value={value.toUpperCase()}
                   onChangeText={onChange}
                   onBlur={onBlur}
-                  label={i18n.t('form.streetLabel')}
-                  placeholderText="kingdom ave."
+                  label={i18n.t('form.houseLabel')}
+                  placeholderText="unit"
                   extraStyles={{
-                    width: '100%',
+                    width: 110,
                   }}
                 />
               )}
             />
-            <View
-              style={{
-                height: 250,
-                marginTop: 20,
-                borderRadius: 10,
-                overflow: 'hidden',
-                pointerEvents: 'none',
-              }}
-            >
-              <WebView
-                style={{ height: '100%' }}
-                originWhitelist={['*']}
-                source={{ html: htmlContent }}
-                startInLoadingState
-                renderLoading={() => (
-                  <View style={{ height: '100%' }}>
-                    <ActivityIndicator
-                      size={'small'}
-                      color={Colors.emerald500}
-                      style={{ height: '100%' }}
-                    />
-                  </View>
-                )}
-              />
-            </View>
-            <View style={styles.twoColumnsContainer}>
-              <View style={{ flexDirection: 'column', gap: 1 }}>
-                <Controller
-                  control={control}
-                  name="name"
-                  render={({ field: { value, onChange, onBlur } }) => (
-                    <TextInputComponent
-                      value={value}
-                      onChangeText={onChange}
-                      onBlur={onBlur}
-                      label={i18n.t('form.nameLabel')}
-                      placeholderText="nicodemus"
-                      extraStyles={{
-                        width: 175,
-                      }}
-                    />
-                  )}
-                />
-                {errors['name'] && (
-                  <Text style={styles.errorText}>
-                    {errors['name']?.message?.toString()}
-                  </Text>
-                )}
-              </View>
-              <Controller
-                control={control}
-                name="contact"
-                render={({ field: { value, onChange, onBlur } }) => (
-                  <TextInputComponent
-                    value={value}
-                    onChangeText={onChange}
-                    onBlur={onBlur}
-                    label={i18n.t('form.contactLabel')}
-                    placeholderText="hp no."
-                    extraStyles={{
-                      width: 140,
-                    }}
-                  />
-                )}
-              />
-            </View>
             <Controller
               control={control}
-              name="publications"
+              name="block"
               render={({ field: { value, onChange, onBlur } }) => (
                 <TextInputComponent
-                  value={value}
+                  value={value.toUpperCase()}
                   onChangeText={onChange}
                   onBlur={onBlur}
-                  label={i18n.t('form.pubLabel')}
-                  placeholderText="stopped at lff lesson3 pt5"
-                  extraStyles={{ width: '100%' }}
-                />
-              )}
-            />
-            <Controller
-              control={control}
-              name="remarks"
-              render={({ field: { value, onChange, onBlur } }) => (
-                <TextInputComponent
-                  value={value}
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                  label={i18n.t('form.remarksLabel')}
-                  placeholderText="....."
+                  label={i18n.t('form.aptLabel')}
+                  placeholderText="blk no."
                   extraStyles={{
-                    width: '100%',
-                    height: 140,
+                    width: 110,
                   }}
-                  multiline={true}
                 />
               )}
             />
-            <View style={styles.twoColumnsContainer}>
-              <Controller
-                control={control}
-                name="date"
-                render={({ field: { value, onChange, onBlur } }) => (
-                  <TextInputComponent
-                    value={value}
-                    onChangeText={onChange}
-                    onBlur={onBlur}
-                    label={i18n.t('form.dateLabel')}
-                    placeholderText=""
-                    extraStyles={{
-                      width: 130,
-                    }}
-                  />
-                )}
-              />
-            </View>
 
-            <View style={{ flexDirection: 'row', gap: 10 }}>
-              <View style={{ flexDirection: 'column', flex: 5 }}>
-                <Text style={styles.label}>contactable</Text>
-                <View style={{ flexDirection: 'column', gap: 5 }}>
-                  {statusOptions.map((option) => (
-                    <Pressable
-                      key={option.type}
-                      style={[
-                        styles.optionBox,
-                        option.type === status && {
-                          borderColor: option.color,
-                          backgroundColor: `${option.color}`,
-                        },
-                      ]}
-                      onPress={() => setStatus(option.type)}
-                    >
-                      <Text style={[styles.categoryOptionText]}>
-                        {option.label}
-                      </Text>
-                    </Pressable>
-                  ))}
-                </View>
-              </View>
-              <View style={{ flexDirection: 'column', flex: 4 }}>
-                <Text style={styles.label}>category</Text>
-                <View style={{ flexDirection: 'column', gap: 5 }}>
-                  {categoryOptions.map((option) => (
-                    <Pressable
-                      key={option.value}
-                      style={[
-                        styles.optionBox,
-                        category === option.value && {
-                          borderColor: option.color,
-                          backgroundColor: `${option.color}`,
-                        },
-                      ]}
-                      onPress={() => setCategory(option.value)}
-                    >
-                      <Text
-                        style={[
-                          styles.categoryOptionText,
-                          category === option.value && { color: Colors.white },
-                        ]}
-                      >
-                        {option.label}
-                      </Text>
-                    </Pressable>
-                  ))}
-                </View>
-              </View>
-            </View>
             <TouchableOpacity
-              style={styles.buttonStyle}
-              onPress={handleSubmit(submitPressed)}
               activeOpacity={0.8}
+              style={{
+                padding: 6,
+                paddingHorizontal: 10,
+                backgroundColor: Colors.primary900,
+                borderRadius: 8,
+                alignSelf: 'flex-end',
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 5,
+                shadowColor: '#000',
+                shadowOffset: { width: 2, height: 2 },
+                shadowOpacity: 0.3,
+                shadowRadius: 5,
+                elevation: 5,
+                minWidth: 80,
+              }}
+              onPress={handleNewAddress}
             >
               <FontAwesome6
-                name="pen-to-square"
-                size={22}
-                color={Colors.white}
+                name="location-arrow"
+                size={20}
+                color={Colors.primary100}
               />
-              <Text style={styles.buttonText}>
-                {i18n.t('editForm.saveLabel')}
+              <Text
+                style={{
+                  fontFamily: 'IBM-SemiBold',
+                  fontSize: 14,
+                  color: Colors.primary100,
+                  textAlign: 'center',
+                }}
+              >
+                {i18n.t('form.updateMapLabel')}
               </Text>
             </TouchableOpacity>
-          </ScrollView>
-        </View>
-      </KeyboardAvoidingView>
+          </View>
+          <Controller
+            control={control}
+            name="street"
+            render={({ field: { value, onChange, onBlur } }) => (
+              <TextInputComponent
+                value={value}
+                onChangeText={onChange}
+                onBlur={onBlur}
+                label={i18n.t('form.streetLabel')}
+                placeholderText="kingdom ave."
+                extraStyles={{
+                  width: '100%',
+                }}
+              />
+            )}
+          />
+          <View
+            style={{
+              height: 250,
+              marginTop: 20,
+              borderRadius: 10,
+              overflow: 'hidden',
+              pointerEvents: 'none',
+            }}
+          >
+            <WebView
+              style={{ height: '100%' }}
+              originWhitelist={['*']}
+              source={{ html: htmlContent }}
+              startInLoadingState
+              renderLoading={() => (
+                <View style={{ height: '100%' }}>
+                  <ActivityIndicator
+                    size={'small'}
+                    color={Colors.emerald500}
+                    style={{ height: '100%' }}
+                  />
+                </View>
+              )}
+            />
+          </View>
+          <View style={styles.twoColumnsContainer}>
+            <View style={{ flexDirection: 'column', gap: 1 }}>
+              <Controller
+                control={control}
+                name="name"
+                render={({ field: { value, onChange, onBlur } }) => (
+                  <TextInputComponent
+                    value={value}
+                    onChangeText={onChange}
+                    onBlur={onBlur}
+                    label={i18n.t('form.nameLabel')}
+                    placeholderText="nicodemus"
+                    extraStyles={{
+                      width: 175,
+                    }}
+                  />
+                )}
+              />
+              {errors['name'] && (
+                <Text style={styles.errorText}>
+                  {errors['name']?.message?.toString()}
+                </Text>
+              )}
+            </View>
+            <Controller
+              control={control}
+              name="contact"
+              render={({ field: { value, onChange, onBlur } }) => (
+                <TextInputComponent
+                  value={value}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  label={i18n.t('form.contactLabel')}
+                  placeholderText="hp no."
+                  extraStyles={{
+                    width: 140,
+                  }}
+                />
+              )}
+            />
+          </View>
+          <Controller
+            control={control}
+            name="publications"
+            render={({ field: { value, onChange, onBlur } }) => (
+              <TextInputComponent
+                value={value}
+                onChangeText={onChange}
+                onBlur={onBlur}
+                label={i18n.t('form.pubLabel')}
+                placeholderText="stopped at lff lesson3 pt5"
+                extraStyles={{ width: '100%' }}
+              />
+            )}
+          />
+          <Controller
+            control={control}
+            name="remarks"
+            render={({ field: { value, onChange, onBlur } }) => (
+              <TextInputComponent
+                value={value}
+                onChangeText={onChange}
+                onBlur={onBlur}
+                label={i18n.t('form.remarksLabel')}
+                placeholderText="....."
+                extraStyles={{
+                  width: '100%',
+                  height: 140,
+                }}
+                multiline={true}
+              />
+            )}
+          />
+          <View style={styles.twoColumnsContainer}>
+            <Controller
+              control={control}
+              name="date"
+              render={({ field: { value, onChange, onBlur } }) => (
+                <TextInputComponent
+                  value={value}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  label={i18n.t('form.dateLabel')}
+                  placeholderText=""
+                  extraStyles={{
+                    width: 130,
+                  }}
+                />
+              )}
+            />
+          </View>
+
+          <Text style={styles.label}>tags</Text>
+          <View
+            style={{
+              flexDirection: 'row',
+              gap: 6,
+              alignItems: 'center',
+              marginBottom: 7,
+              // backgroundColor: 'green',
+            }}
+          >
+            <Pressable
+              onPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+                setOpenTagModal(true)
+              }}
+            >
+              <CirclePlusIcon
+                size={30}
+                color={Colors.primary700}
+                strokeWidth={1}
+              />
+            </Pressable>
+            {tags?.length === 0 ? (
+              <Text
+                style={{
+                  color: Colors.primary600,
+                  fontFamily: 'IBM-Regular',
+                }}
+              >
+                add your first tag
+              </Text>
+            ) : (
+              <FlatList
+                style={{
+                  padding: 3,
+                  borderRadius: 10,
+                }}
+                horizontal
+                showsHorizontalScrollIndicator={true}
+                data={tags}
+                renderItem={({ item }) => (
+                  <Pressable
+                    key={item.id}
+                    style={[
+                      styles.tag,
+                      selectedTags.includes(item.id) && {
+                        backgroundColor: Colors.emerald600,
+                        borderColor: Colors.emerald600,
+                      },
+                    ]}
+                    onPress={() => {
+                      setSelectedTags((prev) => {
+                        if (prev.includes(item.id)) {
+                          return prev.filter((id) => id !== item.id)
+                        } else {
+                          return [...prev, item.id]
+                        }
+                      })
+                    }}
+                  >
+                    <Text
+                      style={[
+                        styles.tagText,
+                        selectedTags.includes(item.id) && {
+                          color: Colors.white,
+                        },
+                      ]}
+                    >
+                      {item.tagName}
+                    </Text>
+                  </Pressable>
+                )}
+              />
+            )}
+          </View>
+
+          <View style={{ flexDirection: 'row', gap: 10 }}>
+            <View style={{ flexDirection: 'column', flex: 5 }}>
+              <Text style={styles.label}>contactable</Text>
+              <View style={{ flexDirection: 'column', gap: 5 }}>
+                {statusOptions.map((option) => (
+                  <Pressable
+                    key={option.type}
+                    style={[
+                      styles.optionBox,
+                      option.type === status && {
+                        borderColor: option.color,
+                        backgroundColor: `${option.color}`,
+                      },
+                    ]}
+                    onPress={() => setStatus(option.type)}
+                  >
+                    <Text style={[styles.categoryOptionText]}>
+                      {option.label}
+                    </Text>
+                  </Pressable>
+                ))}
+              </View>
+            </View>
+            <View style={{ flexDirection: 'column', flex: 4 }}>
+              <Text style={styles.label}>category</Text>
+              <View style={{ flexDirection: 'column', gap: 5 }}>
+                {categoryOptions.map((option) => (
+                  <Pressable
+                    key={option.value}
+                    style={[
+                      styles.optionBox,
+                      category === option.value && {
+                        borderColor: option.color,
+                        backgroundColor: `${option.color}`,
+                      },
+                    ]}
+                    onPress={() => setCategory(option.value)}
+                  >
+                    <Text
+                      style={[
+                        styles.categoryOptionText,
+                        category === option.value && { color: Colors.white },
+                      ]}
+                    >
+                      {option.label}
+                    </Text>
+                  </Pressable>
+                ))}
+              </View>
+            </View>
+          </View>
+          <TouchableOpacity
+            style={styles.buttonStyle}
+            onPress={handleSubmit(submitPressed)}
+            activeOpacity={0.8}
+          >
+            <FontAwesome6 name="pen-to-square" size={22} color={Colors.white} />
+            <Text style={styles.buttonText}>
+              {i18n.t('editForm.saveLabel')}
+            </Text>
+          </TouchableOpacity>
+        </ScrollView>
+        <FormTagModal
+          openTagModal={openTagModal}
+          setOpenTagModal={setOpenTagModal}
+          setSelectedTags={setSelectedTags}
+        />
+      </View>
+      {/* </KeyboardAvoidingView> */}
     </SafeAreaView>
   )
 }
@@ -582,5 +721,21 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  tag: {
+    borderRadius: 8,
+    padding: 10,
+    marginHorizontal: 3,
+    minWidth: 80,
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: Colors.primary400,
+  },
+  tagText: {
+    fontFamily: 'IBM-Regular',
+    fontSize: 13,
+    color: Colors.primary900,
   },
 })

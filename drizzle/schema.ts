@@ -102,3 +102,6 @@ export type TTags = z.infer<typeof tagsSelectSchema>
 
 export const followUpInsertSchema = createInsertSchema(followUp)
 export type TFollowUp = z.infer<typeof followUpInsertSchema>
+
+export const personsToTagsSelectSchema = createSelectSchema(personsToTags)
+export type TPersonsToTags = z.infer<typeof personsToTagsSelectSchema>
