@@ -37,6 +37,9 @@ const en = {
     deleteAlertDesc: 'Please make sure you have a backup before proceeding.',
     toastDeleteRecords: 'All Records have been deleted',
     toastDeleteReports: 'All Reports have been deleted',
+    tagsHeader: 'Tags',
+    tagsTitle: 'Manage tags',
+    tagsDesc: 'Delete unused tags',
   },
   readme: {
     tabHeader: 'Readme',
@@ -70,6 +73,11 @@ const en = {
     supportHeader: 'Support my work',
     supportDesc:
       'Only if you really, really, really like the app. Then of course, I humbly accept a cup of coffee.😜',
+  },
+  tagsPage: {
+    tabHeader: 'Tags',
+    backBtn: 'Back',
+    toastSuccess: 'Tag has been deleted',
   },
   records: {
     tabHeaderLeft: 'New Record',

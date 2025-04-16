@@ -64,6 +64,17 @@ const optionsPage = () => {
         </View>
         <View style={styles.sectionContainer}>
           <Text style={styles.sectionHeadTxt}>
+            {i18n.t('options.tagsHeader')}
+          </Text>
+          {/* info */}
+          <SingleOption
+            handler={() => router.navigate('/(options)/tagsPage')}
+            headerTxt={i18n.t('options.tagsTitle')}
+            descTxt={i18n.t('options.tagsDesc')}
+          />
+        </View>
+        <View style={styles.sectionContainer}>
+          <Text style={styles.sectionHeadTxt}>
             {i18n.t('options.backupHeader')}
           </Text>
           {/* Create backup */}

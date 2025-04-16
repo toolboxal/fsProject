@@ -77,6 +77,29 @@ const OptionsLayout = () => {
           headerTintColor: Colors.primary600,
         }}
       />
+      <Stack.Screen
+        name="tagsPage"
+        options={{
+          presentation: 'card',
+          // gestureEnabled: false,
+          headerShown: true,
+          headerTitle: i18n.t('tagsPage.tabHeader'),
+          headerTitleStyle: {
+            color: Colors.emerald800,
+            fontFamily: 'IBM-Medium',
+            fontSize: 18,
+          },
+          headerBackTitle: i18n.t('tagsPage.backBtn'),
+          headerBackTitleStyle: {
+            fontFamily: 'IBM-Regular',
+            fontSize: 16,
+          },
+          headerStyle: {
+            backgroundColor: Colors.primary50,
+          },
+          headerTintColor: Colors.primary600,
+        }}
+      />
     </Stack>
   )
 }
