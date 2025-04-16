@@ -16,7 +16,7 @@ const TabsLayout = () => {
     <Tabs
       screenListeners={{
         tabPress: () => {
-          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft)
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
         },
       }}
       screenOptions={{

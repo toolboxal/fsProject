@@ -101,6 +101,13 @@ export type TPersonWithTags = InferSelectModel<typeof Person> & {
   }>
 }
 
+export type TPersonWithTagsAndFollowUps = InferSelectModel<typeof Person> & {
+  personsToTags: Array<{
+    tag: InferSelectModel<typeof tags>
+  }>
+  followUp: Array<InferSelectModel<typeof followUp>>
+}
+
 export type TReport = InferSelectModel<typeof Report>
 
 export const tagsSelectSchema = createSelectSchema(tags)

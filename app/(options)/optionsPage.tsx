@@ -12,7 +12,7 @@ import Ionicons from '@expo/vector-icons/Ionicons'
 
 import uploadRecord from '@/utils/uploadRecord'
 import createBackup from '@/utils/createBackup'
-import restoreRecord from '@/utils/restoreBackup'
+import restoreBackupFunc from '@/utils/restoreBackup'
 import createDocx from '@/utils/createDocx'
 import deleteAllRecords from '@/utils/deleteAllRecords'
 import deleteAllReports from '@/utils/deleteAllReports'
@@ -28,7 +28,7 @@ const optionsPage = () => {
     router.dismiss()
   }
   const handleRestore = async () => {
-    await restoreRecord(queryClient)
+    await restoreBackupFunc(queryClient)
     router.dismiss()
   }
   const handleUpload = async () => {

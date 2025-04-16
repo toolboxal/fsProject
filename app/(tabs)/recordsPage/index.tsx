@@ -68,19 +68,20 @@ const RecordsPage = () => {
     },
   })
 
-  const filteredPersons = persons?.filter((person) => {
-    const matchesName = person.name
-      ?.toLowerCase()
-      .includes(searchBarQuery.toLowerCase())
-    if (selectedTags.length === 0) {
-      return matchesName
-    }
-    const personTagIds = person.personsToTags.map((pt) => pt.tag.id)
-    const matchesTags = selectedTags.some((tagId) =>
-      personTagIds.includes(tagId)
-    )
-    return matchesName && matchesTags
-  })
+  const filteredPersons =
+    persons?.filter((person) => {
+      const matchesName = person.name
+        ?.toLowerCase()
+        .includes(searchBarQuery.toLowerCase())
+      if (selectedTags.length === 0) {
+        return matchesName
+      }
+      const personTagIds = (person.personsToTags || []).map((pt) => pt.tag.id)
+      const matchesTags = selectedTags.some((tagId) =>
+        personTagIds.includes(tagId)
+      )
+      return matchesName && matchesTags
+    }) || []
 
   const onRefresh = async () => {
     setRefreshing(true)

@@ -1,52 +1,55 @@
-import { Colors } from '@/constants/Colors'
-
 import * as DocumentPicker from 'expo-document-picker'
 import * as FileSystem from 'expo-file-system'
 import { Alert } from 'react-native'
 import { toast } from 'sonner-native'
+import { z } from 'zod'
 
 import { db } from '@/drizzle/db'
-import { Person, TPerson, Report, TReport } from '@/drizzle/schema'
+import { Person, Report, tags, personsToTags, followUp } from '@/drizzle/schema'
 import { QueryClient } from '@tanstack/react-query'
 import { useTranslations } from '@/app/_layout'
+import { eq } from 'drizzle-orm'
 
-type TRestorePerson = Omit<TPerson, 'id'>
-type TRestoreReport = Omit<TReport, 'id'>
+// Define the expected structure of the backup data
+const backupDataSchema = z.object({
+  person: z.array(z.any()),
+  report: z.array(z.any()),
+  backupDate: z.string(),
+  backupID: z.literal('fspalbackup'),
+})
 
-type BackupData = {
-  person: TRestorePerson[]
-  report: TRestoreReport[]
-  backupDate: string
-  backupID: string
-}
+type BackupData = z.infer<typeof backupDataSchema>
 
-const restoreRecord = async (queryClient: QueryClient) => {
-  const i18n = useTranslations()
+const restoreBackupFunc = async (queryClient: QueryClient) => {
   try {
+    // Pick the backup file
     const result = await DocumentPicker.getDocumentAsync({
       type: 'application/json',
     })
-    if (result.assets === null) {
-      throw new Error('Failed to open file')
+
+    if (result.canceled) {
+      toast.error('restoration cancelled')
+      return
     }
 
-    const uri = result.assets[0].uri
-    const fileContent = await FileSystem.readAsStringAsync(uri)
+    const fileUri = result.assets[0].uri
+    const fileContent = await FileSystem.readAsStringAsync(fileUri)
     const backupData: BackupData = JSON.parse(fileContent)
+
+    // Log the entire backup data structure for debugging
+    console.log('Backup Data Structure:', JSON.stringify(backupData, null, 2))
 
     // Validate file uploaded is genuine
     if (backupData.backupID !== 'fspalbackup') {
-      throw new Error('Invalid file format')
+      throw new Error('restoration failed: invalid backup file')
     }
 
     // Delete all existing data
     await db.delete(Person)
     await db.delete(Report)
-
-    // Restore person records
-    for (const personRecord of backupData.person) {
-      await db.insert(Person).values(personRecord)
-    }
+    await db.delete(personsToTags)
+    await db.delete(tags)
+    await db.delete(followUp)
 
     // Restore report records
     for (const reportRecord of backupData.report) {
@@ -61,16 +64,146 @@ const restoreRecord = async (queryClient: QueryClient) => {
       await db.insert(Report).values(processedRecord)
     }
 
-    // Invalidate both queries to refresh the UI
+    // Restore person records and their associated data
+    for (const personRecord of backupData.person) {
+      // Extract tags and followUps from the person data
+      const {
+        tags: tagNames = [],
+        followUp: followUpData = [],
+        ...personData
+      } = personRecord
+
+      console.log('Processing person data for insertion:', personData)
+      // Insert the person and get the new ID
+      try {
+        const [insertedPerson] = await db
+          .insert(Person)
+          .values(personData)
+          .returning({ id: Person.id })
+        const personId = insertedPerson.id
+        console.log('Successfully inserted person with ID:', personId)
+
+        // Restore follow-ups linked to this person
+        for (const followUpItem of followUpData) {
+          console.log(
+            'Processing follow-up data for person ID:',
+            personId,
+            'Follow-up data:',
+            followUpItem
+          )
+          try {
+            const processedFollowUpItem = {
+              ...followUpItem,
+              personId: personId,
+              date:
+                followUpItem.date &&
+                (typeof followUpItem.date === 'string' ||
+                  typeof followUpItem.date === 'number')
+                  ? new Date(followUpItem.date)
+                  : new Date(),
+            }
+            await db.insert(followUp).values(processedFollowUpItem)
+            console.log(
+              'Successfully inserted follow-up for person ID:',
+              personId
+            )
+          } catch (followUpError) {
+            console.error(
+              'Error inserting follow-up for person ID:',
+              personId,
+              'Data:',
+              followUpItem,
+              'Error:',
+              followUpError
+            )
+          }
+        }
+
+        // Restore tags and link them to this person
+        for (const tagName of tagNames) {
+          console.log('Processing tag:', tagName, 'for person ID:', personId)
+          // Check if tag already exists
+          let tagResult = await db
+            .select()
+            .from(tags)
+            .where(eq(tags.tagName, tagName))
+            .limit(1)
+          let tagId: number
+          if (tagResult.length === 0) {
+            try {
+              const insertedTag = await db
+                .insert(tags)
+                .values({ tagName })
+                .returning({ id: tags.id })
+              tagId = insertedTag[0].id
+              console.log(
+                'Successfully inserted new tag:',
+                tagName,
+                'with ID:',
+                tagId
+              )
+            } catch (tagError) {
+              console.error('Error inserting tag:', tagName, 'Error:', tagError)
+              continue
+            }
+          } else {
+            tagId = tagResult[0].id
+            console.log('Tag already exists:', tagName, 'with ID:', tagId)
+          }
+
+          // Link tag to person via personsToTags
+          try {
+            await db.insert(personsToTags).values({ personId, tagId })
+            console.log(
+              'Successfully linked tag ID:',
+              tagId,
+              'to person ID:',
+              personId
+            )
+          } catch (linkError) {
+            console.error(
+              'Error linking tag ID:',
+              tagId,
+              'to person ID:',
+              personId,
+              'Error:',
+              linkError
+            )
+          }
+        }
+      } catch (personError) {
+        console.error(
+          'Error inserting person record:',
+          personData,
+          'Error:',
+          personError
+        )
+        throw new Error(
+          `Failed to insert person record: ${
+            personError instanceof Error ? personError.message : 'Unknown error'
+          }`
+        )
+      }
+    }
+
+    // Invalidate queries to refresh the UI
     queryClient.invalidateQueries({ queryKey: ['persons'] })
     queryClient.invalidateQueries({ queryKey: ['reports'] })
+    queryClient.invalidateQueries({ queryKey: ['tags'] })
 
-    toast.success(i18n.t('restoreBackupFunc.toastSuccess'))
+    toast.success('successfully restored')
   } catch (error) {
     if (error instanceof Error) {
-      Alert.alert('Restore Error', error.message)
+      Alert.alert('Restoration Error', error.message)
+      console.error('Restoration Error:', error)
+    } else {
+      Alert.alert(
+        'Restoration Error',
+        'An unknown error occurred during restoration.'
+      )
+      console.error('Restoration Error: Unknown error', error)
     }
   }
 }
 
-export default restoreRecord
+export default restoreBackupFunc
