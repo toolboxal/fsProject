@@ -24,7 +24,7 @@ import { isAfter, isBefore, formatDistanceStrict, Locale } from 'date-fns'
 import { cleanupOldReports } from '@/utils/cleanupOldReports'
 import convertFloatToTime from '@/utils/convertFloatToTime'
 import { useTranslations } from '../_layout'
-import { enUS, es, ja, zhCN, ptBR } from 'date-fns/locale'
+import { enUS, es, ja, zhCN, ptBR, fr, ko } from 'date-fns/locale'
 import useMyStore from '@/store/store'
 
 const localeMap: Record<string, Locale> = {
@@ -33,6 +33,8 @@ const localeMap: Record<string, Locale> = {
   ja: ja,
   zh: zhCN,
   ptBR: ptBR,
+  fr: fr,
+  ko: ko,
 }
 
 const reportPage = () => {

@@ -20,7 +20,7 @@ import { Colors } from '@/constants/Colors'
 import { FontAwesome6 } from '@expo/vector-icons'
 import { format, Locale } from 'date-fns'
 import { useTranslations } from '@/app/_layout'
-import { enUS, es, ja, zhCN, ptBR } from 'date-fns/locale'
+import { enUS, es, ja, zhCN, ptBR, fr, ko } from 'date-fns/locale'
 import useMyStore from '@/store/store'
 
 const localeMap: Record<string, Locale> = {
@@ -29,6 +29,8 @@ const localeMap: Record<string, Locale> = {
   ja: ja,
   zh: zhCN,
   ptBR: ptBR,
+  fr: fr,
+  ko: ko,
 }
 
 const createCalendar = async () => {

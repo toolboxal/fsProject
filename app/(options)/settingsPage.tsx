@@ -6,6 +6,7 @@ import { storage } from '@/store/storage'
 import useMyStore from '@/store/store'
 import { router } from 'expo-router'
 import * as Link from 'expo-linking'
+import { ScrollView } from 'react-native-gesture-handler'
 
 const settingsPage = () => {
   const i18n = useTranslations()
@@ -21,7 +22,10 @@ const settingsPage = () => {
   }
 
   return (
-    <View style={styles.mainContainer}>
+    <ScrollView
+      style={styles.mainContainer}
+      contentContainerStyle={{ paddingBottom: 100 }}
+    >
       <View style={styles.sectionContainer}>
         <Text style={styles.sectionHeadTxt}>
           {i18n.t('settings.permissionHeader')}
@@ -47,9 +51,19 @@ const settingsPage = () => {
           descTxt="Gracias por usar esta aplicación"
         />
         <SingleOption
+          handler={() => handleLanguageChange('fr')}
+          headerTxt="French"
+          descTxt="Merci d'utiliser cette application"
+        />
+        <SingleOption
           handler={() => handleLanguageChange('ptBR')}
           headerTxt="Portuguese"
           descTxt="Obrigado por usar este aplicativo."
+        />
+        <SingleOption
+          handler={() => handleLanguageChange('ko')}
+          headerTxt="Korean"
+          descTxt="이 앱을 사용해 주셔서 감사합니다"
         />
         <SingleOption
           handler={() => handleLanguageChange('ja')}
@@ -89,7 +103,7 @@ const settingsPage = () => {
           />
         </Pressable>
       </View>
-    </View>
+    </ScrollView>
   )
 }
 export default settingsPage

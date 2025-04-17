@@ -603,7 +603,7 @@ const MapLibreMap = () => {
       <View
         style={{
           position: 'absolute',
-          bottom: bottom + 150,
+          bottom: bottom + 145,
           right: 15,
           gap: 15,
         }}
@@ -615,7 +615,7 @@ const MapLibreMap = () => {
             handleRefreshNavigation()
           }}
         >
-          <Ionicons name="navigate" size={26} color={Colors.primary50} />
+          <Ionicons name="navigate" size={26} color={Colors.sky600} />
         </Pressable>
         <Pressable
           style={styles.addBtn}

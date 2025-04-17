@@ -288,7 +288,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 15,
     gap: 10,
-    height: '112%',
+    height: '125%',
   },
   sectionContainer: {
     flexDirection: 'column',

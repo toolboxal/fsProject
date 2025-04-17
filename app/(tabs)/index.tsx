@@ -28,7 +28,7 @@ const MapsPage = () => {
   const handleCloseAnnouncement = () => {
     setShowAnnouncement(false)
     // Store the current version as last shown
-    storage.set('lastShownVersion', '1.3.0') // Replace with your app's current version
+    storage.set('lastShownVersion', '1.4.0') // Replace with your app's current version
   }
 
   console.log('index Page render')
