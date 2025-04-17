@@ -62,6 +62,16 @@ const settingsPage = () => {
           descTxt="谢谢您使用这个应用程序."
         />
       </View>
+      <Text
+        style={{
+          fontFamily: 'IBM-Regular',
+          fontSize: 14,
+          color: Colors.primary700,
+          marginVertical: 5,
+        }}
+      >
+        version 1.4.0
+      </Text>
       <View style={styles.sectionContainer}>
         <Text style={styles.sectionHeadTxt}>
           {i18n.t('settings.supportHeader')}

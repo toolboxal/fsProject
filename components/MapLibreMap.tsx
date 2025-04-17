@@ -17,11 +17,11 @@ import {
 } from '@maplibre/maplibre-react-native'
 import useMyStore from '@/store/store'
 import { db } from '@/drizzle/db'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { TPerson, TPersonWithTagsAndFollowUps } from '@/drizzle/schema'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Colors } from '@/constants/Colors'
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useCallback, useEffect } from 'react'
 import { Feather, FontAwesome5, Ionicons } from '@expo/vector-icons'
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6'
 import * as Haptics from 'expo-haptics'
@@ -29,6 +29,7 @@ import { format } from 'date-fns'
 import { useRouter } from 'expo-router'
 import getCurrentLocation from '@/utils/getCurrentLoc'
 import { useTranslations } from '@/app/_layout'
+import { useIsFocused } from '@react-navigation/native'
 
 const MapLibreMap = () => {
   const { bottom } = useSafeAreaInsets()
@@ -38,6 +39,8 @@ const MapLibreMap = () => {
   const geoCoords = useMyStore((state) => state.geoCoords)
   const { latitude, longitude } = geoCoords
   const i18n = useTranslations()
+  const queryClient = useQueryClient()
+  const isFocused = useIsFocused()
 
   const statusOptions: {
     type: TPerson['status']
@@ -246,6 +249,14 @@ const MapLibreMap = () => {
     setAddress(getAddress[0])
   }
 
+  useEffect(() => {
+    if (isFocused) {
+      console.log('Maps tab focused, refreshing data')
+      queryClient.invalidateQueries({ queryKey: ['persons'] })
+      queryClient.invalidateQueries({ queryKey: ['followUps'] })
+    }
+  }, [isFocused, queryClient])
+
   return (
     <View style={styles.container}>
       <MapView
@@ -290,7 +301,7 @@ const MapLibreMap = () => {
                     new Date(b.date).getTime() - new Date(a.date).getTime()
                 )
               : []
-
+          console.log('sortedFollowUps --->>', sortedFollowUps)
           return (
             person.latitude &&
             person.longitude && (
@@ -303,7 +314,10 @@ const MapLibreMap = () => {
                 ]}
                 title={person.name || 'Unnamed Person'}
               >
-                <View
+                <Pressable
+                  onPress={() =>
+                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+                  }
                   style={[
                     styles.personMarker,
                     {
@@ -317,7 +331,7 @@ const MapLibreMap = () => {
                   ]}
                 >
                   <Text style={styles.personMarkerText}>{person.category}</Text>
-                </View>
+                </Pressable>
                 <Callout title={person.name || 'Unnamed Person'}>
                   <View style={styles.calloutContainer}>
                     <View style={styles.topBar}>
@@ -350,17 +364,46 @@ const MapLibreMap = () => {
                         flexDirection: 'row',
                         gap: 5,
                         alignItems: 'center',
-                        marginVertical: 3,
+                        marginVertical: 5,
                       }}
                     >
-                      {person.personsToTags?.map((tag) => (
+                      <FlatList
+                        style={{ marginVertical: 2 }}
+                        horizontal
+                        showsHorizontalScrollIndicator={false}
+                        data={person.personsToTags}
+                        renderItem={({ item }) => (
+                          <View
+                            key={item.tag.id}
+                            style={[
+                              styles.contactableBox,
+                              {
+                                borderColor: Colors.lemon300,
+                                borderWidth: 1,
+                                marginRight: 5,
+                              },
+                            ]}
+                          >
+                            <Text
+                              style={{
+                                fontFamily: 'IBM-Medium',
+                                fontSize: 12,
+                                color: Colors.lemon300,
+                              }}
+                            >
+                              {item.tag.tagName}
+                            </Text>
+                          </View>
+                        )}
+                      />
+                      {/* {person.personsToTags?.map((tag) => (
                         <View
                           key={tag.tag.id}
                           style={[
                             styles.contactableBox,
                             {
-                              borderColor: Colors.primary50,
-                              borderWidth: StyleSheet.hairlineWidth,
+                              borderColor: Colors.lemon300,
+                              borderWidth: 1,
                             },
                           ]}
                         >
@@ -368,13 +411,13 @@ const MapLibreMap = () => {
                             style={{
                               fontFamily: 'IBM-Medium',
                               fontSize: 12,
-                              color: Colors.primary50,
+                              color: Colors.lemon300,
                             }}
                           >
                             {tag.tag.tagName}
                           </Text>
                         </View>
-                      ))}
+                      ))} */}
                     </View>
                     <View style={styles.horizontalLine} />
 
@@ -651,7 +694,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 8,
     marginBottom: 10,
-    minWidth: 100,
+    minWidth: 110,
     position: 'relative',
     height: 40,
     flex: 1,
@@ -665,7 +708,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     minWidth: 300,
     position: 'relative',
-    maxHeight: 280,
+    maxHeight: 320,
     flex: 1,
   },
   calloutText: {
@@ -689,8 +732,6 @@ const styles = StyleSheet.create({
     transform: [{ translateX: 2 }],
   },
   personMarker: {
-    // width: 16,
-    // height: 16,
     padding: 4,
     backgroundColor: Colors.emerald500,
     borderRadius: 100,
@@ -769,7 +810,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignContent: 'center',
     justifyContent: 'center',
-    backgroundColor: Colors.primary900,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
     padding: 10,
     borderRadius: 50,
     shadowColor: '#000',

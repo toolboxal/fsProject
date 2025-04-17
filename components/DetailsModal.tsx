@@ -270,6 +270,9 @@ const DetailsModal = ({ modalVisible, setModalVisible }: props) => {
       queryClient.invalidateQueries({
         queryKey: ['followUps', selectedPerson.id],
       })
+      queryClient.invalidateQueries({
+        queryKey: ['persons'],
+      })
       setPageView('profile')
     } catch (error) {
       console.error('Failed to insert follow-up:', error)
@@ -294,18 +297,19 @@ const DetailsModal = ({ modalVisible, setModalVisible }: props) => {
 
   return (
     <Modal
-      animationType="slide"
+      animationType="fade"
       transparent={true}
       visible={modalVisible}
-      // onRequestClose={() => {
-      //   setModalVisible(false)
-      // }}
+      onRequestClose={() => {
+        setModalVisible(false)
+      }}
     >
       <View style={styles.fullPage}>
         <Pressable
-          onPress={() => setModalVisible(false)}
           style={styles.overlay}
+          onPress={() => setModalVisible((prev) => !prev)}
         />
+
         {pageView === 'profile' && (
           <View style={styles.cardContainer}>
             <View style={styles.topBar}>
@@ -373,13 +377,14 @@ const DetailsModal = ({ modalVisible, setModalVisible }: props) => {
             </View>
             <ScrollView
               style={styles.scrollContainer}
-              contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}
+              contentContainerStyle={{ flexGrow: 1, paddingBottom: 50 }}
               showsVerticalScrollIndicator={false}
             >
               <View style={styles.contentContainer}>
                 <View style={styles.nameContainer}>
                   <Text style={styles.nameTitle}>
-                    {name?.length! > 18 ? name?.slice(0, 22) + '..' : name}
+                    {/* {name?.length! > 18 ? name?.slice(0, 22) + '..' : name} */}
+                    {name}
                   </Text>
                   <View
                     style={[
@@ -420,7 +425,7 @@ const DetailsModal = ({ modalVisible, setModalVisible }: props) => {
                   <FlatList
                     style={styles.tagContainer}
                     horizontal
-                    showsHorizontalScrollIndicator={true}
+                    showsHorizontalScrollIndicator={false}
                     data={tagsArr}
                     keyExtractor={(item, index) => index.toString()}
                     renderItem={({ item }) => (
@@ -565,6 +570,12 @@ const DetailsModal = ({ modalVisible, setModalVisible }: props) => {
                     setPageView('profile')
                   }}
                   style={{ paddingLeft: 3 }}
+                  pressRetentionOffset={{
+                    top: 10,
+                    right: 30,
+                    bottom: 10,
+                    left: 0,
+                  }}
                 >
                   <MoveLeft
                     color={Colors.primary50}
@@ -696,17 +707,19 @@ const styles = StyleSheet.create({
   fullPage: {
     flex: 1,
     alignItems: 'center',
-    justifyContent: 'flex-end',
+    // justifyContent: 'flex-end',
+    backgroundColor: 'rgba(0,0,0,0.3)',
   },
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.4)',
+    width: '100%',
   },
   cardContainer: {
-    width: '96%',
-    marginBottom: 100,
+    width: '100%',
+    // marginBottom: 100,
     marginHorizontal: 'auto',
-    borderRadius: 20,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
     backgroundColor: Colors.primary950,
     height: '50%',
     overflow: 'hidden',
@@ -839,14 +852,14 @@ const styles = StyleSheet.create({
   tagBox: {
     padding: 5,
     borderRadius: 5,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: Colors.primary300,
+    borderWidth: 1,
+    borderColor: Colors.lemon300,
     marginRight: 8,
   },
   tagText: {
     fontFamily: 'IBM-Medium',
-    fontSize: 12,
-    color: Colors.primary300,
+    fontSize: 13,
+    color: Colors.lemon300,
   },
   labelText: {
     fontFamily: 'IBM-MediumItalic',

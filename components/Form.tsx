@@ -142,6 +142,14 @@ const Form = () => {
       setError('name', { type: 'max', message: 'exceed 25 characters' })
       return
     }
+    const dateCheck = data['date']
+    if (dateCheck === '' || dateCheck === null) {
+      setError('date', { type: 'min', message: 'cannot be empty' })
+      return
+    } else if (dateCheck.length > 11) {
+      setError('date', { type: 'max', message: 'exceed 11 characters' })
+      return
+    }
     const toUpperBlock = data.block === null ? '' : data.block.toUpperCase()
     const { name, unit, street, remarks, contact, date, publications } = data
 
@@ -186,7 +194,7 @@ const Form = () => {
         : i18n.t('form.toastSuccess')
     )
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
-    router.replace('/recordsPage')
+    router.back()
   }
 
   const handleNewAddress = async () => {
@@ -457,6 +465,11 @@ const Form = () => {
               />
             )}
           />
+          {errors['date'] && (
+            <Text style={[styles.errorText, { left: 40 }]}>
+              {errors['date']?.message?.toString()}
+            </Text>
+          )}
         </View>
 
         <Text style={styles.label}>{i18n.t('form.labelTags')}</Text>

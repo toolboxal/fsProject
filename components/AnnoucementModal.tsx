@@ -18,7 +18,7 @@ interface AnnoucementModalProps {
 }
 
 const AnnoucementModal = ({ visible, onClose }: AnnoucementModalProps) => {
-  const i18n = useTranslations()
+  // const i18n = useTranslations()
 
   return (
     <Modal
@@ -37,32 +37,63 @@ const AnnoucementModal = ({ visible, onClose }: AnnoucementModalProps) => {
               <Pressable onPress={onClose} style={{ marginLeft: 'auto' }}>
                 <EvilIcons name="close" size={30} color={Colors.primary800} />
               </Pressable>
-              <Text style={styles.headerTxt}>Hello! 👋</Text>
-              <Text style={styles.subHeaderTxt}>To new users - welcome!</Text>
-              <Text style={styles.currentUserTxt}>
-                Thank you for giving me a try. I hope I can be useful to your
-                ministry.
-              </Text>
-              <Text style={styles.subHeaderTxt}>
-                To current users - exciting updates!
-              </Text>
-              <Text style={styles.currentUserTxt}>
-                - New schedule page to add and manage your field service
-                appointments.
-              </Text>
-              <Text style={styles.currentUserTxt}>- Change app language.</Text>
               <Text
                 style={[
                   styles.currentUserTxt,
-                  { fontFamily: 'IBM-Italic', fontSize: 15 },
+                  {
+                    fontFamily: 'IBM-Italic',
+                    fontSize: 15,
+                    marginBottom: 10,
+                    color: Colors.primary600,
+                  },
                 ]}
               >
-                Currently available in English, Spanish, Portuguese, Chinese and
-                Japanese.
+                version 1.4
+              </Text>
+              <Text style={styles.headerTxt}>HEY HEY! 👋</Text>
+              <Text style={styles.currentUserTxt}>
+                your feedback and suggestions have been invaluable.
+              </Text>
+              <Text style={styles.subHeaderTxt}>
+                what's new in version 1.4?
+              </Text>
+              <Text style={styles.subHeaderTxt}>GROUP BY TAGGING</Text>
+              <Text style={styles.currentUserTxt}>
+                eg. (weekends only), (chinese speaking), etc..
+              </Text>
+              <Text style={styles.subHeaderTxt}>FOLLOW UPS</Text>
+              <Text style={styles.currentUserTxt}>
+                now, you can add follow up notes for each person.
+              </Text>
+              <Text style={styles.subHeaderTxt}>CONTACT STATUS</Text>
+              <Text style={styles.currentUserTxt}>
+                assign person as 'established,' 'frequent visits' or 'hard to
+                find'.
+              </Text>
+              <Text style={styles.subHeaderTxt}>NAVIGATION AND CONTACT</Text>
+              <Text style={styles.currentUserTxt}>
+                link to apple/google maps to get directions. Also, you can
+                directly call or whatsapp the person.
               </Text>
 
+              <Text
+                style={[
+                  styles.currentUserTxt,
+                  {
+                    fontFamily: 'IBM-Regular',
+                    fontSize: 15,
+                    marginTop: 20,
+                    marginBottom: 10,
+                    color: Colors.rose700,
+                  },
+                ]}
+              >
+                I have rewritten the code for the map to make it more
+                interactive. However, I can't implement the dark map and
+                clustering features at the moment.
+              </Text>
               <Text style={styles.currentUserTxt}>
-                Thank you for your patience and support!
+                Thank you for your patience and feedback!
               </Text>
               <Text style={styles.currentUserTxt}>Agape</Text>
               <Text style={styles.currentUserTxt}>Your Brother</Text>
@@ -91,7 +122,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.primary100,
     borderRadius: 20,
     padding: 18,
-    width: '90%',
+    width: '95%',
     maxWidth: 400,
     shadowColor: '#000',
     shadowOffset: {
@@ -109,16 +140,16 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   subHeaderTxt: {
-    fontFamily: 'IBM-Medium',
+    fontFamily: 'IBM-SemiBold',
     fontSize: 18,
     color: Colors.primary800,
     marginTop: 7,
-    marginBottom: 5,
+    marginBottom: 1,
   },
   currentUserTxt: {
     fontFamily: 'IBM-Regular',
-    fontSize: 17,
+    fontSize: 15,
     color: Colors.primary800,
-    marginTop: 7,
+    marginTop: 2,
   },
 })
