@@ -15,6 +15,7 @@ import { toast } from 'sonner-native'
 import * as Haptics from 'expo-haptics'
 import { useQueryClient } from '@tanstack/react-query'
 import { eq } from 'drizzle-orm'
+import { useTranslations } from '@/app/_layout'
 
 type props = {
   openTagModal: boolean
@@ -27,6 +28,7 @@ const FormTagModal = ({
   setOpenTagModal,
   setSelectedTags,
 }: props) => {
+  const i18n = useTranslations()
   const queryClient = useQueryClient()
   const {
     control,
@@ -104,7 +106,7 @@ const FormTagModal = ({
               justifyContent: 'space-between',
             }}
           >
-            <Text style={styles.title}>Add new tag</Text>
+            <Text style={styles.title}>{i18n.t('tagModal.title')}</Text>
             <Pressable
               onPress={() => {
                 reset()
@@ -153,7 +155,7 @@ const FormTagModal = ({
             />
           </View>
           <Pressable style={styles.submitBtn} onPress={handleSubmit(onSubmit)}>
-            <Text style={styles.submitTxt}>Create Tag</Text>
+            <Text style={styles.submitTxt}>{i18n.t('tagModal.btnText')}</Text>
           </Pressable>
         </View>
       </View>

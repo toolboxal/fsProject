@@ -11,7 +11,6 @@ import {
   Image,
   ScrollView,
   FlatList,
-  Keyboard,
   KeyboardAvoidingView,
 } from 'react-native'
 
@@ -44,16 +43,6 @@ type props = {
   modalVisible: boolean
   setModalVisible: React.Dispatch<React.SetStateAction<boolean>>
 }
-
-const statusOptions: {
-  type: TPerson['status']
-  color: string
-  label: string
-}[] = [
-  { type: 'irregular', label: 'hard to find', color: Colors.sky200 },
-  { type: 'frequent', label: 'frequent visits', color: Colors.purple100 },
-  { type: 'committed', label: 'established', color: Colors.purple300 },
-]
 
 const DetailsModal = ({ modalVisible, setModalVisible }: props) => {
   const router = useRouter()
@@ -109,6 +98,28 @@ const DetailsModal = ({ modalVisible, setModalVisible }: props) => {
     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
   )
 
+  const statusOptions: {
+    type: TPerson['status']
+    color: string
+    label: string
+  }[] = [
+    {
+      type: 'irregular',
+      label: i18n.t('statusOptions.labelIrregular'),
+      color: Colors.sky200,
+    },
+    {
+      type: 'frequent',
+      label: i18n.t('statusOptions.labelFrequent'),
+      color: Colors.purple100,
+    },
+    {
+      type: 'committed',
+      label: i18n.t('statusOptions.labelCommitted'),
+      color: Colors.purple300,
+    },
+  ]
+
   const {
     control,
     handleSubmit,
@@ -120,11 +131,11 @@ const DetailsModal = ({ modalVisible, setModalVisible }: props) => {
 
   const handleDeleteAlert = (personId: number) => {
     Alert.alert(
-      i18n.t('records.deleteAlertTitle'),
-      i18n.t('records.deleteAlertDesc'),
+      i18n.t('detailsModal.deleteAlertTitle'),
+      i18n.t('detailsModal.deleteAlertDesc'),
       [
         {
-          text: i18n.t('records.confirm'),
+          text: i18n.t('detailsModal.confirm'),
           onPress: async () => {
             // First, delete associated records in the junction table
             await db
@@ -133,14 +144,14 @@ const DetailsModal = ({ modalVisible, setModalVisible }: props) => {
             // Then, delete the person
             await db.delete(Person).where(eq(Person.id, personId))
             queryClient.invalidateQueries({ queryKey: ['persons'] })
-            toast.success(`${i18n.t('records.deleteToast')} 🗑️`)
+            toast.success(`${i18n.t('detailsModal.deleteToast')} 🗑️`)
             console.log('confirm delete')
             setModalVisible(false)
           },
           style: 'destructive',
         },
         {
-          text: i18n.t('records.cancel'),
+          text: i18n.t('detailsModal.cancel'),
           onPress: () => console.log('Cancel Pressed'),
           style: 'cancel',
         },
@@ -226,7 +237,10 @@ const DetailsModal = ({ modalVisible, setModalVisible }: props) => {
   const onSubmit = async (data: TFollowUp) => {
     const notesCheck = data['notes']
     if (!notesCheck) {
-      setError('notes', { type: 'required', message: 'Notes cannot be empty' })
+      setError('notes', {
+        type: 'required',
+        message: i18n.t('detailsModal.notesEmptyErrorMsg'),
+      })
       return
     }
     try {
@@ -236,7 +250,7 @@ const DetailsModal = ({ modalVisible, setModalVisible }: props) => {
           date: followUpDate,
           notes: notesCheck,
         })
-        toast.success('Follow-up added successfully! ✅')
+        toast.success(i18n.t('detailsModal.toastSuccess'))
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
       } else if (followUpIdToEdit !== undefined) {
         await db
@@ -246,11 +260,11 @@ const DetailsModal = ({ modalVisible, setModalVisible }: props) => {
             notes: notesCheck,
           })
           .where(eq(followUp.id, followUpIdToEdit))
-        toast.success('Follow-up updated successfully! ✅')
+        toast.success(i18n.t('detailsModal.toastSuccess'))
 
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
       } else {
-        toast.error('Error: No follow-up selected for editing')
+        toast.error(i18n.t('detailsModal.toastError'))
       }
       reset()
       queryClient.invalidateQueries({
@@ -259,14 +273,14 @@ const DetailsModal = ({ modalVisible, setModalVisible }: props) => {
       setPageView('profile')
     } catch (error) {
       console.error('Failed to insert follow-up:', error)
-      toast.error('Failed to add follow-up. Please try again.')
+      toast.error(i18n.t('detailsModal.toastCreationError'))
     }
   }
 
   const handleFollowUpDelete = async (id: number) => {
     try {
       await db.delete(followUp).where(eq(followUp.id, id))
-      toast.success('Follow-up deleted successfully! 🗑️')
+      toast.success(i18n.t('detailsModal.toastDeleteSuccess'))
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
       queryClient.invalidateQueries({
         queryKey: ['followUps', selectedPerson.id],
@@ -274,7 +288,7 @@ const DetailsModal = ({ modalVisible, setModalVisible }: props) => {
       setPageView('profile')
     } catch (error) {
       console.error('Failed to delete follow-up:', error)
-      toast.error('Failed to delete follow-up. Please try again.')
+      toast.error(i18n.t('detailsModal.toastDeleteError'))
     }
   }
 
@@ -283,19 +297,23 @@ const DetailsModal = ({ modalVisible, setModalVisible }: props) => {
       animationType="slide"
       transparent={true}
       visible={modalVisible}
-      //   onRequestClose={() => {
-      //     setModalVisible(false)
-      //   }}
+      // onRequestClose={() => {
+      //   setModalVisible(false)
+      // }}
     >
       <View style={styles.fullPage}>
         <Pressable
-          // onPress={() => setModalVisible(false)}
+          onPress={() => setModalVisible(false)}
           style={styles.overlay}
         />
         {pageView === 'profile' && (
           <View style={styles.cardContainer}>
             <View style={styles.topBar}>
-              <View style={styles.btnGroup}>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.btnGroup}
+              >
                 <Pressable
                   style={styles.menuBtn}
                   onPress={() => {
@@ -303,19 +321,27 @@ const DetailsModal = ({ modalVisible, setModalVisible }: props) => {
                     router.push('/editPage')
                   }}
                 >
-                  <Text style={styles.menuTxt}>Edit</Text>
+                  <Text style={styles.menuTxt}>
+                    {i18n.t('detailsModal.actionEdit')}
+                  </Text>
                 </Pressable>
                 <Pressable
                   style={styles.menuBtn}
                   onPress={() => sharePerson(id)}
                 >
-                  <Text style={styles.menuTxt}>Share</Text>
+                  <Text style={styles.menuTxt}>
+                    {' '}
+                    {i18n.t('detailsModal.actionShare')}
+                  </Text>
                 </Pressable>
                 <Pressable
                   style={styles.menuBtn}
                   onPress={() => handleDeleteAlert(id)}
                 >
-                  <Text style={styles.menuTxt}>Delete</Text>
+                  <Text style={styles.menuTxt}>
+                    {' '}
+                    {i18n.t('detailsModal.actionDelete')}
+                  </Text>
                 </Pressable>
                 <Pressable
                   style={styles.menuBtn}
@@ -330,13 +356,17 @@ const DetailsModal = ({ modalVisible, setModalVisible }: props) => {
                     size={18}
                     strokeWidth={1.5}
                   />
-                  <Text style={styles.menuTxt}>Follow-up</Text>
+                  <Text style={styles.menuTxt}>
+                    {' '}
+                    {i18n.t('detailsModal.actionFollowUp')}
+                  </Text>
                 </Pressable>
-              </View>
+              </ScrollView>
               <Pressable
                 onPress={() => {
                   setModalVisible(false)
                 }}
+                style={{ marginLeft: 5 }}
               >
                 <XCircle color={Colors.primary50} size={26} strokeWidth={2} />
               </Pressable>
@@ -447,7 +477,7 @@ const DetailsModal = ({ modalVisible, setModalVisible }: props) => {
                   }}
                 >
                   <Text style={styles.contactText}>
-                    {`${i18n.t('records.contact')}: ${contact}`}
+                    {`${i18n.t('detailsModal.labelContact')}: ${contact}`}
                   </Text>
                   {contact && (
                     <View
@@ -469,7 +499,9 @@ const DetailsModal = ({ modalVisible, setModalVisible }: props) => {
                     </View>
                   )}
                 </View>
-                <Text style={styles.dateText}>initial visit: {date}</Text>
+                <Text style={styles.dateText}>
+                  {i18n.t('detailsModal.labelInitialVisit')} {date}
+                </Text>
                 {publications && (
                   <Text style={styles.publicationsText}>{publications}</Text>
                 )}
@@ -479,7 +511,7 @@ const DetailsModal = ({ modalVisible, setModalVisible }: props) => {
                 {followUpsArr?.length! > 0 && (
                   <View>
                     <Text style={styles.labelText}>
-                      follow ups - long press to edit
+                      {i18n.t('detailsModal.labelFollowUps')}
                     </Text>
                     {sortedFollowUps?.map((followUp) => (
                       <Pressable
@@ -547,7 +579,7 @@ const DetailsModal = ({ modalVisible, setModalVisible }: props) => {
                     color: Colors.emerald300,
                   }}
                 >
-                  following up on {name}
+                  {i18n.t('detailsModal.titleFollowingUpOn')} {name}
                 </Text>
               </View>
               <ScrollView
@@ -570,7 +602,7 @@ const DetailsModal = ({ modalVisible, setModalVisible }: props) => {
                           value={value}
                           onChangeText={onChange}
                           onBlur={onBlur}
-                          placeholder="follow up notes"
+                          placeholder={i18n.t('detailsModal.notesPlaceholder')}
                           multiline={true}
                           textAlignVertical="top"
                           autoComplete="name"
@@ -633,7 +665,9 @@ const DetailsModal = ({ modalVisible, setModalVisible }: props) => {
                           }
                         }}
                       >
-                        <Text style={styles.submitTxt}>Delete</Text>
+                        <Text style={styles.submitTxt}>
+                          {i18n.t('detailsModal.actionDelete')}
+                        </Text>
                       </Pressable>
                     )}
                     <Pressable
@@ -641,7 +675,9 @@ const DetailsModal = ({ modalVisible, setModalVisible }: props) => {
                       onPress={handleSubmit(onSubmit)}
                     >
                       <Text style={styles.submitTxt}>
-                        {editMode ? 'Update Follow Up' : 'Submit Follow Up'}
+                        {editMode
+                          ? i18n.t('detailsModal.submitBtnUpdateFollowUp')
+                          : i18n.t('detailsModal.submitBtnUpSubmitFollowUp')}
                       </Text>
                     </Pressable>
                   </View>
@@ -664,7 +700,7 @@ const styles = StyleSheet.create({
   },
   overlay: {
     flex: 1,
-    // backgroundColor: 'rgba(0,0,0,0.4)',
+    backgroundColor: 'rgba(0,0,0,0.4)',
   },
   cardContainer: {
     width: '96%',
@@ -700,6 +736,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     gap: 6,
+    paddingHorizontal: 4,
   },
   menuBtn: {
     flexDirection: 'row',

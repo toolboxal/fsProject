@@ -46,16 +46,6 @@ type TFormData = Omit<
   'id' | 'category' | 'latitude' | 'longitude' | 'interest' | 'status'
 >
 
-const statusOptions: {
-  type: TPerson['status']
-  color: string
-  label: string
-}[] = [
-  { type: 'irregular', label: 'hard to find', color: Colors.sky200 },
-  { type: 'frequent', label: 'frequent visits', color: Colors.purple100 },
-  { type: 'committed', label: 'established', color: Colors.purple300 },
-]
-
 const EditPage = () => {
   const queryClient = useQueryClient()
 
@@ -100,6 +90,28 @@ const EditPage = () => {
       return await db.query.tags.findMany()
     },
   })
+
+  const statusOptions: {
+    type: TPerson['status']
+    color: string
+    label: string
+  }[] = [
+    {
+      type: 'irregular',
+      label: i18n.t('statusOptions.labelIrregular'),
+      color: Colors.sky200,
+    },
+    {
+      type: 'frequent',
+      label: i18n.t('statusOptions.labelFrequent'),
+      color: Colors.purple100,
+    },
+    {
+      type: 'committed',
+      label: i18n.t('statusOptions.labelCommitted'),
+      color: Colors.purple300,
+    },
+  ]
 
   const categoryOptions = [
     {
@@ -490,7 +502,7 @@ const EditPage = () => {
             />
           </View>
 
-          <Text style={styles.label}>tags</Text>
+          <Text style={styles.label}>{i18n.t('form.labelTags')}</Text>
           <View
             style={{
               flexDirection: 'row',
@@ -519,7 +531,7 @@ const EditPage = () => {
                   fontFamily: 'IBM-Regular',
                 }}
               >
-                add your first tag
+                {i18n.t('form.noTagText')}
               </Text>
             ) : (
               <FlatList
@@ -568,7 +580,9 @@ const EditPage = () => {
 
           <View style={{ flexDirection: 'row', gap: 10 }}>
             <View style={{ flexDirection: 'column', flex: 5 }}>
-              <Text style={styles.label}>contactable</Text>
+              <Text style={styles.label}>
+                {i18n.t('form.labelContactable')}
+              </Text>
               <View style={{ flexDirection: 'column', gap: 5 }}>
                 {statusOptions.map((option) => (
                   <Pressable
@@ -590,7 +604,7 @@ const EditPage = () => {
               </View>
             </View>
             <View style={{ flexDirection: 'column', flex: 4 }}>
-              <Text style={styles.label}>category</Text>
+              <Text style={styles.label}>{i18n.t('form.labelCategory')}</Text>
               <View style={{ flexDirection: 'column', gap: 5 }}>
                 {categoryOptions.map((option) => (
                   <Pressable

@@ -34,16 +34,6 @@ type TFormData = Omit<
   'id' | 'category' | 'latitude' | 'longitude' | 'status'
 >
 
-const statusOptions: {
-  type: TPerson['status']
-  color: string
-  label: string
-}[] = [
-  { type: 'irregular', label: 'hard to find', color: Colors.sky200 },
-  { type: 'frequent', label: 'frequent visits', color: Colors.purple100 },
-  { type: 'committed', label: 'established', color: Colors.purple300 },
-]
-
 const Form = () => {
   const queryClient = useQueryClient()
   const [category, setCategory] = useState('RV')
@@ -97,7 +87,7 @@ const Form = () => {
       return fetchedTags.sort((a, b) => a.tagName.localeCompare(b.tagName))
     },
   })
-  console.log('tags -->', tags)
+  // console.log('tags -->', tags)
 
   const {
     control,
@@ -119,6 +109,28 @@ const Form = () => {
       publications: '',
     },
   })
+
+  const statusOptions: {
+    type: TPerson['status']
+    color: string
+    label: string
+  }[] = [
+    {
+      type: 'irregular',
+      label: i18n.t('statusOptions.labelIrregular'),
+      color: Colors.sky200,
+    },
+    {
+      type: 'frequent',
+      label: i18n.t('statusOptions.labelFrequent'),
+      color: Colors.purple100,
+    },
+    {
+      type: 'committed',
+      label: i18n.t('statusOptions.labelCommitted'),
+      color: Colors.purple300,
+    },
+  ]
 
   const submitPressed = async (data: TFormData) => {
     console.log('pressed')
@@ -165,7 +177,7 @@ const Form = () => {
 
     queryClient.invalidateQueries({ queryKey: ['persons'] })
     queryClient.invalidateQueries({ queryKey: ['tags'] })
-    console.log('submitted new user with tags')
+    // console.log('submitted new user with tags')
     reset()
 
     toast.success(
@@ -447,7 +459,7 @@ const Form = () => {
           />
         </View>
 
-        <Text style={styles.label}>tags</Text>
+        <Text style={styles.label}>{i18n.t('form.labelTags')}</Text>
         <View
           style={{
             flexDirection: 'row',
@@ -473,7 +485,7 @@ const Form = () => {
             <Text
               style={{ color: Colors.primary600, fontFamily: 'IBM-Regular' }}
             >
-              add your first tag
+              {i18n.t('form.noTagText')}
             </Text>
           ) : (
             <FlatList
@@ -521,7 +533,7 @@ const Form = () => {
         </View>
         <View style={{ flexDirection: 'row', gap: 10 }}>
           <View style={{ flexDirection: 'column', flex: 5 }}>
-            <Text style={styles.label}>contactable</Text>
+            <Text style={styles.label}>{i18n.t('form.labelContactable')}</Text>
             <View style={{ flexDirection: 'column', gap: 5 }}>
               {statusOptions.map((option) => (
                 <Pressable
@@ -543,7 +555,7 @@ const Form = () => {
             </View>
           </View>
           <View style={{ flexDirection: 'column', flex: 4 }}>
-            <Text style={styles.label}>category</Text>
+            <Text style={styles.label}>{i18n.t('form.labelCategory')}</Text>
             <View style={{ flexDirection: 'column', gap: 5 }}>
               {categoryOptions.map((option) => (
                 <Pressable

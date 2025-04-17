@@ -33,8 +33,8 @@ const tagsPage = () => {
 
       if (tagUsage.length > 0) {
         Alert.alert(
-          'Cannot Delete Tag',
-          'This tag is currently in use by one or more persons and cannot be deleted.'
+          i18n.t('tagsPage.alertHeader'),
+          i18n.t('tagsPage.alertDesc')
         )
         return
       }

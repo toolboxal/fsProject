@@ -28,16 +28,7 @@ import * as Haptics from 'expo-haptics'
 import { format } from 'date-fns'
 import { useRouter } from 'expo-router'
 import getCurrentLocation from '@/utils/getCurrentLoc'
-
-const statusOptions: {
-  type: TPerson['status']
-  color: string
-  label: string
-}[] = [
-  { type: 'irregular', label: 'hard to find', color: Colors.sky200 },
-  { type: 'frequent', label: 'frequent visits', color: Colors.purple100 },
-  { type: 'committed', label: 'established', color: Colors.purple300 },
-]
+import { useTranslations } from '@/app/_layout'
 
 const MapLibreMap = () => {
   const { bottom } = useSafeAreaInsets()
@@ -46,6 +37,29 @@ const MapLibreMap = () => {
   const setGeoCoords = useMyStore((state) => state.setGeoCoords)
   const geoCoords = useMyStore((state) => state.geoCoords)
   const { latitude, longitude } = geoCoords
+  const i18n = useTranslations()
+
+  const statusOptions: {
+    type: TPerson['status']
+    color: string
+    label: string
+  }[] = [
+    {
+      type: 'irregular',
+      label: i18n.t('statusOptions.labelIrregular'),
+      color: Colors.sky200,
+    },
+    {
+      type: 'frequent',
+      label: i18n.t('statusOptions.labelFrequent'),
+      color: Colors.purple100,
+    },
+    {
+      type: 'committed',
+      label: i18n.t('statusOptions.labelCommitted'),
+      color: Colors.purple300,
+    },
+  ]
 
   const router = useRouter()
   // MapLibre needs a style object for the map
@@ -260,7 +274,9 @@ const MapLibreMap = () => {
           </View>
           <Callout title="You are here">
             <View style={styles.currentLocationCallout}>
-              <Text style={styles.calloutText}>You are here</Text>
+              <Text style={styles.calloutText}>
+                {i18n.t('statusOptions.labelYouAreHere')}
+              </Text>
               <View style={styles.calloutTail} />
             </View>
           </Callout>
@@ -397,7 +413,7 @@ const MapLibreMap = () => {
                           color: Colors.primary50,
                         }}
                       >
-                        Navigate
+                        {i18n.t('statusOptions.labelNavigate')}
                       </Text>
                     </Pressable>
                     {person.contact && (
@@ -453,7 +469,8 @@ const MapLibreMap = () => {
                           marginVertical: 3,
                         }}
                       >
-                        Initial visit: {person.date}
+                        {i18n.t('statusOptions.labelInitialVisit')}{' '}
+                        {person.date}
                       </Text>
                     )}
                     {person.publications && (
@@ -477,7 +494,9 @@ const MapLibreMap = () => {
                       )}
                       {sortedFollowUps.length > 0 && (
                         <View>
-                          <Text style={styles.labelText}>follow ups</Text>
+                          <Text style={styles.labelText}>
+                            {i18n.t('statusOptions.labelFollowUps')}
+                          </Text>
                           {sortedFollowUps?.map((followUp) => (
                             <View
                               key={followUp.id}

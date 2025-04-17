@@ -145,7 +145,7 @@ const RecordsPage = () => {
             tintColor: Colors.primary700,
             textColor: Colors.primary50,
             hintTextColor: 'white',
-            placeholder: 'search by name',
+            placeholder: i18n.t('records.searchBarPlaceholder'),
             barTintColor: Colors.primary700,
             onChangeText: (event) => {
               const text = event.nativeEvent.text
@@ -201,7 +201,7 @@ const RecordsPage = () => {
               color: Colors.primary300,
             }}
           >
-            Start by creating your first record
+            {i18n.t('records.emptyRecordsText')}
           </Text>
         </View>
       ) : (
@@ -240,9 +240,11 @@ const RecordsPage = () => {
                   style={{
                     color: Colors.primary600,
                     fontFamily: 'IBM-Regular',
+                    fontSize: 15,
+                    padding: 10,
                   }}
                 >
-                  currently no tags created
+                  {i18n.t('records.emptyTagsText')}
                 </Text>
               ) : (
                 <FlatList
