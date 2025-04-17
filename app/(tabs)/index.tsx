@@ -7,6 +7,7 @@ import { Colors } from '@/constants/Colors'
 import { StatusBar } from 'expo-status-bar'
 import AnnoucementModal from '@/components/AnnoucementModal'
 import { storage } from '@/store/storage'
+import MapLibreMap from '@/components/MapLibreMap'
 
 const MapsPage = () => {
   const setAddress = useMyStore((state) => state.setAddress)
@@ -45,7 +46,8 @@ const MapsPage = () => {
         visible={showAnnouncement}
         onClose={handleCloseAnnouncement}
       />
-      <WebMapRender />
+      {/* <WebMapRender /> */}
+      <MapLibreMap />
     </View>
   )
 }

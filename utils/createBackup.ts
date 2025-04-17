@@ -25,10 +25,10 @@ const createBackup = async () => {
     const personDataWithoutId = personRecords.map((record) => {
       const { id, personsToTags, ...restOfPersonData } = record
       // Extract only tag names for backup
-      const tagNames = personsToTags.map((pt) => pt.tag.tagName)
+      const tagNames = personsToTags?.map((pt) => pt.tag.tagName)
       // Process followUp to exclude id and personId, as IDs are database-specific
       // Relationship is preserved by nesting followUp under the correct person in the backup
-      const processedFollowUps = restOfPersonData.followUp.map((fu) => {
+      const processedFollowUps = restOfPersonData.followUp?.map((fu) => {
         const { id, personId, ...restOfFollowUp } = fu
         return restOfFollowUp
       })

@@ -93,7 +93,8 @@ const Form = () => {
   const { data: tags } = useQuery({
     queryKey: ['tags'],
     queryFn: async () => {
-      return await db.query.tags.findMany()
+      const fetchedTags = await db.query.tags.findMany()
+      return fetchedTags.sort((a, b) => a.tagName.localeCompare(b.tagName))
     },
   })
   console.log('tags -->', tags)
@@ -163,6 +164,7 @@ const Form = () => {
     }
 
     queryClient.invalidateQueries({ queryKey: ['persons'] })
+    queryClient.invalidateQueries({ queryKey: ['tags'] })
     console.log('submitted new user with tags')
     reset()
 

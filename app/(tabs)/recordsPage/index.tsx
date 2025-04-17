@@ -1,7 +1,7 @@
 import { View, Text, StyleSheet, Pressable } from 'react-native'
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { StatusBar } from 'expo-status-bar'
-import { router, Stack, Tabs } from 'expo-router'
+import { router, Stack } from 'expo-router'
 import { Colors } from '@/constants/Colors'
 
 import { useState, useEffect } from 'react'
@@ -64,7 +64,8 @@ const RecordsPage = () => {
   const { data: tags } = useQuery({
     queryKey: ['tags'],
     queryFn: async () => {
-      return await db.query.tags.findMany()
+      const fetchedTags = await db.query.tags.findMany()
+      return fetchedTags.sort((a, b) => a.tagName.localeCompare(b.tagName))
     },
   })
 

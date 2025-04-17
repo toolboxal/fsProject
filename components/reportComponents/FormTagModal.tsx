@@ -82,6 +82,7 @@ const FormTagModal = ({
       toast.success('Tag added successfully! ✅')
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
       queryClient.invalidateQueries({ queryKey: ['tags'] })
+      queryClient.invalidateQueries({ queryKey: ['persons'] })
       reset()
       setOpenTagModal(false)
       // You can use newTag[0].id to access the ID of the newly created tag

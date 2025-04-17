@@ -433,7 +433,7 @@ const DetailsModal = ({ modalVisible, setModalVisible }: props) => {
                       <FontAwesome5
                         name="car-alt"
                         size={22}
-                        color={Colors.emerald200}
+                        color={Colors.primary50}
                       />
                     </Pressable>
                   </View>
