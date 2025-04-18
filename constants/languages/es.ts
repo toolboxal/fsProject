@@ -88,7 +88,8 @@ const es = {
     deleteToast: 'El registro ha sido eliminado',
     searchBarPlaceholder: 'buscar por nombre',
     emptyRecordsText: 'Comienza creando tu primer registro',
-    emptyTagsText: 'actualmente no hay etiquetas creadas',
+    emptyTagsText:
+      'Crear etiqueta en un nuevo registro o al editar un registro existente',
   },
   detailsModal: {
     labelContact: 'contacto',

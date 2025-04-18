@@ -90,7 +90,8 @@ const ja = {
     deleteToast: '記録が削除されました',
     searchBarPlaceholder: '名前で検索',
     emptyRecordsText: '最初の記録を作成して始めましょう',
-    emptyTagsText: '現在作成されたタグはありません',
+    emptyTagsText:
+      '新しい記録でタグを作成するか、既存の記録を編集する際にタグを作成する',
   },
   detailsModal: {
     labelContact: '連絡先',

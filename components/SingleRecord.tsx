@@ -12,20 +12,14 @@ import * as Haptics from 'expo-haptics'
 import FontAwesome from '@expo/vector-icons/FontAwesome6'
 import { TPerson } from '@/drizzle/schema'
 import { useQueryClient } from '@tanstack/react-query'
+import { useTranslations } from '@/app/_layout'
 
 type TProps = {
   item: TPerson
   setModalVisible: React.Dispatch<React.SetStateAction<boolean>>
 }
-const statusOptions: {
-  type: TPerson['status']
-  color: string
-  label: string
-}[] = [
-  { type: 'irregular', label: 'hard to find', color: Colors.sky200 },
-  { type: 'frequent', label: 'frequent visits', color: Colors.purple100 },
-  { type: 'committed', label: 'established', color: Colors.purple300 },
-]
+
+const i18n = useTranslations()
 
 const SingleRecord = (prop: TProps) => {
   const queryClient = useQueryClient()
@@ -40,6 +34,28 @@ const SingleRecord = (prop: TProps) => {
     formattedRemarks =
       remarks.length > 40 ? remarks.slice(0, 42) + '.....' : remarks
   }
+
+  const statusOptions: {
+    type: TPerson['status']
+    color: string
+    label: string
+  }[] = [
+    {
+      type: 'irregular',
+      label: i18n.t('statusOptions.labelIrregular'),
+      color: Colors.sky200,
+    },
+    {
+      type: 'frequent',
+      label: i18n.t('statusOptions.labelFrequent'),
+      color: Colors.purple100,
+    },
+    {
+      type: 'committed',
+      label: i18n.t('statusOptions.labelCommitted'),
+      color: Colors.purple300,
+    },
+  ]
   return (
     <TouchableOpacity
       activeOpacity={0.7}

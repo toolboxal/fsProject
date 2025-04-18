@@ -91,7 +91,8 @@ const ko = {
     deleteToast: '기록이 삭제되었습니다',
     searchBarPlaceholder: '이름으로 검색',
     emptyRecordsText: '첫 번째 기록을 생성하여 시작하세요',
-    emptyTagsText: '현재 생성된 태그가 없습니다',
+    emptyTagsText:
+      '새 기록에서 태그를 생성하거나 기존 기록을 편집할 때 태그를 생성',
   },
   detailsModal: {
     labelContact: '연락처',

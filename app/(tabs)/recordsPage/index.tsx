@@ -59,7 +59,7 @@ const RecordsPage = () => {
       return result as TPersonWithTags[]
     },
   })
-  console.log(persons)
+  // console.log(persons)
 
   const { data: tags } = useQuery({
     queryKey: ['tags'],
@@ -361,12 +361,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 3,
     alignItems: 'center',
-    marginLeft: 10,
-    padding: 5,
+    // marginLeft: 10,
+    // padding: 5,
   },
   headerRightBtn: {
-    marginRight: 15,
-    padding: 5,
+    // marginRight: 15,
+    // padding: 5,
   },
   tag: {
     borderRadius: 8,

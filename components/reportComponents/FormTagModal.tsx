@@ -8,6 +8,8 @@ import {
   Modal,
   TextInput,
   Pressable,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native'
 import { tags, TTags } from '@/drizzle/schema'
 import { db } from '@/drizzle/db'
@@ -98,66 +100,74 @@ const FormTagModal = ({
   return (
     <Modal animationType="fade" transparent={true} visible={openTagModal}>
       <View style={styles.fullPage}>
-        <View style={styles.cardContainer}>
-          <View
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-            }}
-          >
-            <Text style={styles.title}>{i18n.t('tagModal.title')}</Text>
-            <Pressable
-              onPress={() => {
-                reset()
-                setOpenTagModal(false)
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={{ width: '100%', marginBottom: 10 }}
+        >
+          <View style={styles.cardContainer}>
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between',
               }}
             >
-              <XCircle color={Colors.primary50} size={25} strokeWidth={1.2} />
+              <Text style={styles.title}>{i18n.t('tagModal.title')}</Text>
+              <Pressable
+                onPress={() => {
+                  reset()
+                  setOpenTagModal(false)
+                }}
+              >
+                <XCircle color={Colors.primary50} size={25} strokeWidth={1.2} />
+              </Pressable>
+            </View>
+            <View style={{ position: 'relative' }}>
+              {errors['tagName'] && (
+                <Text style={styles.errorText}>
+                  {errors['tagName']?.message?.toString()}
+                </Text>
+              )}
+              <Controller
+                control={control}
+                name="tagName"
+                render={({ field: { value, onChange, onBlur } }) => (
+                  <TextInput
+                    value={value}
+                    onChangeText={onChange}
+                    onBlur={onBlur}
+                    placeholder="tag name"
+                    textAlignVertical="top"
+                    autoComplete="name"
+                    autoCorrect={true}
+                    autoCapitalize="sentences"
+                    autoFocus={true}
+                    style={{
+                      width: '100%',
+                      height: 'auto',
+                      backgroundColor: Colors.primary700,
+                      padding: 10,
+                      borderRadius: 5,
+                      marginVertical: 15,
+                      marginBottom: 25,
+                      fontFamily: 'IBM-Regular',
+                      fontSize: 16,
+                      color: Colors.primary50,
+                      borderWidth: 1,
+                      borderColor: Colors.primary400,
+                    }}
+                  />
+                )}
+              />
+            </View>
+            <Pressable
+              style={styles.submitBtn}
+              onPress={handleSubmit(onSubmit)}
+            >
+              <Text style={styles.submitTxt}>{i18n.t('tagModal.btnText')}</Text>
             </Pressable>
           </View>
-          <View style={{ position: 'relative' }}>
-            {errors['tagName'] && (
-              <Text style={styles.errorText}>
-                {errors['tagName']?.message?.toString()}
-              </Text>
-            )}
-            <Controller
-              control={control}
-              name="tagName"
-              render={({ field: { value, onChange, onBlur } }) => (
-                <TextInput
-                  value={value}
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                  placeholder="tag name"
-                  textAlignVertical="top"
-                  autoComplete="name"
-                  autoCorrect={true}
-                  autoCapitalize="sentences"
-                  autoFocus={true}
-                  style={{
-                    width: '100%',
-                    height: 'auto',
-                    backgroundColor: Colors.primary700,
-                    padding: 10,
-                    borderRadius: 5,
-                    marginVertical: 15,
-                    marginBottom: 25,
-                    fontFamily: 'IBM-Regular',
-                    fontSize: 16,
-                    color: Colors.primary50,
-                    borderWidth: 1,
-                    borderColor: Colors.primary400,
-                  }}
-                />
-              )}
-            />
-          </View>
-          <Pressable style={styles.submitBtn} onPress={handleSubmit(onSubmit)}>
-            <Text style={styles.submitTxt}>{i18n.t('tagModal.btnText')}</Text>
-          </Pressable>
-        </View>
+        </KeyboardAvoidingView>
       </View>
     </Modal>
   )

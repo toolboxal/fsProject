@@ -89,7 +89,7 @@ const en = {
     deleteToast: 'Record has been deleted',
     searchBarPlaceholder: 'search by name',
     emptyRecordsText: 'Start by creating your first record',
-    emptyTagsText: 'currently no tags created',
+    emptyTagsText: 'create tag in New Record or when editing existing record',
   },
   detailsModal: {
     labelContact: 'contact',

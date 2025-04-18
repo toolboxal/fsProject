@@ -82,7 +82,7 @@ const DetailsModal = ({ modalVisible, setModalVisible }: props) => {
     },
   })
 
-  console.log('tags array -->', tagsArr)
+  // console.log('tags array -->', tagsArr)
 
   const { data: followUpsArr } = useQuery({
     queryKey: ['followUps', id],
@@ -92,7 +92,7 @@ const DetailsModal = ({ modalVisible, setModalVisible }: props) => {
       })
     },
   })
-  console.log('followUpsArray --> ', followUpsArr)
+  // console.log('followUpsArray --> ', followUpsArr)
 
   const sortedFollowUps = followUpsArr?.sort(
     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()

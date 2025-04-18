@@ -94,7 +94,8 @@ const fr = {
     deleteToast: 'Enregistrement supprimé',
     searchBarPlaceholder: 'rechercher par nom',
     emptyRecordsText: 'Commencez par créer votre premier enregistrement',
-    emptyTagsText: 'aucune étiquette créée pour le moment',
+    emptyTagsText:
+      "Créer une étiquette dans un nouvel enregistrement ou lors de la modification d'un enregistrement existant",
   },
   detailsModal: {
     labelContact: 'contact',

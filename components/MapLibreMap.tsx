@@ -301,7 +301,7 @@ const MapLibreMap = () => {
                     new Date(b.date).getTime() - new Date(a.date).getTime()
                 )
               : []
-          console.log('sortedFollowUps --->>', sortedFollowUps)
+          // console.log('sortedFollowUps --->>', sortedFollowUps)
           return (
             person.latitude &&
             person.longitude && (

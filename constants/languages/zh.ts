@@ -88,7 +88,7 @@ const zh = {
     deleteToast: '记录已删除',
     searchBarPlaceholder: '按名称搜索',
     emptyRecordsText: '从创建您的第一条记录开始',
-    emptyTagsText: '当前没有创建标签',
+    emptyTagsText: '在新记录中创建标签或在编辑现有记录时创建标签',
   },
   detailsModal: {
     labelContact: '联系方式',

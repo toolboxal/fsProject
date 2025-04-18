@@ -94,7 +94,8 @@ const ptBR = {
     deleteToast: 'Registro foi excluído',
     searchBarPlaceholder: 'pesquisar por nome',
     emptyRecordsText: 'Comece criando seu primeiro registro',
-    emptyTagsText: 'nenhuma tag criada no momento',
+    emptyTagsText:
+      'Criar tag em um novo registro ou ao editar um registro existente',
   },
   detailsModal: {
     labelContact: 'contato',
