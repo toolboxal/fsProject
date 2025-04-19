@@ -161,6 +161,7 @@ const DetailsModal = ({ modalVisible, setModalVisible }: props) => {
 
   // Function to open maps with navigation
   const openMapsForNavigation = async (latitude: number, longitude: number) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
     const scheme = Platform.select({
       ios: 'maps:',
       android: 'geo:',
@@ -184,6 +185,7 @@ const DetailsModal = ({ modalVisible, setModalVisible }: props) => {
   }
 
   const handleCalling = async (phoneNumber: string) => {
+    console.log('handle calling pressed')
     if (!phoneNumber) return
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
     try {
@@ -593,12 +595,12 @@ const DetailsModal = ({ modalVisible, setModalVisible }: props) => {
                   {i18n.t('detailsModal.titleFollowingUpOn')} {name}
                 </Text>
               </View>
-              <ScrollView
+              <View
                 style={styles.scrollContainer}
-                contentContainerStyle={{ flexGrow: 1, paddingBottom: 10 }}
-                keyboardShouldPersistTaps="handled"
+                // contentContainerStyle={{ flexGrow: 1, paddingBottom: 10 }}
+                // keyboardShouldPersistTaps="handled"
               >
-                <View style={[styles.contentContainer, { paddingVertical: 0 }]}>
+                <View style={[styles.contentContainer, { paddingVertical: 5 }]}>
                   <View style={{ position: 'relative' }}>
                     {errors['notes'] && (
                       <Text style={styles.errorText}>
@@ -645,20 +647,20 @@ const DetailsModal = ({ modalVisible, setModalVisible }: props) => {
                     }}
                   >
                     <View style={styles.dateContainer}>
-                      <Pressable onPress={(e) => e.stopPropagation()}>
-                        <DateTimePicker
-                          mode="date"
-                          display="compact"
-                          value={followUpDate}
-                          // is24Hour={false}
-                          onChange={(event, selectedDate) =>
-                            setFollowUpDate(selectedDate || new Date())
-                          }
-                          accentColor={Colors.emerald500}
-                          textColor={Colors.white}
-                          themeVariant="dark"
-                        />
-                      </Pressable>
+                      {/* <Pressable onPress={(e) => e.stopPropagation()}> */}
+                      <DateTimePicker
+                        mode="date"
+                        display="default"
+                        value={followUpDate}
+                        // is24Hour={false}
+                        onChange={(event, selectedDate) =>
+                          setFollowUpDate(selectedDate || new Date())
+                        }
+                        accentColor={Colors.emerald500}
+                        textColor={Colors.white}
+                        themeVariant="dark"
+                      />
+                      {/* </Pressable> */}
                     </View>
                     {editMode && (
                       <Pressable
@@ -693,7 +695,7 @@ const DetailsModal = ({ modalVisible, setModalVisible }: props) => {
                     </Pressable>
                   </View>
                 </View>
-              </ScrollView>
+              </View>
             </Pressable>
           </KeyboardAvoidingView>
         )}
@@ -730,12 +732,11 @@ const styles = StyleSheet.create({
     marginHorizontal: 'auto',
     borderRadius: 20,
     backgroundColor: Colors.primary950,
-    flex: 1,
+    // flex: 1,
     overflow: 'hidden',
+    height: 250,
   },
-  scrollContainer: {
-    flex: 1,
-  },
+  scrollContainer: {},
   topBar: {
     flexDirection: 'row',
     justifyContent: 'space-between',

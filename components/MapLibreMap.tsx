@@ -333,7 +333,12 @@ const MapLibreMap = () => {
                   <Text style={styles.personMarkerText}>{person.category}</Text>
                 </Pressable>
                 <Callout title={person.name || 'Unnamed Person'}>
-                  <View style={styles.calloutContainer}>
+                  <View
+                    style={[
+                      styles.calloutContainer,
+                      Platform.OS === 'ios' ? { maxHeight: 320 } : { flex: 1 },
+                    ]}
+                  >
                     <View style={styles.topBar}>
                       <Text style={styles.name}>
                         {person.name || 'Unnamed Person'}
@@ -425,40 +430,42 @@ const MapLibreMap = () => {
                       {person.block ? 'Apt.' + person.block : ''}{' '}
                       {person.unit ? '#' + person.unit : ''} {person.street}
                     </Text>
-                    <Pressable
-                      style={{
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        padding: 5,
-                        borderRadius: 30,
-                        width: 100,
-                        gap: 5,
-                        marginVertical: 3,
-                        backgroundColor: Colors.primary500,
-                      }}
-                      onPress={() => {
-                        openMapsForNavigation(
-                          person.latitude!,
-                          person.longitude!
-                        )
-                      }}
-                    >
-                      <FontAwesome5
-                        name="car-alt"
-                        size={18}
-                        color={Colors.primary50}
-                      />
-                      <Text
+                    {Platform.OS === 'ios' && (
+                      <Pressable
                         style={{
-                          fontFamily: 'IBM-Medium',
-                          fontSize: 14,
-                          color: Colors.primary50,
+                          flexDirection: 'row',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          padding: 5,
+                          borderRadius: 30,
+                          width: 100,
+                          gap: 5,
+                          marginVertical: 3,
+                          backgroundColor: Colors.primary500,
+                        }}
+                        onPress={() => {
+                          openMapsForNavigation(
+                            person.latitude!,
+                            person.longitude!
+                          )
                         }}
                       >
-                        {i18n.t('statusOptions.labelNavigate')}
-                      </Text>
-                    </Pressable>
+                        <FontAwesome5
+                          name="car-alt"
+                          size={18}
+                          color={Colors.primary50}
+                        />
+                        <Text
+                          style={{
+                            fontFamily: 'IBM-Medium',
+                            fontSize: 14,
+                            color: Colors.primary50,
+                          }}
+                        >
+                          {i18n.t('statusOptions.labelNavigate')}
+                        </Text>
+                      </Pressable>
+                    )}
                     {person.contact && (
                       <View
                         style={{
@@ -486,20 +493,28 @@ const MapLibreMap = () => {
                         >
                           {person.contact}
                         </Text>
-                        <Pressable
-                          onPress={() => handleCalling(person.contact ?? '')}
-                        >
-                          <Feather name="phone-call" size={18} color="white" />
-                        </Pressable>
-                        <Pressable
-                          onPress={() => openWhatsApp(person.contact ?? '')}
-                        >
-                          <FontAwesome6
-                            name="whatsapp"
-                            size={20}
-                            color={Colors.emerald300}
-                          />
-                        </Pressable>
+                        {Platform.OS === 'ios' && (
+                          <Pressable
+                            onPress={() => handleCalling(person.contact ?? '')}
+                          >
+                            <Feather
+                              name="phone-call"
+                              size={18}
+                              color="white"
+                            />
+                          </Pressable>
+                        )}
+                        {Platform.OS === 'ios' && (
+                          <Pressable
+                            onPress={() => openWhatsApp(person.contact ?? '')}
+                          >
+                            <FontAwesome6
+                              name="whatsapp"
+                              size={20}
+                              color={Colors.emerald300}
+                            />
+                          </Pressable>
+                        )}
                       </View>
                     )}
 
@@ -527,7 +542,11 @@ const MapLibreMap = () => {
                         {person.publications}
                       </Text>
                     )}
-                    <ScrollView contentContainerStyle={{ paddingBottom: 10 }}>
+                    <ScrollView
+                      style={{ flex: 1 }}
+                      nestedScrollEnabled={true}
+                      showsVerticalScrollIndicator={true}
+                    >
                       {person.remarks && (
                         <View style={styles.remarksBox}>
                           <Text style={styles.remarksText}>
@@ -708,7 +727,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     minWidth: 300,
     position: 'relative',
-    maxHeight: 320,
+    // maxHeight: 320,
     flex: 1,
   },
   calloutText: {

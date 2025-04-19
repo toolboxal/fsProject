@@ -9,10 +9,10 @@
     "userInterfaceStyle": "automatic",
     "splash": {
       "image": "./assets/images/splashscreen.png",
-      "resizeMode": "cover",
       "backgroundColor": "#10b981",
       "tabletSpacing": 0,
-      "supportsTablet": false
+      "supportsTablet": false,
+      "resizeMode": "contain"
     },
     "ios": {
       "buildNumber": "16",
@@ -22,10 +22,7 @@
         "NSLocationWhenInUseUsageDescription": "Your current location will be used to locate the nearest records you create on your phone",
         "NSLocationAlwaysUsageDescription": "Your current location will be used to locate the nearest records you create on your phone",
         "NSLocationAlwaysAndWhenInUseUsageDescription": "Your current location will be used to locate the nearest records you create on your phone",
-        "LSApplicationQueriesSchemes": [
-          "whatsapp",
-          "whatsapp"
-        ],
+        "LSApplicationQueriesSchemes": ["whatsapp", "whatsapp"],
         "ITSAppUsesNonExemptEncryption": false
       }
     },
