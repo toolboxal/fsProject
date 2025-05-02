@@ -84,7 +84,7 @@ const settingsPage = () => {
           marginVertical: 5,
         }}
       >
-        version 1.4.0
+        version 1.4.2
       </Text>
       <View style={styles.sectionContainer}>
         <Text style={styles.sectionHeadTxt}>

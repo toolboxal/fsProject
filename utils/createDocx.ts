@@ -1,18 +1,47 @@
 import * as Sharing from 'expo-sharing'
 import * as FileSystem from 'expo-file-system'
 import { Alert } from 'react-native'
+import { format } from 'date-fns'
 
 import { db } from '@/drizzle/db'
-import { Person } from '@/drizzle/schema'
+import {
+  Person,
+  followUp,
+  type TPerson,
+  type TFollowUp,
+} from '@/drizzle/schema'
+import { eq } from 'drizzle-orm'
 import { Document, HeadingLevel, Packer, Paragraph, TextRun } from 'docx'
 
 const createDocx = async () => {
   try {
-    const allRecords = await db.select().from(Person)
-    const dataWithoutId = allRecords.map((record) => {
-      const { id, ...restOfData } = record
-      return restOfData
-    })
+    const allRecords = await db
+      .select()
+      .from(Person)
+      .leftJoin(followUp, eq(Person.id, followUp.personId))
+    // Group followups by person
+    interface PersonWithFollowups extends TPerson {
+      followups: TFollowUp[]
+    }
+
+    const personData = allRecords.reduce<Record<number, PersonWithFollowups>>(
+      (acc, record) => {
+        const personId = record.person.id
+        if (!acc[personId]) {
+          acc[personId] = {
+            ...record.person,
+            followups: [],
+          }
+        }
+        if (record.follow_up) {
+          acc[personId].followups.push(record.follow_up)
+        }
+        return acc
+      },
+      {}
+    )
+
+    const dataWithoutId = Object.values(personData) as PersonWithFollowups[]
     // const jsonData = JSON.stringify(dataWithoutId)
     // Create document
     const doc = new Document({
@@ -110,6 +139,19 @@ const createDocx = async () => {
                   date,
                   publications,
                   remarks,
+                  ...record.followups.map((followup) => {
+                    return new TextRun({
+                      text: `Follow-up (${format(
+                        new Date(Number(followup.date)),
+                        'dd MMM yyyy'
+                      )}): ${followup.notes}`,
+                      font: 'Helvetica',
+                      size: 20,
+                      bold: true,
+                      break: 1,
+                      color: '#0066cc',
+                    })
+                  }),
                 ],
               })
             }),

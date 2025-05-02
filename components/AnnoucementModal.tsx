@@ -7,14 +7,35 @@ import {
   Text,
   TouchableWithoutFeedback,
   View,
+  Image,
 } from 'react-native'
 import { Colors } from '@/constants/Colors'
 import EvilIcons from '@expo/vector-icons/EvilIcons'
 import { useTranslations } from '@/app/_layout'
+import { Linking } from 'react-native'
 
 interface AnnoucementModalProps {
   visible: boolean
   onClose: () => void
+}
+
+const APP_STORE_ID = '6745219755' // Replace with your actual App Store ID
+const PLAY_STORE_ID = 'YOUR_PACKAGE_NAME' // Replace with your Android package name e.g. 'com.yourcompany.appname'
+
+const openAppStore = () => {
+  const url = Platform.select({
+    ios: `https://apps.apple.com/app/id${APP_STORE_ID}`,
+    android: `https://play.google.com/store/apps/details?id=${PLAY_STORE_ID}`,
+    default: `https://apps.apple.com/app/id${APP_STORE_ID}`,
+  })
+
+  Linking.canOpenURL(url).then((supported) => {
+    if (supported) {
+      Linking.openURL(url)
+    } else {
+      console.log(`Cannot open store URL: ${url}`)
+    }
+  })
 }
 
 const AnnoucementModal = ({ visible, onClose }: AnnoucementModalProps) => {
@@ -48,10 +69,28 @@ const AnnoucementModal = ({ visible, onClose }: AnnoucementModalProps) => {
                   },
                 ]}
               >
-                version 1.4
+                version 1.4.2
               </Text>
-              <Text style={styles.headerTxt}>HEY HEY! 👋</Text>
+              <Text style={styles.headerTxt}>New App Launch 🚀</Text>
+              <View>
+                <Pressable onPress={openAppStore} style={{ width: '50%' }}>
+                  <Image
+                    source={require('@/assets/images/preciouslives-icon.png')}
+                    style={{ width: 80, height: 80, borderRadius: 10 }}
+                  />
+                </Pressable>
+                <Text style={styles.subHeaderTxt}>
+                  Currently only on Apple App Store.
+                </Text>
+              </View>
               <Text style={styles.currentUserTxt}>
+                A go bag app is finally here!
+              </Text>
+              <Text style={styles.currentUserTxt}>
+                Manage your inventories, contacts and more.
+              </Text>
+
+              {/* <Text style={styles.currentUserTxt}>
                 your feedback and suggestions have been invaluable.
               </Text>
               <Text style={styles.subHeaderTxt}>
@@ -96,7 +135,7 @@ const AnnoucementModal = ({ visible, onClose }: AnnoucementModalProps) => {
                 Thank you for your patience and feedback!
               </Text>
               <Text style={styles.currentUserTxt}>Agape</Text>
-              <Text style={styles.currentUserTxt}>Your Brother</Text>
+              <Text style={styles.currentUserTxt}>Your Brother</Text> */}
             </Pressable>
           </KeyboardAvoidingView>
         </Pressable>
@@ -141,7 +180,7 @@ const styles = StyleSheet.create({
   },
   subHeaderTxt: {
     fontFamily: 'IBM-SemiBold',
-    fontSize: 18,
+    fontSize: 15,
     color: Colors.primary800,
     marginTop: 7,
     marginBottom: 1,
