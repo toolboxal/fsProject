@@ -40,6 +40,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslations } from '@/app/_layout'
 import { CirclePlusIcon } from 'lucide-react-native'
 import FormTagModal from '@/components/reportComponents/FormTagModal'
+import { usePostHog } from 'posthog-react-native'
 
 type TFormData = Omit<
   TPerson,
@@ -59,6 +60,7 @@ const EditPage = () => {
 
   const [updatedLat, setUpdatedLat] = useState(selectedPerson.latitude)
   const [updatedLng, setUpdatedLng] = useState(selectedPerson.longitude)
+  const postHog = usePostHog()
 
   const i18n = useTranslations()
 
@@ -207,6 +209,7 @@ const EditPage = () => {
     console.log('edit done')
     reset()
     toast.success(i18n.t('editForm.toastSuccess'))
+    postHog.capture('record_edited')
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
     router.back()
   }
@@ -516,6 +519,7 @@ const EditPage = () => {
               onPress={() => {
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
                 setOpenTagModal(true)
+                postHog.capture('create_tag')
               }}
             >
               <CirclePlusIcon

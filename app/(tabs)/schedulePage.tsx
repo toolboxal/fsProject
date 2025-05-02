@@ -22,6 +22,7 @@ import { format, Locale } from 'date-fns'
 import { useTranslations } from '@/app/_layout'
 import { enUS, es, ja, zhCN, ptBR, fr, ko } from 'date-fns/locale'
 import useMyStore from '@/store/store'
+import PostHog, { usePostHog } from 'posthog-react-native'
 
 const localeMap: Record<string, Locale> = {
   en: enUS,
@@ -91,6 +92,7 @@ async function createCalendarEvent() {
   )
   // console.log('storage id -------> ', id)
 }
+const postHog = usePostHog()
 
 const schedulePage = () => {
   const router = useRouter()
@@ -113,6 +115,7 @@ const schedulePage = () => {
   const handleCreateCalendarEvent = async () => {
     await createCalendarEvent()
     refetch()
+    postHog.capture('create_calendar_event')
   }
 
   console.log(events)

@@ -28,6 +28,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslations } from '@/app/_layout'
 import { CirclePlusIcon } from 'lucide-react-native'
 import FormTagModal from './reportComponents/FormTagModal'
+import { usePostHog } from 'posthog-react-native'
 
 type TFormData = Omit<
   TPerson,
@@ -55,6 +56,8 @@ const Form = () => {
 
   const { street, streetNumber } = address
   const displayBlock = streetNumber?.split(' ')[1]
+
+  const postHog = usePostHog()
 
   useEffect(() => {
     setValue('block', displayBlock || '')
@@ -187,6 +190,7 @@ const Form = () => {
     queryClient.invalidateQueries({ queryKey: ['tags'] })
     // console.log('submitted new user with tags')
     reset()
+    postHog.capture('new_record_created')
 
     toast.success(
       lang === 'en'
@@ -486,6 +490,7 @@ const Form = () => {
             onPress={() => {
               Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
               setOpenTagModal(true)
+              postHog.capture('create_tag')
             }}
           >
             <CirclePlusIcon

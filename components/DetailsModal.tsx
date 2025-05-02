@@ -38,6 +38,7 @@ import { Controller, useForm } from 'react-hook-form'
 import { format } from 'date-fns'
 import { useRouter } from 'expo-router'
 import sharePerson from '@/utils/sharePerson'
+import { usePostHog } from 'posthog-react-native'
 
 type props = {
   modalVisible: boolean
@@ -70,6 +71,8 @@ const DetailsModal = ({ modalVisible, setModalVisible }: props) => {
   const i18n = useTranslations()
 
   const queryClient = useQueryClient()
+
+  const postHog = usePostHog()
 
   const { data: tagsArr } = useQuery({
     queryKey: ['tags', id],
@@ -265,6 +268,7 @@ const DetailsModal = ({ modalVisible, setModalVisible }: props) => {
         toast.success(i18n.t('detailsModal.toastSuccess'))
 
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
+        postHog.capture('create_follow_up')
       } else {
         toast.error(i18n.t('detailsModal.toastError'))
       }

@@ -26,6 +26,7 @@ import AntDesign from '@expo/vector-icons/AntDesign'
 import { useTranslations } from '@/app/_layout'
 import { enUS, es, ja, zhCN, ptBR, fr, ko } from 'date-fns/locale'
 import useMyStore from '@/store/store'
+import { usePostHog } from 'posthog-react-native'
 
 type TFormData = Omit<TReport, 'id' | 'created_at' | 'date'>
 
@@ -50,6 +51,7 @@ const ModalForm = ({ modalVisible, setModalVisible, svcYrs }: ModalProps) => {
   const today = new Date()
   const [datePick, setDatePick] = useState(today)
   const [openPicker, setOpenPicker] = useState(false)
+  const postHog = usePostHog()
 
   const i18n = useTranslations()
   const lang = useMyStore((state) => state.language)
@@ -83,6 +85,7 @@ const ModalForm = ({ modalVisible, setModalVisible, svcYrs }: ModalProps) => {
     reset()
     setModalVisible((prev) => !prev)
     await queryClient.invalidateQueries({ queryKey: ['reports'] })
+    postHog.capture('new_report_created')
     toast.custom(
       <View
         style={{

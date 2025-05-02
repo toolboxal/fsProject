@@ -30,8 +30,10 @@ import { useRouter } from 'expo-router'
 import getCurrentLocation from '@/utils/getCurrentLoc'
 import { useTranslations } from '@/app/_layout'
 import { useIsFocused } from '@react-navigation/native'
+import { usePostHog } from 'posthog-react-native'
 
 const MapLibreMap = () => {
+  const postHog = usePostHog()
   const { bottom } = useSafeAreaInsets()
   const [selectedTags, setSelectedTags] = useState<string[]>([])
   const setAddress = useMyStore((state) => state.setAddress)
@@ -315,9 +317,10 @@ const MapLibreMap = () => {
                 title={person.name || 'Unnamed Person'}
               >
                 <Pressable
-                  onPress={() =>
+                  onPress={() => {
+                    postHog.capture('marker_tapped')
                     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
-                  }
+                  }}
                   style={[
                     styles.personMarker,
                     {
