@@ -69,7 +69,7 @@ const AnnoucementModal = ({ visible, onClose }: AnnoucementModalProps) => {
                   },
                 ]}
               >
-                version 1.4.2
+                version 1.4.3
               </Text>
               <Text style={styles.headerTxt}>New App Launch 🚀</Text>
               <View>
