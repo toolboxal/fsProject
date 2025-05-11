@@ -16,19 +16,16 @@ import restoreBackupFunc from '@/utils/restoreBackup'
 import createDocx from '@/utils/createDocx'
 import deleteAllRecords from '@/utils/deleteAllRecords'
 import deleteAllReports from '@/utils/deleteAllReports'
-import { usePostHog } from 'posthog-react-native'
 
 const optionsPage = () => {
   const queryClient = useQueryClient()
   const router = useRouter()
   const i18n = useTranslations()
   const lang = useMyStore((state) => state.language)
-  const postHog = usePostHog()
 
   const handleBackUp = async () => {
     await createBackup()
     router.dismiss()
-    postHog.capture('create_backup')
   }
   const handleRestore = async () => {
     await restoreBackupFunc(queryClient)

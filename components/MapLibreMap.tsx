@@ -30,10 +30,10 @@ import { useRouter } from 'expo-router'
 import getCurrentLocation from '@/utils/getCurrentLoc'
 import { useTranslations } from '@/app/_layout'
 import { useIsFocused } from '@react-navigation/native'
-import { usePostHog } from 'posthog-react-native'
+
 
 const MapLibreMap = () => {
-  const postHog = usePostHog()
+
   const { bottom } = useSafeAreaInsets()
   const [selectedTags, setSelectedTags] = useState<string[]>([])
   const setAddress = useMyStore((state) => state.setAddress)
@@ -318,7 +318,7 @@ const MapLibreMap = () => {
               >
                 <Pressable
                   onPress={() => {
-                    postHog.capture('marker_tapped')
+                    
                     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
                   }}
                   style={[
@@ -832,7 +832,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignContent: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: Colors.primary900, // Changed from semi-transparent to solid color
     padding: 10,
     borderRadius: 50,
     shadowColor: '#000',

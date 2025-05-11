@@ -28,7 +28,8 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslations } from '@/app/_layout'
 import { CirclePlusIcon } from 'lucide-react-native'
 import FormTagModal from './reportComponents/FormTagModal'
-import { usePostHog } from 'posthog-react-native'
+import { getLocales } from 'expo-localization'
+import PhoneInput, { ICountry } from 'react-native-international-phone-number'
 
 type TFormData = Omit<
   TPerson,
@@ -41,10 +42,15 @@ const Form = () => {
   const [status, setStatus] = useState<TPerson['status']>('frequent')
   const [selectedTags, setSelectedTags] = useState<number[]>([])
   const [openTagModal, setOpenTagModal] = useState(false)
+  const [selectedCountry, setSelectedCountry] = useState<undefined | ICountry>(
+    undefined
+  )
+  const [contactValue, setContactValue] = useState<string>('')
   const geoCoords = useMyStore((state) => state.geoCoords)
   const setGeoCoords = useMyStore((state) => state.setGeoCoords)
   const address = useMyStore((state) => state.address)
   const lang = useMyStore((state) => state.language)
+  const { regionCode } = getLocales()[0]
   let { latitude, longitude } = geoCoords
 
   const [updatedLat, setUpdatedLat] = useState(latitude)
@@ -56,8 +62,6 @@ const Form = () => {
 
   const { street, streetNumber } = address
   const displayBlock = streetNumber?.split(' ')[1]
-
-  const postHog = usePostHog()
 
   useEffect(() => {
     setValue('block', displayBlock || '')
@@ -154,7 +158,12 @@ const Form = () => {
       return
     }
     const toUpperBlock = data.block === null ? '' : data.block.toUpperCase()
-    const { name, unit, street, remarks, contact, date, publications } = data
+
+    const fullPhoneNumber = selectedCountry?.callingCode
+      ? `${selectedCountry.callingCode} ${contactValue}`
+      : contactValue
+
+    const { name, unit, street, remarks, date, publications } = data
 
     // Insert the new person record and get its ID
     const newPerson = await db
@@ -164,7 +173,7 @@ const Form = () => {
         unit: unit,
         street: street,
         remarks: remarks,
-        contact: contact,
+        contact: fullPhoneNumber,
         block: toUpperBlock,
         date: date,
         latitude: updatedLat,
@@ -190,7 +199,6 @@ const Form = () => {
     queryClient.invalidateQueries({ queryKey: ['tags'] })
     // console.log('submitted new user with tags')
     reset()
-    postHog.capture('new_record_created')
 
     toast.success(
       lang === 'en'
@@ -397,7 +405,7 @@ const Form = () => {
                   onBlur={onBlur}
                   label={i18n.t('form.nameLabel')}
                   placeholderText="nicodemus"
-                  extraStyles={{ width: 175 }}
+                  extraStyles={{ width: 200 }}
                 />
               )}
             />
@@ -409,19 +417,47 @@ const Form = () => {
           </View>
           <Controller
             control={control}
-            name="contact"
+            name="date"
             render={({ field: { value, onChange, onBlur } }) => (
               <TextInputComponent
                 value={value}
                 onChangeText={onChange}
                 onBlur={onBlur}
-                label={i18n.t('form.contactLabel')}
-                placeholderText="hp no."
-                extraStyles={{ width: 140 }}
+                label={i18n.t('form.dateLabel')}
+                placeholderText=""
+                extraStyles={{ width: 130 }}
               />
             )}
           />
+          {errors['date'] && (
+            <Text style={[styles.errorText, { left: 40 }]}>
+              {errors['date']?.message?.toString()}
+            </Text>
+          )}
         </View>
+        <Text style={styles.contactLabel}>{i18n.t('form.contactLabel')}</Text>
+        <PhoneInput
+          value={contactValue}
+          defaultCountry={(regionCode?.toUpperCase() || 'US') as any}
+          placeholder="phone no."
+          onChangePhoneNumber={(phoneNumber) => setContactValue(phoneNumber)}
+          selectedCountry={selectedCountry}
+          onChangeSelectedCountry={(selectedCountry) =>
+            setSelectedCountry(selectedCountry)
+          }
+          phoneInputStyles={{
+            container: {
+              borderWidth: 1,
+              borderColor: Colors.primary400,
+              backgroundColor: Colors.emerald50,
+              marginBottom: 10,
+              borderRadius: 5,
+            },
+            flagContainer: {
+              backgroundColor: Colors.emerald50,
+            },
+          }}
+        />
         <Controller
           control={control}
           name="publications"
@@ -454,27 +490,6 @@ const Form = () => {
             />
           )}
         />
-        <View style={styles.twoColumnsContainer}>
-          <Controller
-            control={control}
-            name="date"
-            render={({ field: { value, onChange, onBlur } }) => (
-              <TextInputComponent
-                value={value}
-                onChangeText={onChange}
-                onBlur={onBlur}
-                label={i18n.t('form.dateLabel')}
-                placeholderText=""
-                extraStyles={{ width: 130 }}
-              />
-            )}
-          />
-          {errors['date'] && (
-            <Text style={[styles.errorText, { left: 40 }]}>
-              {errors['date']?.message?.toString()}
-            </Text>
-          )}
-        </View>
 
         <Text style={styles.label}>{i18n.t('form.labelTags')}</Text>
         <View
@@ -490,7 +505,6 @@ const Form = () => {
             onPress={() => {
               Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
               setOpenTagModal(true)
-              postHog.capture('create_tag')
             }}
           >
             <CirclePlusIcon
@@ -703,5 +717,12 @@ const styles = StyleSheet.create({
     fontFamily: 'IBM-Regular',
     fontSize: 13,
     color: Colors.primary900,
+  },
+  contactLabel: {
+    fontFamily: 'IBM-Regular',
+    color: Colors.primary900,
+    paddingLeft: 3,
+    fontSize: 16,
+    marginBottom: 3,
   },
 })

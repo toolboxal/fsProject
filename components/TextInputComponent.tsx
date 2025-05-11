@@ -29,9 +29,6 @@ const TextInputComponent = ({
         value={value}
         onChangeText={onChangeText}
         onBlur={onBlur}
-        autoComplete="off"
-        autoCorrect={false}
-        autoCapitalize="sentences"
         selectionColor={Colors.primary700}
         placeholder={placeholderText}
         placeholderTextColor={Colors.primary300}
@@ -52,8 +49,8 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     paddingHorizontal: 12,
     paddingVertical: 7,
-    fontFamily: 'IBM-SemiBold',
-    fontSize: 18,
+    fontFamily: 'IBM-Medium',
+    fontSize: 17,
     color: Colors.primary900,
     backgroundColor: Colors.emerald50,
   },

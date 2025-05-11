@@ -34,13 +34,17 @@ import {
   TTags,
 } from '@/drizzle/schema'
 import { eq } from 'drizzle-orm'
-import { SegmentedButtons } from 'react-native-paper'
 import WebView from 'react-native-webview'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslations } from '@/app/_layout'
 import { CirclePlusIcon } from 'lucide-react-native'
 import FormTagModal from '@/components/reportComponents/FormTagModal'
-import { usePostHog } from 'posthog-react-native'
+import { getLocales } from 'expo-localization'
+import PhoneInput, { ICountry } from 'react-native-international-phone-number'
+import {
+  getCountryCallingCode,
+  parsePhoneNumberFromString,
+} from 'libphonenumber-js'
 
 type TFormData = Omit<
   TPerson,
@@ -60,9 +64,28 @@ const EditPage = () => {
 
   const [updatedLat, setUpdatedLat] = useState(selectedPerson.latitude)
   const [updatedLng, setUpdatedLng] = useState(selectedPerson.longitude)
-  const postHog = usePostHog()
+  const [selectedCountry, setSelectedCountry] = useState<undefined | ICountry>(
+    undefined
+  )
+  const [contactValue, setContactValue] = useState<string>(
+    selectedPerson.contact ? selectedPerson.contact.replace(/^\+\d+\s/, '') : ''
+  )
+  const [countryCallingCode, setCountryCallingCode] = useState<
+    string | undefined
+  >(undefined)
 
   const i18n = useTranslations()
+
+  useEffect(() => {
+    setContactValue(
+      selectedPerson.contact
+        ? selectedPerson.contact.replace(/^\+\d+\s/, '')
+        : ''
+    )
+    const phoneNumber = parsePhoneNumberFromString(selectedPerson.contact || '')
+    setCountryCallingCode(phoneNumber?.country)
+    console.log('countryCallingCode', countryCallingCode)
+  }, [selectedPerson.contact])
 
   const { data: personsTag } = useQuery({
     queryKey: ['tags', selectedPerson.id],
@@ -163,8 +186,11 @@ const EditPage = () => {
       return
     }
 
-    const { name, contact, remarks, date, block, unit, street, publications } =
-      data
+    const fullPhoneNumber = selectedCountry?.callingCode
+      ? `${selectedCountry.callingCode} ${contactValue}`
+      : contactValue
+
+    const { name, remarks, date, block, unit, street, publications } = data
     const toUpperBlock = block === null ? '' : block.toUpperCase()
     await db
       .update(Person)
@@ -173,7 +199,7 @@ const EditPage = () => {
         unit: unit,
         street: street,
         name: name,
-        contact: contact,
+        contact: fullPhoneNumber,
         remarks: remarks,
         date: date,
         category: category,
@@ -209,7 +235,6 @@ const EditPage = () => {
     console.log('edit done')
     reset()
     toast.success(i18n.t('editForm.toastSuccess'))
-    postHog.capture('record_edited')
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
     router.back()
   }
@@ -426,7 +451,7 @@ const EditPage = () => {
                     label={i18n.t('form.nameLabel')}
                     placeholderText="nicodemus"
                     extraStyles={{
-                      width: 175,
+                      width: 200,
                     }}
                   />
                 )}
@@ -439,21 +464,44 @@ const EditPage = () => {
             </View>
             <Controller
               control={control}
-              name="contact"
+              name="date"
               render={({ field: { value, onChange, onBlur } }) => (
                 <TextInputComponent
                   value={value}
                   onChangeText={onChange}
                   onBlur={onBlur}
-                  label={i18n.t('form.contactLabel')}
-                  placeholderText="hp no."
+                  label={i18n.t('form.dateLabel')}
+                  placeholderText=""
                   extraStyles={{
-                    width: 140,
+                    width: 130,
                   }}
                 />
               )}
             />
           </View>
+          <Text style={styles.contactLabel}>{i18n.t('form.contactLabel')}</Text>
+          <PhoneInput
+            value={contactValue}
+            defaultCountry={(countryCallingCode || 'US') as any}
+            placeholder="phone no."
+            onChangePhoneNumber={(phoneNumber) => setContactValue(phoneNumber)}
+            selectedCountry={selectedCountry}
+            onChangeSelectedCountry={(selectedCountry) =>
+              setSelectedCountry(selectedCountry)
+            }
+            phoneInputStyles={{
+              container: {
+                borderWidth: 1,
+                borderColor: Colors.primary400,
+                backgroundColor: Colors.emerald50,
+                marginBottom: 10,
+                borderRadius: 5,
+              },
+              flagContainer: {
+                backgroundColor: Colors.emerald50,
+              },
+            }}
+          />
           <Controller
             control={control}
             name="publications"
@@ -486,24 +534,6 @@ const EditPage = () => {
               />
             )}
           />
-          <View style={styles.twoColumnsContainer}>
-            <Controller
-              control={control}
-              name="date"
-              render={({ field: { value, onChange, onBlur } }) => (
-                <TextInputComponent
-                  value={value}
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                  label={i18n.t('form.dateLabel')}
-                  placeholderText=""
-                  extraStyles={{
-                    width: 130,
-                  }}
-                />
-              )}
-            />
-          </View>
 
           <Text style={styles.label}>{i18n.t('form.labelTags')}</Text>
           <View
@@ -519,7 +549,6 @@ const EditPage = () => {
               onPress={() => {
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
                 setOpenTagModal(true)
-                postHog.capture('create_tag')
               }}
             >
               <CirclePlusIcon
@@ -758,5 +787,12 @@ const styles = StyleSheet.create({
     fontFamily: 'IBM-Regular',
     fontSize: 13,
     color: Colors.primary900,
+  },
+  contactLabel: {
+    fontFamily: 'IBM-Regular',
+    color: Colors.primary900,
+    paddingLeft: 3,
+    fontSize: 16,
+    marginBottom: 3,
   },
 })
