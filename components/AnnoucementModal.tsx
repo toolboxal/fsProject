@@ -69,26 +69,19 @@ const AnnoucementModal = ({ visible, onClose }: AnnoucementModalProps) => {
                   },
                 ]}
               >
-                version 1.4.3
+                version 1.4.4
               </Text>
-              <Text style={styles.headerTxt}>New App Launch 🚀</Text>
+              <Text style={styles.headerTxt}>
+                Added phone country code extension
+              </Text>
               <View>
                 <Pressable onPress={openAppStore} style={{ width: '50%' }}>
                   <Image
-                    source={require('@/assets/images/preciouslives-icon.png')}
-                    style={{ width: 80, height: 80, borderRadius: 10 }}
+                    source={require('@/assets/images/announcement-screenshot.png')}
+                    style={{ width: 300, height: 80, borderRadius: 10 }}
                   />
                 </Pressable>
-                <Text style={styles.subHeaderTxt}>
-                  Currently only on Apple App Store.
-                </Text>
               </View>
-              <Text style={styles.currentUserTxt}>
-                A go bag app is finally here!
-              </Text>
-              <Text style={styles.currentUserTxt}>
-                Manage your inventories, contacts and more.
-              </Text>
 
               {/* <Text style={styles.currentUserTxt}>
                 your feedback and suggestions have been invaluable.

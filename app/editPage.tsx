@@ -76,6 +76,8 @@ const EditPage = () => {
 
   const i18n = useTranslations()
 
+  const { regionCode } = getLocales()[0]
+
   useEffect(() => {
     setContactValue(
       selectedPerson.contact
@@ -482,7 +484,7 @@ const EditPage = () => {
           <Text style={styles.contactLabel}>{i18n.t('form.contactLabel')}</Text>
           <PhoneInput
             value={contactValue}
-            defaultCountry={(countryCallingCode || 'US') as any}
+            defaultCountry={(countryCallingCode || regionCode) as any}
             placeholder="phone no."
             onChangePhoneNumber={(phoneNumber) => setContactValue(phoneNumber)}
             selectedCountry={selectedCountry}
@@ -581,8 +583,8 @@ const EditPage = () => {
                     style={[
                       styles.tag,
                       selectedTags.includes(item.id) && {
-                        backgroundColor: Colors.emerald600,
-                        borderColor: Colors.emerald600,
+                        backgroundColor: Colors.emerald900,
+                        borderColor: Colors.emerald900,
                       },
                     ]}
                     onPress={() => {

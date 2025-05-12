@@ -67,7 +67,15 @@
           "calendarPermission": "The app needs to access your calendar."
         }
       ],
-      "expo-localization"
+      "expo-localization",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/images/splashscreen.png",
+          "backgroundColor": "#10b981",
+          "imageWidth": 200
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true

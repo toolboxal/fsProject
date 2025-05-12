@@ -30,7 +30,7 @@ console.log('PostHog API Key (process.env):', postHogApiKey)
 SplashScreen.preventAutoHideAsync()
 
 SplashScreen.setOptions({
-  duration: 1000,
+  duration: 2500,
   fade: true,
 })
 
@@ -91,7 +91,7 @@ const RootLayout = () => {
           (TextInput as any).defaultProps = {}
         ;(TextInput as any).defaultProps.allowFontScaling = false
 
-        await new Promise((resolve) => setTimeout(resolve, 2000))
+        // await new Promise((resolve) => setTimeout(resolve, 2000))
       } catch (error) {
         console.warn(error)
       } finally {

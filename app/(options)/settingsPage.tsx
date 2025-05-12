@@ -1,4 +1,12 @@
-import { StyleSheet, Text, View, Image, Pressable, Linking } from 'react-native'
+import {
+  StyleSheet,
+  Text,
+  View,
+  Image,
+  Pressable,
+  Linking,
+  Platform,
+} from 'react-native'
 import { useTranslations } from '../_layout'
 import { Colors } from '@/constants/Colors'
 import SingleOption from '@/components/SingleOption'
@@ -7,6 +15,25 @@ import useMyStore from '@/store/store'
 import { router } from 'expo-router'
 import * as Link from 'expo-linking'
 import { ScrollView } from 'react-native-gesture-handler'
+
+const APP_STORE_ID = '6745219755'
+const PLAY_STORE_ID = 'YOUR_PACKAGE_NAME' // Replace with your Android package name e.g. 'com.yourcompany.appname'
+
+const openAppStore = () => {
+  const url = Platform.select({
+    ios: `https://apps.apple.com/app/id${APP_STORE_ID}`,
+    android: `https://play.google.com/store/apps/details?id=${PLAY_STORE_ID}`,
+    default: `https://apps.apple.com/app/id${APP_STORE_ID}`,
+  })
+
+  Linking.canOpenURL(url).then((supported) => {
+    if (supported) {
+      Linking.openURL(url)
+    } else {
+      console.log(`Cannot open store URL: ${url}`)
+    }
+  })
+}
 
 const settingsPage = () => {
   const i18n = useTranslations()
@@ -84,12 +111,57 @@ const settingsPage = () => {
           marginVertical: 5,
         }}
       >
-        version 1.4.3
+        version 1.4.4
       </Text>
+      <Pressable
+        onPress={openAppStore}
+        style={{
+          padding: 10,
+          borderRadius: 5,
+          backgroundColor: 'white',
+          flexDirection: 'row',
+          alignItems: 'center',
+          marginVertical: 10,
+          gap: 10,
+        }}
+      >
+        <Image
+          source={require('@/assets/images/preciouslives-icon.png')}
+          style={{
+            width: 60,
+            height: 60,
+            aspectRatio: 1,
+            borderRadius: 10,
+          }}
+        />
+        <View>
+          <Text
+            style={{
+              fontFamily: 'IBM-SemiBold',
+              fontSize: 18,
+              marginBottom: 3,
+              color: Colors.primary700,
+            }}
+          >
+            preciousLives App
+          </Text>
+          <Text
+            style={{
+              fontFamily: 'IBM-Regular',
+              fontSize: 14,
+              color: Colors.primary700,
+            }}
+          >
+            GoBag App available on App Store.
+          </Text>
+        </View>
+      </Pressable>
+
       <View style={styles.sectionContainer}>
         <Text style={styles.sectionHeadTxt}>
           {i18n.t('settings.supportHeader')}
         </Text>
+
         <Text style={styles.supportTxt}>{i18n.t('settings.supportDesc')}</Text>
         <Pressable
           style={{ marginTop: 5 }}

@@ -29,6 +29,11 @@ type Store = {
   setSelectedPerson: (selected: TPerson) => void
   language: string
   setLanguage: (lang: string) => void
+  pressedCoords: {
+    latitude: number
+    longitude: number
+  }
+  setPressedCoords: (coords: { latitude: number; longitude: number }) => void
 }
 
 const initialAddress = {
@@ -59,6 +64,7 @@ const initialPerson = {
   latitude: 0,
   longitude: 0,
   publications: '',
+  status: 'frequent' as 'irregular' | 'frequent' | 'committed',
 }
 
 const useMyStore = create<Store>((set) => ({
@@ -70,6 +76,9 @@ const useMyStore = create<Store>((set) => ({
   setSelectedPerson: (selected) => set({ selectedPerson: selected }),
   language: storage.getString('language') || 'en',
   setLanguage: (lang: string) => set({ language: lang }),
+  pressedCoords: { latitude: 0, longitude: 0 },
+  setPressedCoords: (coords: { latitude: number; longitude: number }) =>
+    set({ pressedCoords: coords }),
 }))
 
 export default useMyStore

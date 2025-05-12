@@ -31,15 +31,15 @@ import getCurrentLocation from '@/utils/getCurrentLoc'
 import { useTranslations } from '@/app/_layout'
 import { useIsFocused } from '@react-navigation/native'
 
-
 const MapLibreMap = () => {
-
   const { bottom } = useSafeAreaInsets()
   const [selectedTags, setSelectedTags] = useState<string[]>([])
   const setAddress = useMyStore((state) => state.setAddress)
   const setGeoCoords = useMyStore((state) => state.setGeoCoords)
+  const setPressedCoords = useMyStore((state) => state.setPressedCoords)
   const geoCoords = useMyStore((state) => state.geoCoords)
   const { latitude, longitude } = geoCoords
+  const pressedCoords = useMyStore((state) => state.pressedCoords)
   const i18n = useTranslations()
   const queryClient = useQueryClient()
   const isFocused = useIsFocused()
@@ -75,7 +75,7 @@ const MapLibreMap = () => {
         type: 'raster',
         tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
         tileSize: 256,
-        attribution: ' OpenStreetMap contributors',
+        attribution: '&copy; OpenStreetMap contributors',
       },
     },
     layers: [
@@ -263,10 +263,23 @@ const MapLibreMap = () => {
     <View style={styles.container}>
       <MapView
         style={styles.map}
-        mapStyle={JSON.stringify(mapStyle)}
+        mapStyle={mapStyle}
         logoEnabled={false}
         attributionEnabled={true}
         rotateEnabled={false}
+        onLongPress={(event) => {
+          const { geometry } = event
+          if (geometry.type === 'Point') {
+            const coordinates = geometry.coordinates
+            const pressedLat = coordinates[1]
+            const pressedLong = coordinates[0]
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Rigid)
+            setPressedCoords({ latitude: pressedLat, longitude: pressedLong })
+            router.navigate({
+              pathname: '/formPage',
+            })
+          }
+        }}
       >
         <Camera
           zoomLevel={17}
@@ -277,7 +290,10 @@ const MapLibreMap = () => {
         {/* Current Location Point */}
         <PointAnnotation
           id="currentLocation"
-          coordinate={[longitude, latitude]}
+          coordinate={[
+            pressedCoords.longitude || longitude,
+            pressedCoords.latitude || latitude,
+          ]}
           title="You are here"
         >
           <View style={styles.currentLocationMarkerOuterRim}>
@@ -318,7 +334,6 @@ const MapLibreMap = () => {
               >
                 <Pressable
                   onPress={() => {
-                    
                     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
                   }}
                   style={[

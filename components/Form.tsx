@@ -47,14 +47,19 @@ const Form = () => {
   )
   const [contactValue, setContactValue] = useState<string>('')
   const geoCoords = useMyStore((state) => state.geoCoords)
-  const setGeoCoords = useMyStore((state) => state.setGeoCoords)
+  const pressedCoords = useMyStore((state) => state.pressedCoords)
+  const setPressedCoords = useMyStore((state) => state.setPressedCoords)
   const address = useMyStore((state) => state.address)
   const lang = useMyStore((state) => state.language)
   const { regionCode } = getLocales()[0]
   let { latitude, longitude } = geoCoords
 
-  const [updatedLat, setUpdatedLat] = useState(latitude)
-  const [updatedLng, setUpdatedLng] = useState(longitude)
+  const [updatedLat, setUpdatedLat] = useState(
+    pressedCoords.latitude || latitude
+  )
+  const [updatedLng, setUpdatedLng] = useState(
+    pressedCoords.longitude || longitude
+  )
 
   const { todayDate } = getTimeDate()
 
@@ -205,6 +210,7 @@ const Form = () => {
         ? `Record ${name} has been created 👍`
         : i18n.t('form.toastSuccess')
     )
+    setPressedCoords({ latitude: 0, longitude: 0 })
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
     router.back()
   }

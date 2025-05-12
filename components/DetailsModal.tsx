@@ -39,7 +39,6 @@ import { format } from 'date-fns'
 import { useRouter } from 'expo-router'
 import sharePerson from '@/utils/sharePerson'
 
-
 type props = {
   modalVisible: boolean
   setModalVisible: React.Dispatch<React.SetStateAction<boolean>>
@@ -71,8 +70,6 @@ const DetailsModal = ({ modalVisible, setModalVisible }: props) => {
   const i18n = useTranslations()
 
   const queryClient = useQueryClient()
-
-
 
   const { data: tagsArr } = useQuery({
     queryKey: ['tags', id],
@@ -268,7 +265,6 @@ const DetailsModal = ({ modalVisible, setModalVisible }: props) => {
         toast.success(i18n.t('detailsModal.toastSuccess'))
 
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
-      
       } else {
         toast.error(i18n.t('detailsModal.toastError'))
       }
