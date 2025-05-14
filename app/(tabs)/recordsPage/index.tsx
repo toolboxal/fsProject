@@ -240,7 +240,7 @@ const RecordsPage = () => {
                   style={{
                     color: Colors.primary600,
                     fontFamily: 'IBM-Regular',
-                    fontSize: 15,
+                    fontSize: 14,
                     padding: 10,
                   }}
                 >

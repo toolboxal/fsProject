@@ -71,14 +71,25 @@ const AnnoucementModal = ({ visible, onClose }: AnnoucementModalProps) => {
               >
                 version 1.4.4
               </Text>
-              <Text style={styles.headerTxt}>
-                Added phone country code extension
+              <Text style={styles.headerTxt}>2 added features</Text>
+              <Text style={styles.subHeaderTxt}>1) better interactive map</Text>
+              <Text style={styles.currentUserTxt}>
+                Long Press 👆 on a building to create new record
+              </Text>
+              <Text style={styles.subHeaderTxt}>
+                2) phone country code extension
               </Text>
               <View>
                 <Pressable onPress={openAppStore} style={{ width: '50%' }}>
                   <Image
                     source={require('@/assets/images/announcement-screenshot.png')}
-                    style={{ width: 300, height: 80, borderRadius: 10 }}
+                    style={{
+                      width: 300,
+                      height: 70,
+                      resizeMode: 'contain',
+                      backgroundColor: Colors.primary200,
+                      marginVertical: 10,
+                    }}
                   />
                 </Pressable>
               </View>

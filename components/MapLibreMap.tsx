@@ -21,7 +21,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { TPerson, TPersonWithTagsAndFollowUps } from '@/drizzle/schema'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Colors } from '@/constants/Colors'
-import { useState, useMemo, useCallback, useEffect } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { Feather, FontAwesome5, Ionicons } from '@expo/vector-icons'
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6'
 import * as Haptics from 'expo-haptics'
@@ -740,7 +740,7 @@ const styles = StyleSheet.create({
   },
   calloutContainer: {
     backgroundColor: Colors.primary900,
-    borderRadius: 10,
+    borderRadius: 15,
     padding: 8,
     marginBottom: 10,
     minWidth: 300,
@@ -794,6 +794,7 @@ const styles = StyleSheet.create({
     fontFamily: 'IBM-Bold',
     fontSize: 15,
     color: Colors.emerald300,
+    paddingLeft: 3,
   },
   contactableBox: {
     padding: 3,

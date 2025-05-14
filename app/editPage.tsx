@@ -20,6 +20,7 @@ import { useForm, Controller } from 'react-hook-form'
 import TextInputComponent from '@/components/TextInputComponent'
 import { useState, useEffect } from 'react'
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6'
+import AntDesign from '@expo/vector-icons/AntDesign'
 import { router } from 'expo-router'
 
 import { toast } from 'sonner-native'
@@ -188,8 +189,8 @@ const EditPage = () => {
       return
     }
 
-    const fullPhoneNumber = selectedCountry?.callingCode
-      ? `${selectedCountry.callingCode} ${contactValue}`
+    const fullPhoneNumber = contactValue
+      ? `${selectedCountry?.callingCode} ${contactValue}`
       : contactValue
 
     const { name, remarks, date, block, unit, street, publications } = data
@@ -544,7 +545,11 @@ const EditPage = () => {
               gap: 6,
               alignItems: 'center',
               marginBottom: 7,
-              // backgroundColor: 'green',
+              // backgroundColor: Colors.primary100,
+              // borderWidth: StyleSheet.hairlineWidth,
+              // borderColor: Colors.primary700,
+              // borderRadius: 5,
+              padding: 5,
             }}
           >
             <Pressable
@@ -553,11 +558,12 @@ const EditPage = () => {
                 setOpenTagModal(true)
               }}
             >
-              <CirclePlusIcon
+              {/* <CirclePlusIcon
                 size={30}
                 color={Colors.primary700}
                 strokeWidth={1}
-              />
+              /> */}
+              <AntDesign name="pluscircle" size={26} color="black" />
             </Pressable>
             {tags?.length === 0 ? (
               <Text

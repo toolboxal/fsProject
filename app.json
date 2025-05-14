@@ -2,14 +2,14 @@
   "expo": {
     "name": "FsPal",
     "slug": "fsProject",
-    "version": "1.4.3",
+    "version": "1.4.4",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "splash": {
       "image": "./assets/images/splashscreen.png",
-      "backgroundColor": "#10b981",
+      "backgroundColor": "#34D399",
       "tabletSpacing": 0,
       "supportsTablet": false,
       "resizeMode": "contain"
@@ -30,7 +30,7 @@
       "versionCode": 6,
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#10b981"
+        "backgroundColor": "#34D399"
       },
       "permissions": [
         "ACCESS_COARSE_LOCATION",
@@ -72,7 +72,7 @@
         "expo-splash-screen",
         {
           "image": "./assets/images/splashscreen.png",
-          "backgroundColor": "#10b981",
+          "backgroundColor": "#34D399",
           "imageWidth": 200
         }
       ]

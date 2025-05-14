@@ -26,7 +26,8 @@ import { Person, TPerson, personsToTags } from '@/drizzle/schema'
 import WebView from 'react-native-webview'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslations } from '@/app/_layout'
-import { CirclePlusIcon } from 'lucide-react-native'
+// import { CirclePlusIcon } from 'lucide-react-native'
+import AntDesign from '@expo/vector-icons/AntDesign'
 import FormTagModal from './reportComponents/FormTagModal'
 import { getLocales } from 'expo-localization'
 import PhoneInput, { ICountry } from 'react-native-international-phone-number'
@@ -164,8 +165,8 @@ const Form = () => {
     }
     const toUpperBlock = data.block === null ? '' : data.block.toUpperCase()
 
-    const fullPhoneNumber = selectedCountry?.callingCode
-      ? `${selectedCountry.callingCode} ${contactValue}`
+    const fullPhoneNumber = contactValue
+      ? `${selectedCountry?.callingCode} ${contactValue}`
       : contactValue
 
     const { name, unit, street, remarks, date, publications } = data
@@ -504,7 +505,11 @@ const Form = () => {
             gap: 6,
             alignItems: 'center',
             marginBottom: 7,
-            // backgroundColor: 'green',
+            // backgroundColor: Colors.primary100,
+            // borderWidth: 1,
+            // borderColor: Colors.primary700,
+            // borderRadius: 5,
+            padding: 5,
           }}
         >
           <Pressable
@@ -513,11 +518,12 @@ const Form = () => {
               setOpenTagModal(true)
             }}
           >
-            <CirclePlusIcon
+            {/* <CirclePlusIcon
               size={30}
               color={Colors.primary700}
               strokeWidth={1}
-            />
+            /> */}
+            <AntDesign name="pluscircle" size={26} color="black" />
           </Pressable>
           {tags?.length === 0 ? (
             <Text
