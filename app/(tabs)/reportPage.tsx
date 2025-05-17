@@ -290,22 +290,22 @@ const styles = StyleSheet.create({
     gap: 2,
   },
   totalYrHeader: {
-    fontFamily: 'Lora-SemiBoldItalic',
+    fontFamily: 'IBMSerif-Bold',
     fontSize: 14,
     color: Colors.emerald900,
   },
   totalLabel: {
-    fontFamily: 'Lora-Regular',
+    fontFamily: 'IBMSerif-Medium',
     fontSize: 13,
     color: Colors.emerald900,
   },
   totalText: {
-    fontFamily: 'Lora-SemiBoldItalic',
+    fontFamily: 'IBMSerif-Bold',
     fontSize: 38,
     color: Colors.emerald900,
   },
   remainingHrs: {
-    fontFamily: 'Lora-SemiBoldItalic',
+    fontFamily: 'IBMSerif-Bold',
     fontSize: 18,
     color: Colors.emerald900,
   },

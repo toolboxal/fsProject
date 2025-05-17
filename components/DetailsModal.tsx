@@ -191,7 +191,7 @@ const DetailsModal = ({ modalVisible, setModalVisible }: props) => {
     try {
       // Format the phone number (remove any non-numeric characters)
       const formattedNumber = phoneNumber.replace(/\D/g, '')
-      const callUrl = `tel:${formattedNumber}`
+      const callUrl = `tel:+${formattedNumber}`
 
       // Check if the device supports the tel URL scheme
       const supported = await Linking.canOpenURL(callUrl)

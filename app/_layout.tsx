@@ -77,10 +77,11 @@ const RootLayout = () => {
           'IBM-SemiBold': require('../assets/fonts/IBMPlexSans-SemiBold.ttf'),
           'IBM-SemiBoldItalic': require('../assets/fonts/IBMPlexSans-SemiBoldItalic.ttf'),
           'IBM-Bold': require('../assets/fonts/IBMPlexSans-Bold.ttf'),
-          'Lora-Regular': require('../assets/fonts/Lora-Regular.ttf'),
-          'Lora-Italic': require('../assets/fonts/Lora-Italic.ttf'),
-          'Lora-Bold': require('../assets/fonts/Lora-Bold.ttf'),
-          'Lora-SemiBoldItalic': require('../assets/fonts/Lora-SemiBoldItalic.ttf'),
+          'IBMSerif-Regular': require('../assets/fonts/IBMPlexSerif-Regular.ttf'),
+          'IBMSerif-Italic': require('../assets/fonts/IBMPlexSerif-Italic.ttf'),
+          'IBMSerif-Medium': require('../assets/fonts/IBMPlexSerif-Medium.ttf'),
+          'IBMSerif-Bold': require('../assets/fonts/IBMPlexSerif-Bold.ttf'),
+          'IBMSerif-SemiBoldItalic': require('../assets/fonts/IBMPlexSerif-SemiBoldItalic.ttf'),
         })
         await migrate(db, migrations)
 
