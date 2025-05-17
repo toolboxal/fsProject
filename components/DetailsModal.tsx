@@ -38,6 +38,7 @@ import { Controller, useForm } from 'react-hook-form'
 import { format } from 'date-fns'
 import { useRouter } from 'expo-router'
 import sharePerson from '@/utils/sharePerson'
+import shareAsNonFSPal from '@/utils/shareAsNonFSPal'
 
 type props = {
   modalVisible: boolean
@@ -282,6 +283,23 @@ const DetailsModal = ({ modalVisible, setModalVisible }: props) => {
     }
   }
 
+  const handleSharePerson = async (id: number) => {
+    Alert.alert('Share Record', 'Other person using FSPal?', [
+      {
+        text: 'FsPal User',
+        onPress: async () => {
+          sharePerson(id)
+        },
+        style: 'default',
+      },
+      {
+        text: 'Non-FsPal User',
+        onPress: () => shareAsNonFSPal(id),
+        style: 'default',
+      },
+    ])
+  }
+
   const handleFollowUpDelete = async (id: number) => {
     try {
       await db.delete(followUp).where(eq(followUp.id, id))
@@ -333,7 +351,7 @@ const DetailsModal = ({ modalVisible, setModalVisible }: props) => {
                 </Pressable>
                 <Pressable
                   style={styles.menuBtn}
-                  onPress={() => sharePerson(id)}
+                  onPress={() => handleSharePerson(id)}
                 >
                   <Text style={styles.menuTxt}>
                     {' '}
