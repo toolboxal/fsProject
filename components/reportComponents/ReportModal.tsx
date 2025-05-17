@@ -227,11 +227,12 @@ const ModalForm = ({ modalVisible, setModalVisible, svcYrs }: ModalProps) => {
                             if (text.includes(',')) {
                               return
                             }
-                            if (numValue >= 24) {
-                              onChange(String(24))
-                            } else {
-                              onChange(text)
-                            }
+                            // if (numValue >= 24) {
+                            //   onChange(String(24))
+                            // } else {
+                            //   onChange(text)
+                            // }
+                            onChange(text)
                           }}
                           onBlur={onBlur}
                           selectionColor={Colors.primary700}

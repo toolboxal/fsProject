@@ -301,7 +301,7 @@ const styles = StyleSheet.create({
   },
   totalText: {
     fontFamily: 'IBMSerif-Bold',
-    fontSize: 38,
+    fontSize: 30,
     color: Colors.emerald900,
   },
   remainingHrs: {
