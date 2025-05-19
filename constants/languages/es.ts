@@ -43,6 +43,9 @@ const es = {
     tagsHeader: 'Etiquetas',
     tagsTitle: 'Gestionar etiquetas',
     tagsDesc: 'Eliminar etiquetas no utilizadas',
+    bugsReportHeader: 'Informe de errores y comentarios',
+    BugsReportTitle: 'Envíame un correo',
+    BugsReportDesc: 'Reporta cualquier error o da tu opinión',
   },
   readme: {
     tabHeader: 'Léeme',

@@ -39,6 +39,9 @@ const zh = {
     deleteAlertDesc: '在继续之前，请确保已备份。',
     toastDeleteRecords: '所有记录已删除',
     toastDeleteReports: '所有报告已删除',
+    bugsReportHeader: '错误报告与反馈',
+    BugsReportTitle: '给我发邮件',
+    BugsReportDesc: '报告任何错误或提供反馈',
   },
 
   readme: {

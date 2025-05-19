@@ -16,6 +16,8 @@ import restoreBackupFunc from '@/utils/restoreBackup'
 import createDocx from '@/utils/createDocx'
 import deleteAllRecords from '@/utils/deleteAllRecords'
 import deleteAllReports from '@/utils/deleteAllReports'
+import * as MailComposer from 'expo-mail-composer'
+import * as Device from 'expo-device'
 
 const optionsPage = () => {
   const queryClient = useQueryClient()
@@ -41,6 +43,19 @@ const optionsPage = () => {
     await createDocx()
     router.dismiss()
   }
+
+  const handleMailComposer = async () => {
+    console.log('pressed mailComposer')
+
+    MailComposer.composeAsync({
+      recipients: ['contact@alvindevapps.com'],
+      body: `\n\n\n\n\nDevice: ${Device.modelName}
+        Device Name: ${Device.deviceName}
+OS: ${Device.osName}
+OS Version: ${Device.osVersion}`,
+    })
+  }
+
   return (
     <View style={{ flex: 1 }}>
       <ScrollView
@@ -140,6 +155,17 @@ const optionsPage = () => {
             handler={() => router.navigate('/(options)/readmePage')}
             headerTxt={i18n.t('options.infoTitle')}
             descTxt={i18n.t('options.infoDesc')}
+          />
+        </View>
+        <View style={styles.sectionContainer}>
+          <Text style={styles.sectionHeadTxt}>
+            {i18n.t('options.bugsReportHeader')}
+          </Text>
+          {/* info */}
+          <SingleOption
+            handler={handleMailComposer}
+            headerTxt={i18n.t('options.BugsReportTitle')}
+            descTxt={i18n.t('options.BugsReportDesc')}
           />
         </View>
         <View style={styles.sectionContainer}>
@@ -288,7 +314,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 15,
     gap: 10,
-    height: '125%',
+    height: '135%',
   },
   sectionContainer: {
     flexDirection: 'column',

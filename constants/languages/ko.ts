@@ -40,6 +40,9 @@ const ko = {
     deleteAlertDesc: '계속하기 전에 백업이 있는지 확인하세요.',
     toastDeleteRecords: '모든 기록이 삭제되었습니다',
     toastDeleteReports: '모든 보고서가 삭제되었습니다',
+    bugsReportHeader: '버그 보고 및 피드백',
+    BugsReportTitle: '이메일 보내기',
+    BugsReportDesc: '버그를 보고하거나 피드백을 제공하세요',
   },
 
   readme: {

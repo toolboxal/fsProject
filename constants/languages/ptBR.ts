@@ -42,6 +42,9 @@ const ptBR = {
     deleteAlertDesc: 'Certifique-se de ter um backup antes de prosseguir.',
     toastDeleteRecords: 'Todos os registros foram excluídos',
     toastDeleteReports: 'Todos os relatórios foram excluídos',
+    bugsReportHeader: 'Relatório de Bugs e Feedback',
+    BugsReportTitle: 'Envie-me um e-mail',
+    BugsReportDesc: 'Reporte quaisquer bugs ou dê feedback',
   },
 
   readme: {

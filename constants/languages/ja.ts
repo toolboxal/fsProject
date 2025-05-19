@@ -40,6 +40,9 @@ const ja = {
     deleteAlertDesc: '続行する前にバックアップがあることを確認してください。',
     toastDeleteRecords: 'すべての記録が削除されました',
     toastDeleteReports: 'すべての報告が削除されました',
+    bugsReportHeader: 'バグ報告とフィードバック',
+    BugsReportTitle: 'メールしてください',
+    BugsReportDesc: 'バグを報告するか、フィードバックを提供してください',
   },
 
   readme: {

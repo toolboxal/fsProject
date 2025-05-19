@@ -284,7 +284,7 @@ const DetailsModal = ({ modalVisible, setModalVisible }: props) => {
   }
 
   const handleSharePerson = async (id: number) => {
-    Alert.alert('Share Record', 'Other publisher using FSPal?', [
+    Alert.alert('Share Record', 'The other publisher using FSPal?', [
       {
         text: 'FsPal User',
         onPress: async () => {
@@ -296,6 +296,11 @@ const DetailsModal = ({ modalVisible, setModalVisible }: props) => {
         text: 'Non-FsPal User',
         onPress: () => shareAsNonFSPal(id),
         style: 'default',
+      },
+      {
+        text: 'Cancel',
+        onPress: () => console.log('Cancel Pressed'),
+        style: 'cancel',
       },
     ])
   }

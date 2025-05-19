@@ -44,6 +44,9 @@ const fr = {
     deleteAlertDesc: "Assurez-vous d'avoir une sauvegarde avant de continuer.",
     toastDeleteRecords: 'Tous les enregistrements ont été supprimés',
     toastDeleteReports: 'Tous les rapports ont été supprimés',
+    bugsReportHeader: 'Rapport de bugs et commentaires',
+    BugsReportTitle: 'Envoyez-moi un courriel',
+    BugsReportDesc: 'Signalez tout bug ou donnez votre avis',
   },
 
   readme: {

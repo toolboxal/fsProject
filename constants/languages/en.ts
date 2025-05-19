@@ -40,6 +40,9 @@ const en = {
     deleteAlertDesc: 'Please make sure you have a backup before proceeding.',
     toastDeleteRecords: 'All Records have been deleted',
     toastDeleteReports: 'All Reports have been deleted',
+    bugsReportHeader: '  Bugs Report & Feedback',
+    BugsReportTitle: 'Email me',
+    BugsReportDesc: 'Report any bugs or give feedback',
   },
 
   readme: {

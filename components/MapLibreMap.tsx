@@ -623,7 +623,7 @@ const MapLibreMap = () => {
                 style={[
                   styles.tagItem,
                   selectedTags.includes(item.tagName) && {
-                    backgroundColor: Colors.emerald600,
+                    backgroundColor: Colors.emerald900,
                   },
                 ]}
                 onPress={() => toggleTagSelection(item.tagName)}
@@ -632,6 +632,7 @@ const MapLibreMap = () => {
               </Pressable>
             )}
             horizontal
+            inverted
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.flatListContent}
           />
