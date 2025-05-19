@@ -704,8 +704,8 @@ const styles = StyleSheet.create({
     color: Colors.primary50,
   },
   currentLocationMarkerOuterRim: {
-    width: 50,
-    height: 50,
+    width: 55,
+    height: 55,
     backgroundColor: 'rgba(0, 122, 255, 0.2)',
     borderRadius: 100,
     justifyContent: 'center',
@@ -724,7 +724,7 @@ const styles = StyleSheet.create({
   currentLocationMarkerInner: {
     width: 15,
     height: 15,
-    backgroundColor: '#007AFF',
+    backgroundColor: '#2177d3',
     borderRadius: 100,
   },
   currentLocationCallout: {

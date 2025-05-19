@@ -17,7 +17,7 @@ const MapsPage = () => {
 
   useEffect(() => {
     // Check if this version's announcement has been shown
-    const currentVersion = '1.4.4' // Replace with your app's current version
+    const currentVersion = '1.4.5' // Replace with your app's current version
     const lastShownVersion = storage.getString('lastShownVersion')
 
     if (!lastShownVersion || lastShownVersion !== currentVersion) {
@@ -28,7 +28,7 @@ const MapsPage = () => {
   const handleCloseAnnouncement = () => {
     setShowAnnouncement(false)
     // Store the current version as last shown
-    storage.set('lastShownVersion', '1.4.4') // Replace with your app's current version
+    storage.set('lastShownVersion', '1.4.5') // Replace with your app's current version
   }
 
   console.log('index Page render')

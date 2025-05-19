@@ -69,30 +69,21 @@ const AnnoucementModal = ({ visible, onClose }: AnnoucementModalProps) => {
                   },
                 ]}
               >
-                version 1.4.4
+                version 1.4.5
               </Text>
               <Text style={styles.headerTxt}>2 added features</Text>
-              <Text style={styles.subHeaderTxt}>1) better interactive map</Text>
+              <Text style={styles.subHeaderTxt}>
+                1) bug and feedback report in options
+              </Text>
               <Text style={styles.currentUserTxt}>
-                Long Press 👆 on a building to create new record
+                You can email me any bugs encountered or feedback for the app
               </Text>
               <Text style={styles.subHeaderTxt}>
-                2) phone country code extension
+                2) share record with non-fsPal user
               </Text>
-              <View>
-                <Pressable onPress={openAppStore} style={{ width: '50%' }}>
-                  <Image
-                    source={require('@/assets/images/announcement-screenshot.png')}
-                    style={{
-                      width: 300,
-                      height: 70,
-                      resizeMode: 'contain',
-                      backgroundColor: Colors.primary200,
-                      marginVertical: 10,
-                    }}
-                  />
-                </Pressable>
-              </View>
+              <Text style={styles.currentUserTxt}>
+                You can choose to share single record as a docx file
+              </Text>
 
               {/* <Text style={styles.currentUserTxt}>
                 your feedback and suggestions have been invaluable.
