@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
   Modal,
   View,
@@ -10,6 +10,7 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
   Pressable,
+  Alert,
 } from 'react-native'
 import { Colors } from '@/constants/Colors'
 
@@ -26,6 +27,7 @@ import AntDesign from '@expo/vector-icons/AntDesign'
 import { useTranslations } from '@/app/_layout'
 import { enUS, es, ja, zhCN, ptBR, fr, ko } from 'date-fns/locale'
 import useMyStore from '@/store/store'
+import { ArrowRight } from 'lucide-react-native'
 
 type TFormData = Omit<TReport, 'id' | 'created_at' | 'date'>
 
@@ -50,6 +52,7 @@ const ModalForm = ({ modalVisible, setModalVisible, svcYrs }: ModalProps) => {
   const today = new Date()
   const [datePick, setDatePick] = useState(today)
   const [openPicker, setOpenPicker] = useState(false)
+  const [toggleCredit, setToggleCredit] = useState(false)
 
   const i18n = useTranslations()
   const lang = useMyStore((state) => state.language)
@@ -58,9 +61,15 @@ const ModalForm = ({ modalVisible, setModalVisible, svcYrs }: ModalProps) => {
     defaultValues: {
       date: '',
       hrs: 0,
+      credit: 0,
+      comment: '',
       bs: 0,
     },
   })
+
+  useEffect(() => {
+    reset()
+  }, [toggleCredit])
 
   function convertFloatToTime(floatTime: number): string {
     const hours = Math.floor(floatTime)
@@ -68,8 +77,10 @@ const ModalForm = ({ modalVisible, setModalVisible, svcYrs }: ModalProps) => {
     return `${hours}hr ${minutes}mins`
   }
 
-  const watched = watch('hrs')
-  const watchedOutput = convertFloatToTime(watched)
+  const watchedFSHr = watch('hrs')
+  const watchedFSHrOutput = convertFloatToTime(watchedFSHr)
+  const watchedCredit = watch('credit')
+  const watchedCreditOutput = convertFloatToTime(watchedCredit)
 
   const submitPressed = async (data: TFormData) => {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
@@ -78,6 +89,8 @@ const ModalForm = ({ modalVisible, setModalVisible, svcYrs }: ModalProps) => {
       date: datePick,
       hrs: data.hrs,
       bs: data.bs,
+      credit: data.credit,
+      comment: data.comment,
       created_at: datePick,
     })
     reset()
@@ -180,7 +193,7 @@ const ModalForm = ({ modalVisible, setModalVisible, svcYrs }: ModalProps) => {
                   locale={lang || 'en'}
                   mode="date"
                   display="inline"
-                  accentColor={Colors.emerald600}
+                  accentColor={Colors.emerald800}
                   themeVariant="light"
                   minimumDate={new Date(svcYrs.previousYr, 8, 1)}
                   maximumDate={today}
@@ -188,10 +201,10 @@ const ModalForm = ({ modalVisible, setModalVisible, svcYrs }: ModalProps) => {
                     setDatePick(date || new Date())
                   }}
                   style={{
-                    transform: [{ scale: 0.88 }],
-                    padding: 0,
+                    transform: [{ scale: 0.85 }],
+                    paddingBottom: 5,
                     margin: -20,
-                    marginTop: -27,
+                    marginTop: -30,
                   }}
                 />
               )}
@@ -209,76 +222,201 @@ const ModalForm = ({ modalVisible, setModalVisible, svcYrs }: ModalProps) => {
                   }}
                 />
               )}
-
+              <View
+                style={{ flexDirection: 'row', gap: 10, marginVertical: 5 }}
+              >
+                <Pressable
+                  style={[
+                    styles.toggleBtn,
+                    {
+                      backgroundColor: toggleCredit
+                        ? Colors.primary50
+                        : Colors.emerald800,
+                    },
+                  ]}
+                  onPress={() => {
+                    setToggleCredit((prev) => !prev)
+                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+                  }}
+                >
+                  <Text
+                    style={[
+                      styles.toggleBtnTxt,
+                      {
+                        color: toggleCredit ? 'black' : 'white',
+                      },
+                    ]}
+                  >
+                    {i18n.t('reportsModal.modalToggleBtnFSHours')}
+                  </Text>
+                </Pressable>
+                <Pressable
+                  style={[
+                    styles.toggleBtn,
+                    {
+                      backgroundColor: toggleCredit
+                        ? Colors.emerald800
+                        : Colors.primary50,
+                    },
+                  ]}
+                  onPress={() => {
+                    setToggleCredit((prev) => !prev)
+                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+                  }}
+                >
+                  <Text
+                    style={[
+                      styles.toggleBtnTxt,
+                      {
+                        color: toggleCredit ? 'white' : 'black',
+                      },
+                    ]}
+                  >
+                    {i18n.t('reportsModal.modalToggleBtnCredits')}
+                  </Text>
+                </Pressable>
+              </View>
               <View style={styles.rowContainer}>
-                <View style={styles.inputContainers}>
-                  <Text style={styles.label}>
-                    {i18n.t('reportsModal.hoursLabel')}
-                  </Text>
-                  <View style={styles.inputBox}>
-                    <Controller
-                      control={control}
-                      name="hrs"
-                      render={({ field: { value, onChange, onBlur } }) => (
-                        <TextInput
-                          value={value === 0 ? '' : value.toString()}
-                          onChangeText={(text) => {
-                            const numValue = parseFloat(text)
-                            if (text.includes(',')) {
-                              return
-                            }
-                            // if (numValue >= 24) {
-                            //   onChange(String(24))
-                            // } else {
-                            //   onChange(text)
-                            // }
-                            onChange(text)
-                          }}
-                          onBlur={onBlur}
-                          selectionColor={Colors.primary700}
-                          placeholder=""
-                          placeholderTextColor={Colors.primary300}
-                          autoFocus
-                          style={styles.hrsInput}
-                          keyboardType="numeric"
-                          maxLength={5}
+                {toggleCredit ? (
+                  <View style={{ flexDirection: 'row', gap: 20 }}>
+                    <View style={styles.inputContainers}>
+                      <Text style={styles.label}>
+                        {i18n.t('reportsModal.inputLabelCredit')}
+                      </Text>
+                      <View style={styles.inputBox}>
+                        <Controller
+                          control={control}
+                          name="credit"
+                          render={({ field: { value, onChange, onBlur } }) => (
+                            <TextInput
+                              value={value === 0 ? '' : value.toString()}
+                              onChangeText={(text) => {
+                                const numValue = parseFloat(text)
+                                if (text.includes(',')) {
+                                  return
+                                }
+                                // if (numValue >= 24) {
+                                //   onChange(String(24))
+                                // } else {
+                                //   onChange(text)
+                                // }
+                                onChange(text)
+                              }}
+                              onBlur={onBlur}
+                              selectionColor={Colors.primary700}
+                              placeholder=""
+                              placeholderTextColor={Colors.primary300}
+                              autoFocus
+                              style={styles.hrsInput}
+                              keyboardType="numeric"
+                              maxLength={5}
+                            />
+                          )}
                         />
-                      )}
-                    />
-                  </View>
-                </View>
-                <View style={[styles.inputContainers]}>
-                  <Text style={styles.label}>
-                    {i18n.t('reportsModal.bsLabel')}
-                  </Text>
-                  <View style={styles.inputBox}>
-                    <Controller
-                      control={control}
-                      name="bs"
-                      render={({ field: { value, onChange, onBlur } }) => (
-                        <TextInput
-                          value={value === 0 ? '' : value.toString()}
-                          onChangeText={(text) => {
-                            // Only allow integer values
-                            const numValue = parseInt(text)
-                            if (!isNaN(numValue)) {
-                              onChange(String(numValue))
-                            } else if (text === '') {
-                              onChange('')
-                            }
-                          }}
-                          onBlur={onBlur}
-                          selectionColor={Colors.primary700}
-                          placeholder=""
-                          placeholderTextColor={Colors.primary300}
-                          style={styles.hrsInput}
-                          keyboardType="numeric"
-                          maxLength={2}
+                      </View>
+                    </View>
+                    <View style={styles.inputContainers}>
+                      <Text style={styles.label}>
+                        {i18n.t('reportsModal.inputLabelComment')}
+                      </Text>
+                      <View style={[styles.inputBox, { width: 135 }]}>
+                        <Controller
+                          control={control}
+                          name="comment"
+                          render={({ field: { value, onChange, onBlur } }) => (
+                            <TextInput
+                              value={value}
+                              onChangeText={onChange}
+                              onBlur={onBlur}
+                              selectionColor={Colors.primary700}
+                              placeholder=""
+                              placeholderTextColor={Colors.primary300}
+                              autoFocus
+                              style={{
+                                fontFamily: 'IBM-Medium',
+                                fontSize: 20,
+                              }}
+                              keyboardType="default"
+                              maxLength={20}
+                            />
+                          )}
                         />
-                      )}
-                    />
+                      </View>
+                    </View>
                   </View>
-                </View>
+                ) : (
+                  <View style={{ flexDirection: 'row', gap: 20 }}>
+                    <View style={styles.inputContainers}>
+                      <Text style={styles.label}>
+                        {i18n.t('reportsModal.hoursLabel')}
+                      </Text>
+                      <View style={styles.inputBox}>
+                        <Controller
+                          control={control}
+                          name="hrs"
+                          render={({ field: { value, onChange, onBlur } }) => (
+                            <TextInput
+                              value={value === 0 ? '' : value.toString()}
+                              onChangeText={(text) => {
+                                const numValue = parseFloat(text)
+                                if (text.includes(',')) {
+                                  return
+                                }
+                                // if (numValue >= 24) {
+                                //   onChange(String(24))
+                                // } else {
+                                //   onChange(text)
+                                // }
+                                onChange(text)
+                              }}
+                              onBlur={onBlur}
+                              selectionColor={Colors.primary700}
+                              placeholder=""
+                              placeholderTextColor={Colors.primary300}
+                              autoFocus
+                              style={styles.hrsInput}
+                              keyboardType="numeric"
+                              maxLength={5}
+                            />
+                          )}
+                        />
+                      </View>
+                    </View>
+                    <View style={[styles.inputContainers]}>
+                      <Text style={styles.label}>
+                        {i18n.t('reportsModal.bsLabel')}
+                      </Text>
+                      <View style={styles.inputBox}>
+                        <Controller
+                          control={control}
+                          name="bs"
+                          render={({ field: { value, onChange, onBlur } }) => (
+                            <TextInput
+                              value={value === 0 ? '' : value.toString()}
+                              onChangeText={(text) => {
+                                // Only allow integer values
+                                const numValue = parseInt(text)
+                                if (!isNaN(numValue)) {
+                                  onChange(String(numValue))
+                                } else if (text === '') {
+                                  onChange('')
+                                }
+                              }}
+                              onBlur={onBlur}
+                              selectionColor={Colors.primary700}
+                              placeholder=""
+                              placeholderTextColor={Colors.primary300}
+                              style={styles.hrsInput}
+                              keyboardType="numeric"
+                              maxLength={2}
+                            />
+                          )}
+                        />
+                      </View>
+                    </View>
+                  </View>
+                )}
+
                 <Pressable
                   style={({ pressed }) => {
                     return [
@@ -292,13 +430,18 @@ const ModalForm = ({ modalVisible, setModalVisible, svcYrs }: ModalProps) => {
                   }}
                   onPressOut={handleSubmit(submitPressed)}
                 >
-                  <EvilIcons name="arrow-up" size={22} color="white" />
-                  <Text style={styles.submitBtnTxt}>
+                  {/* <EvilIcons name="arrow-up" size={22} color="white" /> */}
+                  <ArrowRight size={20} color="white" strokeWidth={3} />
+                  {/* <Text style={styles.submitBtnTxt}>
                     {i18n.t('reportsModal.submitBtn')}
-                  </Text>
+                  </Text> */}
                 </Pressable>
               </View>
-              <Text style={styles.watchedTxt}>{watchedOutput}</Text>
+              {toggleCredit ? (
+                <Text style={styles.watchedTxt}>{watchedCreditOutput}</Text>
+              ) : (
+                <Text style={styles.watchedTxt}>{watchedFSHrOutput}</Text>
+              )}
             </Pressable>
           </KeyboardAvoidingView>
         </Pressable>
@@ -329,6 +472,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     borderRadius: 20,
     padding: 18,
+    paddingVertical: 10,
     width: '90%',
     maxWidth: 400,
     shadowColor: '#000',
@@ -349,7 +493,7 @@ const styles = StyleSheet.create({
   },
   dateTxt: {
     fontFamily: 'IBM-Bold',
-    fontSize: 26,
+    fontSize: 22,
     color: Colors.emerald600,
     paddingLeft: 2,
   },
@@ -393,7 +537,7 @@ const styles = StyleSheet.create({
   watchedTxt: {
     fontFamily: 'IBM-Medium',
     fontSize: 16,
-    color: Colors.emerald500,
+    color: Colors.emerald600,
     letterSpacing: 0.8,
   },
 
@@ -402,10 +546,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     alignSelf: 'flex-end',
     padding: 10,
-    borderRadius: 5,
+    borderRadius: 30,
   },
   submitBtnTxt: {
     color: Colors.white,
+  },
+  toggleBtn: {
+    padding: 5,
+    paddingHorizontal: 10,
+    borderRadius: 30,
+    borderWidth: 1,
+    borderColor: Colors.primary400,
+  },
+  toggleBtnTxt: {
+    fontFamily: 'IBM-Medium',
+    fontSize: 16,
   },
 })
 

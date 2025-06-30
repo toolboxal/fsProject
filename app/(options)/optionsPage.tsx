@@ -18,6 +18,7 @@ import deleteAllRecords from '@/utils/deleteAllRecords'
 import deleteAllReports from '@/utils/deleteAllReports'
 import * as MailComposer from 'expo-mail-composer'
 import * as Device from 'expo-device'
+import { CircleAlert } from 'lucide-react-native'
 
 const optionsPage = () => {
   const queryClient = useQueryClient()
@@ -93,6 +94,21 @@ OS Version: ${Device.osVersion}`,
             {i18n.t('options.backupHeader')}
           </Text>
           {/* Create backup */}
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 5,
+              padding: 10,
+              backgroundColor: Colors.rose100,
+              borderRadius: 5,
+            }}
+          >
+            <CircleAlert size={24} color={Colors.rose700} />
+            <Text style={{ fontFamily: 'IBM-Regular', fontSize: 13 }}>
+              {i18n.t('options.backupReminderTxt')}
+            </Text>
+          </View>
           <SingleOption
             handler={handleBackUp}
             headerTxt={i18n.t('options.createBackupTitle')}

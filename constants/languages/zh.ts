@@ -42,6 +42,7 @@ const zh = {
     bugsReportHeader: '错误报告与反馈',
     BugsReportTitle: '给我发邮件',
     BugsReportDesc: '报告任何错误或提供反馈',
+    backupReminderTxt: '请定期备份您的数据',
   },
 
   readme: {
@@ -122,8 +123,8 @@ const zh = {
     tabHeaderLeft: '新报告',
     tabHeaderRight: '选项',
     stickyHeader1: '查看服务年：',
-    stickyHeader2: '总计：',
-    stickyHeader3: '剩余小时：',
+    stickyHeader2: 'FS总小时数：',
+    stickyHeader3: '总学分：',
     stickyHeader4: '距新服务年还有：',
     stickyDays: '天',
     dropDownTitle: '服务年',
@@ -132,6 +133,8 @@ const zh = {
     backgroundTxt1: '服务年已结束',
     backgroundTxt2: '从创建您的第一份报告开始',
     tableHeadDate: '日期',
+    tableHeadCredit: '学分',
+    tableHeadComments: '评论',
     tableSubtotalLabel: '小计',
     toastDelete: '报告已删除',
     actionCancel: '取消',
@@ -144,6 +147,10 @@ const zh = {
     bsLabel: '圣经研究数量',
     submitBtn: '提交',
     toastDelete: '报告已删除',
+    modalToggleBtnFSHours: 'FS小时',
+    modalToggleBtnCredits: '学分',
+    inputLabelCredit: '学分',
+    inputLabelComment: '评论',
   },
   form: {
     tabHeader: '创建新记录',

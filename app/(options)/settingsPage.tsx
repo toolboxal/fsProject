@@ -111,7 +111,7 @@ const settingsPage = () => {
           marginVertical: 5,
         }}
       >
-        version 1.4.4
+        version 1.4.6
       </Text>
       <Pressable
         onPress={openAppStore}

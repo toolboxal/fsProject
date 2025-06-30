@@ -43,6 +43,7 @@ const ko = {
     bugsReportHeader: '버그 보고 및 피드백',
     BugsReportTitle: '이메일 보내기',
     BugsReportDesc: '버그를 보고하거나 피드백을 제공하세요',
+    backupReminderTxt: '데이터를 주기적으로 백업해 주세요',
   },
 
   readme: {
@@ -126,8 +127,8 @@ const ko = {
     tabHeaderLeft: '새 보고서',
     tabHeaderRight: '옵션',
     stickyHeader1: '봉사 연도 보기: ',
-    stickyHeader2: '총계: ',
-    stickyHeader3: '남은 시간: ',
+    stickyHeader2: '총 FS 시간:',
+    stickyHeader3: '총 크레딧:',
     stickyHeader4: '새 봉사 연도까지 남은 일수: ',
     stickyDays: '일',
     dropDownTitle: '봉사 연도 ',
@@ -136,6 +137,8 @@ const ko = {
     backgroundTxt1: '봉사 연도가 종료되었습니다',
     backgroundTxt2: '첫 번째 보고서를 생성하여 시작하세요',
     tableHeadDate: '날짜',
+    tableHeadCredit: '크레딧',
+    tableHeadComments: '댓글',
     tableSubtotalLabel: '소계',
     toastDelete: '보고서가 삭제되었습니다',
     actionCancel: '취소',
@@ -148,6 +151,10 @@ const ko = {
     bsLabel: '성서 연구 수',
     submitBtn: '제출',
     toastDelete: '보고서가 삭제되었습니다',
+    modalToggleBtnFSHours: 'FS 시간',
+    modalToggleBtnCredits: '크레딧',
+    inputLabelCredit: '크레딧',
+    inputLabelComment: '댓글',
   },
   form: {
     tabHeader: '새 기록 생성',

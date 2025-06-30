@@ -43,6 +43,7 @@ const en = {
     bugsReportHeader: '  Bugs Report & Feedback',
     BugsReportTitle: 'Email me',
     BugsReportDesc: 'Report any bugs or give feedback',
+    backupReminderTxt: 'Please periodically backup your data',
   },
 
   readme: {
@@ -123,8 +124,8 @@ const en = {
     tabHeaderLeft: 'New Report',
     tabHeaderRight: 'Options',
     stickyHeader1: 'Viewing service year: ',
-    stickyHeader2: 'Total: ',
-    stickyHeader3: 'Remaining hours: ',
+    stickyHeader2: 'Total FS Hrs: ',
+    stickyHeader3: 'Total Credits: ',
     stickyHeader4: 'Days to new Service Year:',
     stickyDays: ' days',
     dropDownTitle: 'service year ',
@@ -133,6 +134,8 @@ const en = {
     backgroundTxt1: 'service year has ended',
     backgroundTxt2: 'Start by creating your first report',
     tableHeadDate: 'Date',
+    tableHeadCredit: 'Credits',
+    tableHeadComments: 'Comments',
     tableSubtotalLabel: 'Subtotal',
     toastDelete: 'Report deleted',
     actionCancel: 'Cancel',
@@ -145,6 +148,10 @@ const en = {
     bsLabel: 'no. bible studies',
     submitBtn: 'Submit',
     toastDelete: 'Report deleted',
+    modalToggleBtnFSHours: 'FS Hours',
+    modalToggleBtnCredits: 'Credits',
+    inputLabelCredit: 'credits',
+    inputLabelComment: 'comments',
   },
   form: {
     tabHeader: 'Create New Record',

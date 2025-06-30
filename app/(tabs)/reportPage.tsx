@@ -91,6 +91,13 @@ const reportPage = () => {
     { bs: 0, hrs: 0 }
   ) || { bs: 0, hrs: 0 }
 
+  const creditTotals = filteredData?.reduce(
+    (acc, curr) => ({
+      credit: acc.credit + (curr.credit || 0),
+    }),
+    { credit: 0 }
+  ) || { credit: 0 }
+
   return (
     <SafeAreaView style={[styles.container]} edges={['bottom']}>
       <Tabs.Screen
@@ -168,13 +175,14 @@ const reportPage = () => {
               </Text>
             </View>
             <View style={[styles.totalValues, { alignItems: 'flex-end' }]}>
-              <Text style={styles.totalLabel}>
+              <Text style={[styles.totalLabel, { color: Colors.purple800 }]}>
                 {i18n.t('reports.stickyHeader3')}
               </Text>
-              <Text style={styles.remainingHrs}>
-                {600 - totals.hrs <= 0
+              <Text style={[styles.remainingHrs, { color: Colors.purple800 }]}>
+                {/* {600 - totals.hrs <= 0
                   ? '0h 0m'
-                  : convertFloatToTime(600 - totals.hrs)}
+                  : convertFloatToTime(600 - totals.hrs)} */}
+                {convertFloatToTime(creditTotals.credit)}
               </Text>
               <Text style={[styles.totalLabel, { textAlign: 'right' }]}>
                 {i18n.t('reports.stickyHeader4')}

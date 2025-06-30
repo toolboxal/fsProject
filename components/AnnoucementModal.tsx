@@ -69,21 +69,18 @@ const AnnoucementModal = ({ visible, onClose }: AnnoucementModalProps) => {
                   },
                 ]}
               >
-                version 1.4.5
+                version 1.4.6
               </Text>
-              <Text style={styles.headerTxt}>2 added features</Text>
-              <Text style={styles.subHeaderTxt}>
-                1) bug and feedback report in options
+              <Text style={[styles.headerTxt, { color: Colors.purple400 }]}>
+                NEW UPDATE TO REPORTS!
               </Text>
               <Text style={styles.currentUserTxt}>
+                Input credit hours for RPs, with a comment field for purpose eg.
+                maintenance training, HLC, disaster relief etc.
+              </Text>
+              {/* <Text style={styles.currentUserTxt}>
                 You can email me any bugs encountered or feedback for the app
-              </Text>
-              <Text style={styles.subHeaderTxt}>
-                2) share record with non-fsPal user
-              </Text>
-              <Text style={styles.currentUserTxt}>
-                You can choose to share single record as a docx file
-              </Text>
+              </Text> */}
 
               {/* <Text style={styles.currentUserTxt}>
                 your feedback and suggestions have been invaluable.

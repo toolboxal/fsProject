@@ -87,6 +87,8 @@ export const Report = sqliteTable('report', {
     .default(sql`CURRENT_TIMESTAMP`)
     .notNull(),
   hrs: real('hrs').default(0),
+  credit: real('credit').default(0),
+  comment: text('comment', { length: 20 }).default(''),
   bs: integer('bs').default(0),
   created_at: integer('created_at', { mode: 'timestamp' })
     .default(sql`CURRENT_TIMESTAMP`)

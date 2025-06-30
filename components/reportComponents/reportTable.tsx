@@ -77,16 +77,35 @@ const ReportTable = ({ data }: TProps) => {
         ),
         aggregationFn: 'sum',
       }),
-      columnHelper.display({
-        id: 'actions',
+      columnHelper.accessor('credit', {
+        header: () => (
+          <Text style={[styles.headerTxt, { color: Colors.purple800 }]}>
+            {i18n.t('reports.tableHeadCredit')}
+          </Text>
+        ),
         cell: (info) => (
-          <View>
-            <FontAwesome6
-              name="ellipsis-vertical"
-              size={18}
-              color={Colors.primary300}
-            />
-          </View>
+          <Text style={[styles.cellTxt, { color: Colors.purple800 }]}>
+            {convertFloatToTime(info.getValue() || 0)}
+          </Text>
+        ),
+      }),
+      columnHelper.accessor('comment', {
+        header: () => (
+          <Text
+            style={[
+              styles.headerTxt,
+              { fontSize: 10, color: Colors.purple800 },
+            ]}
+          >
+            {i18n.t('reports.tableHeadComments')}
+          </Text>
+        ),
+        cell: (info) => (
+          <Text
+            style={[styles.cellTxt, { fontSize: 10, color: Colors.purple800 }]}
+          >
+            {info.getValue() || ''}
+          </Text>
         ),
       }),
     ]
@@ -199,10 +218,10 @@ const ReportTable = ({ data }: TProps) => {
             {/* Table Headers */}
             {table.getHeaderGroups().map((headerGroup) => (
               <View key={headerGroup.id} style={styles.row}>
-                {headerGroup.headers.map((header, index) => (
+                {headerGroup.headers.map((header) => (
                   <View
                     key={header.id}
-                    style={[styles.headerCell, { flex: index === 3 ? 0 : 1 }]}
+                    style={[styles.headerCell, styles.column]}
                   >
                     {flexRender(
                       header.column.columnDef.header,
@@ -238,11 +257,8 @@ const ReportTable = ({ data }: TProps) => {
                     handleActionSheet(rowId, rowDate)
                   }}
                 >
-                  {row.getVisibleCells().map((cell, index) => (
-                    <View
-                      key={cell.id}
-                      style={[styles.cell, { flex: index === 3 ? 0 : 1 }]}
-                    >
+                  {row.getVisibleCells().map((cell) => (
+                    <View key={cell.id} style={[styles.cell, styles.column]}>
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()
@@ -254,22 +270,29 @@ const ReportTable = ({ data }: TProps) => {
 
             {/* Subtotal Row */}
             <View style={styles.subtotalRow}>
-              <View style={[styles.cell, { flex: 1 }]}>
-                <Text style={styles.subtotalText}>
+              <View style={[styles.cell, styles.column]}>
+                <Text style={[styles.subtotalText, { fontSize: 11 }]}>
                   {i18n.t('reports.tableSubtotalLabel')}
                 </Text>
               </View>
-              <View style={[styles.cell, { flex: 1 }]}>
+              <View style={[styles.cell, styles.column]}>
                 <Text style={styles.subtotalText}>
                   {monthGroup.getValue('bs')}
                 </Text>
               </View>
-              <View style={[styles.cell, { flex: 1 }]}>
+              <View style={[styles.cell, styles.column]}>
                 <Text style={styles.subtotalText}>
                   {convertFloatToTime(monthGroup.getValue('hrs'))}
                 </Text>
               </View>
-              <View style={{ flex: 0.25 }}></View>
+              <View style={[styles.cell, styles.column]}>
+                <Text
+                  style={[styles.subtotalText, { color: Colors.purple800 }]}
+                >
+                  {convertFloatToTime(monthGroup.getValue('credit'))}
+                </Text>
+              </View>
+              <View style={[styles.cell, styles.column]} />
             </View>
           </View>
         </View>
@@ -305,8 +328,8 @@ const styles = StyleSheet.create({
   table: {
     // borderWidth: StyleSheet.hairlineWidth,
     // borderColor: '#ddd',
-    // borderBottomLeftRadius: 8,
-    // borderBottomRightRadius: 8,
+    borderBottomLeftRadius: 8,
+    borderBottomRightRadius: 8,
   },
   row: {
     flexDirection: 'row',
@@ -326,7 +349,7 @@ const styles = StyleSheet.create({
   },
   headerTxt: {
     fontFamily: 'IBM-SemiBold',
-    fontSize: 16,
+    fontSize: 13,
   },
   subtotalRow: {
     flexDirection: 'row',
@@ -338,6 +361,9 @@ const styles = StyleSheet.create({
   },
   subtotalText: {
     fontFamily: 'IBM-SemiBold',
-    fontSize: 15,
+    fontSize: 13,
+  },
+  column: {
+    flex: 1,
   },
 })

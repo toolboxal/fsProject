@@ -45,6 +45,7 @@ const ptBR = {
     bugsReportHeader: 'Relatório de Bugs e Feedback',
     BugsReportTitle: 'Envie-me um e-mail',
     BugsReportDesc: 'Reporte quaisquer bugs ou dê feedback',
+    backupReminderTxt: 'Por favor, faça backup de seus dados periodicamente',
   },
 
   readme: {
@@ -129,8 +130,8 @@ const ptBR = {
     tabHeaderLeft: 'Novo Relatório',
     tabHeaderRight: 'Opções',
     stickyHeader1: 'Visualizando ano de serviço: ',
-    stickyHeader2: 'Total: ',
-    stickyHeader3: 'Horas restantes: ',
+    stickyHeader2: 'Total de Horas FS:',
+    stickyHeader3: 'Total de Créditos:',
     stickyHeader4: 'Dias para o novo ano de serviço: ',
     stickyDays: ' dias',
     dropDownTitle: 'ano de serviço ',
@@ -139,6 +140,8 @@ const ptBR = {
     backgroundTxt1: 'ano de serviço terminou',
     backgroundTxt2: 'Comece criando seu primeiro relatório',
     tableHeadDate: 'Data',
+    tableHeadCredit: 'Créditos',
+    tableHeadComments: 'Comentários',
     tableSubtotalLabel: 'Subtotal',
     toastDelete: 'Relatório excluído',
     actionCancel: 'Cancelar',
@@ -151,6 +154,10 @@ const ptBR = {
     bsLabel: 'nº de estudos bíblicos',
     submitBtn: 'Enviar',
     toastDelete: 'Relatório excluído',
+    modalToggleBtnFSHours: 'Horas FS',
+    modalToggleBtnCredits: 'Créditos',
+    inputLabelCredit: 'créditos',
+    inputLabelComment: 'comentários',
   },
   form: {
     tabHeader: 'Criar Novo Registro',

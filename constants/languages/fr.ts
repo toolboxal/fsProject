@@ -47,6 +47,7 @@ const fr = {
     bugsReportHeader: 'Rapport de bugs et commentaires',
     BugsReportTitle: 'Envoyez-moi un courriel',
     BugsReportDesc: 'Signalez tout bug ou donnez votre avis',
+    backupReminderTxt: 'Veuillez sauvegarder vos données périodiquement',
   },
 
   readme: {
@@ -129,8 +130,8 @@ const fr = {
     tabHeaderLeft: 'Nouveau rapport',
     tabHeaderRight: 'Options',
     stickyHeader1: "Visualisation de l'année de service : ",
-    stickyHeader2: 'Total : ',
-    stickyHeader3: 'Heures restantes : ',
+    stickyHeader2: "Total d'heures FS :",
+    stickyHeader3: 'Total de crédits :',
     stickyHeader4: 'Jours avant la nouvelle année de service : ',
     stickyDays: ' jours',
     dropDownTitle: 'année de service ',
@@ -139,6 +140,8 @@ const fr = {
     backgroundTxt1: "l'année de service est terminée",
     backgroundTxt2: 'Commencez par créer votre premier rapport',
     tableHeadDate: 'Date',
+    tableHeadCredit: 'Crédits',
+    tableHeadComments: 'Commentaires',
     tableSubtotalLabel: 'Sous-total',
     toastDelete: 'Rapport supprimé',
     actionCancel: 'Annuler',
@@ -151,6 +154,10 @@ const fr = {
     bsLabel: "nombre d'études bibliques",
     submitBtn: 'Soumettre',
     toastDelete: 'Rapport supprimé',
+    modalToggleBtnFSHours: 'Heures FS',
+    modalToggleBtnCredits: 'Crédits',
+    inputLabelCredit: 'crédits',
+    inputLabelComment: 'commentaires',
   },
   form: {
     tabHeader: 'Créer un nouvel enregistrement',

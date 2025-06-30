@@ -1,0 +1,1 @@
+ALTER TABLE `report` ADD `credit` real DEFAULT 0;

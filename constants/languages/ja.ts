@@ -43,6 +43,7 @@ const ja = {
     bugsReportHeader: 'バグ報告とフィードバック',
     BugsReportTitle: 'メールしてください',
     BugsReportDesc: 'バグを報告するか、フィードバックを提供してください',
+    backupReminderTxt: '定期的にデータをバックアップしてください',
   },
 
   readme: {
@@ -127,8 +128,8 @@ const ja = {
     tabHeaderLeft: '新しい報告',
     tabHeaderRight: 'オプション',
     stickyHeader1: '奉仕年を表示：',
-    stickyHeader2: '合計：',
-    stickyHeader3: '残りの時間：',
+    stickyHeader2: 'FS総時間：',
+    stickyHeader3: '総クレジット：',
     stickyHeader4: '新奉仕年までの日数：',
     stickyDays: '日',
     dropDownTitle: '奉仕年',
@@ -137,6 +138,8 @@ const ja = {
     backgroundTxt1: '奉仕年が終了しました',
     backgroundTxt2: '最初の報告を作成して始めましょう',
     tableHeadDate: '日付',
+    tableHeadCredit: 'クレジット',
+    tableHeadComments: 'コメント',
     tableSubtotalLabel: '小計',
     toastDelete: '報告が削除されました',
     actionCancel: 'キャンセル',
@@ -149,6 +152,10 @@ const ja = {
     bsLabel: '聖書研究の数',
     submitBtn: '送信',
     toastDelete: '報告が削除されました',
+    modalToggleBtnFSHours: 'FS時間',
+    modalToggleBtnCredits: 'クレジット',
+    inputLabelCredit: 'クレジット',
+    inputLabelComment: 'コメント',
   },
   form: {
     tabHeader: '新しい記録を作成',
