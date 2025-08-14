@@ -4,6 +4,13 @@ import { sqliteTable, integer, text, real } from 'drizzle-orm/sqlite-core'
 import { createInsertSchema, createSelectSchema } from 'drizzle-zod'
 import { z } from 'zod'
 
+export const markerAnnotation = sqliteTable('marker_annotation', {
+  id: integer('id').primaryKey(),
+  latitude: real('latitude').default(0),
+  longitude: real('longitude').default(0),
+  annotation: text('annotation'),
+})
+
 export const Person = sqliteTable('person', {
   id: integer('id').primaryKey(),
   name: text('name'),
@@ -120,3 +127,6 @@ export type TFollowUp = z.infer<typeof followUpInsertSchema>
 
 export const personsToTagsSelectSchema = createSelectSchema(personsToTags)
 export type TPersonsToTags = z.infer<typeof personsToTagsSelectSchema>
+
+export const markerAnnotationSelectSchema = createSelectSchema(markerAnnotation)
+export type TMarkerAnnotation = z.infer<typeof markerAnnotationSelectSchema>

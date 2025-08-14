@@ -3,7 +3,7 @@ import * as FileSystem from 'expo-file-system'
 import { Alert } from 'react-native'
 
 import { db } from '@/drizzle/db'
-import { Person, Report, TPersonWithTagsAndFollowUps } from '@/drizzle/schema'
+import { Person, Report, TPersonWithTagsAndFollowUps, markerAnnotation, TMarkerAnnotation } from '@/drizzle/schema'
 
 const createBackup = async () => {
   try {
@@ -20,6 +20,9 @@ const createBackup = async () => {
     })) as TPersonWithTagsAndFollowUps[]
 
     const reportRecords = await db.select().from(Report)
+    
+    // Fetch all marker annotations
+    const markerAnnotationRecords = await db.select().from(markerAnnotation)
 
     // Remove IDs from person records and related data for backup
     const personDataWithoutId = personRecords.map((record) => {
@@ -45,11 +48,18 @@ const createBackup = async () => {
       const { id, ...restOfData } = record
       return restOfData
     })
+    
+    // Remove IDs from marker annotation records
+    const markerAnnotationDataWithoutId = markerAnnotationRecords.map((record) => {
+      const { id, ...restOfData } = record
+      return restOfData
+    })
 
     // Create a structured backup object
     const backupData = {
       person: personDataWithoutId,
       report: reportDataWithoutId,
+      markerAnnotation: markerAnnotationDataWithoutId,
       backupDate: new Date().toISOString(),
       backupID: 'fspalbackup',
     }

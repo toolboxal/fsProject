@@ -14,14 +14,20 @@ import {
   Camera,
   PointAnnotation,
   Callout,
+  CameraRef,
 } from '@maplibre/maplibre-react-native'
 import useMyStore from '@/store/store'
 import { db } from '@/drizzle/db'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { TPerson, TPersonWithTagsAndFollowUps } from '@/drizzle/schema'
+import {
+  TPerson,
+  TPersonWithTagsAndFollowUps,
+  TMarkerAnnotation,
+  markerAnnotation,
+} from '@/drizzle/schema'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Colors } from '@/constants/Colors'
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo, useEffect, useRef } from 'react'
 import { Feather, FontAwesome5, Ionicons } from '@expo/vector-icons'
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6'
 import * as Haptics from 'expo-haptics'
@@ -30,9 +36,14 @@ import { useRouter } from 'expo-router'
 import getCurrentLocation from '@/utils/getCurrentLoc'
 import { useTranslations } from '@/app/_layout'
 import { useIsFocused } from '@react-navigation/native'
+import MapAnnotateModal from './MapAnnotateModal'
+import Foundation from '@expo/vector-icons/Foundation'
+import { X } from 'lucide-react-native'
+import { eq } from 'drizzle-orm'
 
 const MapLibreMap = () => {
   const { bottom } = useSafeAreaInsets()
+  const [showAnnotateModal, setShowAnnotateModal] = useState(false)
   const [selectedTags, setSelectedTags] = useState<string[]>([])
   const setAddress = useMyStore((state) => state.setAddress)
   const setGeoCoords = useMyStore((state) => state.setGeoCoords)
@@ -43,6 +54,7 @@ const MapLibreMap = () => {
   const i18n = useTranslations()
   const queryClient = useQueryClient()
   const isFocused = useIsFocused()
+  const cameraRef = useRef<CameraRef>(null)
 
   const statusOptions: {
     type: TPerson['status']
@@ -86,6 +98,12 @@ const MapLibreMap = () => {
       },
     ],
   }
+
+  const { data: markerAnnotationData } = useQuery<TMarkerAnnotation[]>({
+    queryKey: ['markerAnnotation'],
+    queryFn: async () => db.query.markerAnnotation.findMany(),
+  })
+
   const { data } = useQuery<TPersonWithTagsAndFollowUps[]>({
     queryKey: ['persons'],
     queryFn: async () =>
@@ -247,6 +265,7 @@ const MapLibreMap = () => {
 
   const handleRefreshNavigation = async () => {
     const { latitude, longitude, getAddress } = await getCurrentLocation()
+    setPressedCoords({ latitude, longitude })
     setGeoCoords({ latitude, longitude })
     setAddress(getAddress[0])
   }
@@ -258,6 +277,19 @@ const MapLibreMap = () => {
       queryClient.invalidateQueries({ queryKey: ['followUps'] })
     }
   }, [isFocused, queryClient])
+
+  const handleDeleteAnnotation = async (id: number) => {
+    try {
+      await db.delete(markerAnnotation).where(eq(markerAnnotation.id, id))
+      // Force refetch the data immediately
+      await queryClient.invalidateQueries({ queryKey: ['markerAnnotation'] })
+      await queryClient.refetchQueries({ queryKey: ['markerAnnotation'] })
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
+    } catch (error) {
+      console.error('Error deleting annotation:', error)
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error)
+    }
+  }
 
   return (
     <View style={styles.container}>
@@ -275,25 +307,42 @@ const MapLibreMap = () => {
             const pressedLong = coordinates[0]
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Rigid)
             setPressedCoords({ latitude: pressedLat, longitude: pressedLong })
-            router.navigate({
-              pathname: '/formPage',
-            })
+            Alert.alert('create a record or marker', '', [
+              {
+                text: 'record',
+                onPress: () =>
+                  router.navigate({
+                    pathname: '/formPage',
+                  }),
+                style: 'default',
+              },
+              {
+                text: 'marker',
+                onPress: () => setShowAnnotateModal(true),
+                style: 'destructive',
+              },
+            ])
           }
         }}
       >
+        <MapAnnotateModal
+          showAnnotateModal={showAnnotateModal}
+          setShowAnnotateModal={setShowAnnotateModal}
+        />
         <Camera
+          ref={cameraRef}
           zoomLevel={17}
           minZoomLevel={1}
           maxZoomLevel={20}
-          centerCoordinate={[longitude, latitude]}
+          centerCoordinate={[
+            pressedCoords.longitude || longitude,
+            pressedCoords.latitude || latitude,
+          ]}
         />
         {/* Current Location Point */}
         <PointAnnotation
           id="currentLocation"
-          coordinate={[
-            pressedCoords.longitude || longitude,
-            pressedCoords.latitude || latitude,
-          ]}
+          coordinate={[longitude, latitude]}
           title="You are here"
         >
           <View style={styles.currentLocationMarkerOuterRim}>
@@ -310,6 +359,39 @@ const MapLibreMap = () => {
             </View>
           </Callout>
         </PointAnnotation>
+        {/* Marker Annotations */}
+        {markerAnnotationData?.map((annotation) => (
+          <PointAnnotation
+            key={annotation.id}
+            id={`annotation-${annotation.id}`}
+            coordinate={[annotation.longitude ?? 0, annotation.latitude ?? 0]}
+            title={annotation.annotation || 'Annotation'}
+          >
+            <View style={styles.markerAnnotation}>
+              <Foundation name="marker" size={20} color={Colors.white} />
+            </View>
+            <Callout title={annotation.annotation || 'Annotation'}>
+              <View style={styles.annotationCallout}>
+                <Text style={styles.annotationCalloutText}>
+                  {annotation.annotation || ''}
+                </Text>
+                <Pressable
+                  onPress={() => handleDeleteAnnotation(annotation.id)}
+                  style={styles.deleteAnnotationBtn}
+                >
+                  <X size={10} color={Colors.white} strokeWidth={2} />
+                </Pressable>
+                <View
+                  style={[
+                    styles.calloutTail,
+                    { borderTopColor: Colors.primary900 },
+                  ]}
+                />
+              </View>
+            </Callout>
+          </PointAnnotation>
+        ))}
+
         {filteredMarkers.map(({ person, offset }) => {
           // Sort follow-ups by date if they exist
           const sortedFollowUps =
@@ -612,7 +694,7 @@ const MapLibreMap = () => {
         <View
           style={[
             styles.tagsContainer,
-            { bottom: Platform.OS === 'android' ? 75 : bottom + 80 },
+            { bottom: Platform.OS === 'android' ? 75 : bottom + 65 },
           ]}
         >
           <FlatList
@@ -636,6 +718,17 @@ const MapLibreMap = () => {
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.flatListContent}
           />
+          <Text
+            style={{
+              fontFamily: 'IBM-Italic',
+              fontSize: 12,
+              color: Colors.primary600,
+              marginTop: 5,
+              textAlign: 'right',
+            }}
+          >
+            long press on map to add a new record or marker
+          </Text>
         </View>
       )}
       <View
@@ -692,7 +785,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   tagItem: {
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
     borderRadius: 8,
     paddingHorizontal: 14,
     paddingVertical: 12,
@@ -706,7 +799,7 @@ const styles = StyleSheet.create({
   currentLocationMarkerOuterRim: {
     width: 55,
     height: 55,
-    backgroundColor: 'rgba(0, 122, 255, 0.2)',
+    backgroundColor: 'rgba(0, 122, 255, 0.3)',
     borderRadius: 100,
     justifyContent: 'center',
     alignItems: 'center',
@@ -739,6 +832,32 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  annotationCallout: {
+    backgroundColor: Colors.primary900,
+    borderRadius: 10,
+    padding: 8,
+    marginBottom: 10,
+    minWidth: 170,
+    height: 'auto',
+    position: 'relative',
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    gap: 5,
+  },
+  annotationCalloutText: {
+    fontSize: 12,
+    fontFamily: 'IBM-Bold',
+    color: Colors.white,
+  },
+  deleteAnnotationBtn: {
+    padding: 2,
+    borderRadius: 100,
+    borderColor: 'white',
+    borderWidth: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   calloutContainer: {
     backgroundColor: Colors.primary900,
     borderRadius: 15,
@@ -752,7 +871,7 @@ const styles = StyleSheet.create({
   calloutText: {
     fontSize: 12,
     fontFamily: 'IBM-Medium',
-    color: Colors.emerald300,
+    color: Colors.white,
   },
   calloutTail: {
     position: 'absolute',
@@ -769,6 +888,22 @@ const styles = StyleSheet.create({
     borderTopColor: Colors.primary900,
     transform: [{ translateX: 2 }],
   },
+  markerAnnotation: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 30,
+    height: 30,
+    backgroundColor: Colors.rose500,
+    borderRadius: 100,
+    shadowColor: '#000',
+    shadowOffset: { width: 1.5, height: 1.5 },
+    shadowOpacity: 0.7,
+    shadowRadius: 1,
+    elevation: 5,
+    zIndex: 100,
+    borderWidth: 1,
+    borderColor: Colors.white,
+  },
   personMarker: {
     padding: 4,
     backgroundColor: Colors.emerald500,
@@ -779,6 +914,8 @@ const styles = StyleSheet.create({
     shadowRadius: 1,
     elevation: 5,
     zIndex: 100,
+    borderWidth: 1,
+    borderColor: 'white',
   },
   personMarkerText: {
     fontFamily: 'IBM-Bold',
