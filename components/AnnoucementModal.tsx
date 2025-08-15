@@ -69,15 +69,38 @@ const AnnoucementModal = ({ visible, onClose }: AnnoucementModalProps) => {
                   },
                 ]}
               >
-                version 1.4.6
+                version 1.5.0
               </Text>
-              <Text style={[styles.headerTxt, { color: Colors.purple400 }]}>
-                NEW UPDATE TO REPORTS!
+              <Text style={[styles.headerTxt, { color: Colors.primary600 }]}>
+                NEW FEATURE - ADD MARKERS TO MAP 😀
               </Text>
+              <Image
+                source={require('@/assets/images/announcement2.png')}
+                style={{
+                  width: '100%',
+                  height: 150,
+                  borderRadius: 10,
+                  overflow: 'hidden',
+                }}
+              />
               <Text style={styles.currentUserTxt}>
-                Input credit hours for RPs, with a comment field for purpose eg.
-                maintenance training, HLC, disaster relief etc.
+                Long press anywhere on the map and choose between creating a
+                record or adding a marker.
               </Text>
+              <Image
+                source={require('@/assets/images/announcement.png')}
+                style={{
+                  width: '100%',
+                  height: 150,
+                  borderRadius: 10,
+                  overflow: 'hidden',
+                }}
+              />
+              <Text style={styles.currentUserTxt}>
+                Drop a marker for the week's field service meeting point or
+                where you like to continue informal witnessing.
+              </Text>
+
               {/* <Text style={styles.currentUserTxt}>
                 You can email me any bugs encountered or feedback for the app
               </Text> */}
@@ -181,6 +204,6 @@ const styles = StyleSheet.create({
     fontFamily: 'IBM-Regular',
     fontSize: 15,
     color: Colors.primary800,
-    marginTop: 2,
+    marginVertical: 8,
   },
 })

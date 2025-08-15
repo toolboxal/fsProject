@@ -372,15 +372,16 @@ const MapLibreMap = () => {
             </View>
             <Callout title={annotation.annotation || 'Annotation'}>
               <View style={styles.annotationCallout}>
-                <Text style={styles.annotationCalloutText}>
-                  {annotation.annotation || ''}
-                </Text>
                 <Pressable
                   onPress={() => handleDeleteAnnotation(annotation.id)}
                   style={styles.deleteAnnotationBtn}
                 >
                   <X size={10} color={Colors.white} strokeWidth={2} />
                 </Pressable>
+                <Text style={styles.annotationCalloutText}>
+                  {annotation.annotation || ''}
+                </Text>
+
                 <View
                   style={[
                     styles.calloutTail,
@@ -837,13 +838,13 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 8,
     marginBottom: 10,
-    minWidth: 170,
+    minWidth: 150,
     height: 'auto',
     position: 'relative',
-    flexDirection: 'row',
+    flexDirection: 'column',
     alignItems: 'flex-start',
     justifyContent: 'space-between',
-    gap: 5,
+    // gap: 2,
   },
   annotationCalloutText: {
     fontSize: 12,
@@ -857,6 +858,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    alignSelf: 'flex-end',
   },
   calloutContainer: {
     backgroundColor: Colors.primary900,
@@ -915,7 +917,7 @@ const styles = StyleSheet.create({
     elevation: 5,
     zIndex: 100,
     borderWidth: 1,
-    borderColor: 'white',
+    borderColor: Colors.white,
   },
   personMarkerText: {
     fontFamily: 'IBM-Bold',

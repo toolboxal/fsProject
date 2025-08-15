@@ -21,6 +21,7 @@ import useMyStore from '@/store/store'
 import { I18n } from 'i18n-js'
 import { en, es, ja, zh, ptBR, fr, ko } from '../constants/localizations'
 import { PostHogProvider } from 'posthog-react-native'
+import { posthog } from '@/utils/posthog'
 
 const postHogApiKey = process.env.EXPO_PUBLIC_FSPAL_POSTHOG_API_KEY
 
@@ -133,78 +134,79 @@ const RootLayout = () => {
   }
 
   return (
-    // <PostHogProvider
-    //   apiKey={postHogApiKey}
-    //   options={{ disabled: !postHogApiKey }}
-    //   autocapture={true}
-    // >
-    <QueryClientProvider client={queryClient}>
-      <GestureHandlerRootView>
-        <ActionSheetProvider>
-          <PaperProvider theme={theme}>
-            <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
-              <Stack screenOptions={{ headerShown: false }}>
-                <Stack.Screen name="(tabs)" />
-                <Stack.Screen
-                  name="formPage"
-                  options={{
-                    presentation: 'card',
-                    // gestureEnabled: false,
-                    headerShown: true,
-                    headerTitle: i18n.t('form.tabHeader'),
-                    headerTitleStyle: {
-                      fontFamily: 'IBM-Regular',
-                      color: Colors.primary600,
-                      fontSize: 22,
-                    },
-                    headerBackTitle: i18n.t('form.tabHeaderLeft'),
-                    headerBackTitleStyle: {
-                      fontFamily: 'Roboto-Regular',
-                      fontSize: 18,
-                    },
-                    headerStyle: {
-                      backgroundColor: Colors.primary50,
-                    },
-                    headerTintColor: Colors.primary600,
-                  }}
-                />
-                <Stack.Screen
-                  name="editPage"
-                  options={{
-                    presentation: 'card',
-                    // gestureEnabled: false,
-                    headerShown: true,
-                    headerTitle: i18n.t('editForm.tabHeader'),
-                    headerTitleStyle: {
-                      fontFamily: 'IBM-Regular',
-                      color: Colors.primary600,
-                      fontSize: 22,
-                    },
-                    headerBackTitle: i18n.t('editForm.tabHeaderLeft'),
-                    headerBackTitleStyle: {
-                      fontFamily: 'Roboto-Regular',
-                      fontSize: 18,
-                    },
+    <PostHogProvider
+      // apiKey={postHogApiKey}
+      options={{ disabled: !postHogApiKey }}
+      autocapture={true}
+      client={posthog}
+    >
+      <QueryClientProvider client={queryClient}>
+        <GestureHandlerRootView>
+          <ActionSheetProvider>
+            <PaperProvider theme={theme}>
+              <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
+                <Stack screenOptions={{ headerShown: false }}>
+                  <Stack.Screen name="(tabs)" />
+                  <Stack.Screen
+                    name="formPage"
+                    options={{
+                      presentation: 'card',
+                      // gestureEnabled: false,
+                      headerShown: true,
+                      headerTitle: i18n.t('form.tabHeader'),
+                      headerTitleStyle: {
+                        fontFamily: 'IBM-Regular',
+                        color: Colors.primary600,
+                        fontSize: 22,
+                      },
+                      headerBackTitle: i18n.t('form.tabHeaderLeft'),
+                      headerBackTitleStyle: {
+                        fontFamily: 'Roboto-Regular',
+                        fontSize: 18,
+                      },
+                      headerStyle: {
+                        backgroundColor: Colors.primary50,
+                      },
+                      headerTintColor: Colors.primary600,
+                    }}
+                  />
+                  <Stack.Screen
+                    name="editPage"
+                    options={{
+                      presentation: 'card',
+                      // gestureEnabled: false,
+                      headerShown: true,
+                      headerTitle: i18n.t('editForm.tabHeader'),
+                      headerTitleStyle: {
+                        fontFamily: 'IBM-Regular',
+                        color: Colors.primary600,
+                        fontSize: 22,
+                      },
+                      headerBackTitle: i18n.t('editForm.tabHeaderLeft'),
+                      headerBackTitleStyle: {
+                        fontFamily: 'Roboto-Regular',
+                        fontSize: 18,
+                      },
 
-                    headerStyle: {
-                      backgroundColor: Colors.primary50,
-                    },
-                    headerTintColor: Colors.primary600,
-                  }}
-                />
+                      headerStyle: {
+                        backgroundColor: Colors.primary50,
+                      },
+                      headerTintColor: Colors.primary600,
+                    }}
+                  />
 
-                <Stack.Screen
-                  name="(options)"
-                  options={{ presentation: 'modal' }}
-                />
-              </Stack>
-              <Toaster position="top-center" richColors />
-            </View>
-          </PaperProvider>
-        </ActionSheetProvider>
-      </GestureHandlerRootView>
-    </QueryClientProvider>
-    // </PostHogProvider>
+                  <Stack.Screen
+                    name="(options)"
+                    options={{ presentation: 'modal' }}
+                  />
+                </Stack>
+                <Toaster position="top-center" richColors />
+              </View>
+            </PaperProvider>
+          </ActionSheetProvider>
+        </GestureHandlerRootView>
+      </QueryClientProvider>
+    </PostHogProvider>
   )
 }
 

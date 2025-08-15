@@ -50,10 +50,10 @@ const MapAnnotateModal = ({
         message: 'cannot be blank',
       })
       return
-    } else if (annotate.length > 50) {
+    } else if (annotate.length >= 100) {
       setError('annotate', {
         type: 'max',
-        message: 'exceed 50 characters',
+        message: 'exceed 100 characters',
       })
       return
     }

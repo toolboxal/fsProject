@@ -1,8 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Platform, View } from 'react-native'
 
-import useMyStore from '@/store/store'
-import WebMapRender from '@/components/WebMapRender'
 import { Colors } from '@/constants/Colors'
 import { StatusBar } from 'expo-status-bar'
 import AnnoucementModal from '@/components/AnnoucementModal'
@@ -10,14 +8,11 @@ import { storage } from '@/store/storage'
 import MapLibreMap from '@/components/MapLibreMap'
 
 const MapsPage = () => {
-  const setAddress = useMyStore((state) => state.setAddress)
-  const setGeoCoords = useMyStore((state) => state.setGeoCoords)
-
   const [showAnnouncement, setShowAnnouncement] = useState(false)
 
   useEffect(() => {
     // Check if this version's announcement has been shown
-    const currentVersion = '1.4.6' // Replace with your app's current version
+    const currentVersion = '1.5.0' // Replace with your app's current version
     const lastShownVersion = storage.getString('lastShownVersion')
 
     if (!lastShownVersion || lastShownVersion !== currentVersion) {
@@ -28,7 +23,7 @@ const MapsPage = () => {
   const handleCloseAnnouncement = () => {
     setShowAnnouncement(false)
     // Store the current version as last shown
-    storage.set('lastShownVersion', '1.4.6') // Replace with your app's current version
+    storage.set('lastShownVersion', '1.5.0') // Replace with your app's current version
   }
 
   console.log('index Page render')
