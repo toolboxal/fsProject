@@ -1,4 +1,11 @@
-import { StyleSheet, Text, View, Alert, ScrollView } from 'react-native'
+import {
+  StyleSheet,
+  Text,
+  View,
+  Alert,
+  ScrollView,
+  Platform,
+} from 'react-native'
 import * as Haptics from 'expo-haptics'
 import { Colors } from '@/constants/Colors'
 import { useQueryClient } from '@tanstack/react-query'
@@ -330,7 +337,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 15,
     gap: 10,
-    height: '135%',
+    height: Platform.OS === 'ios' ? '135%' : '150%',
   },
   sectionContainer: {
     flexDirection: 'column',

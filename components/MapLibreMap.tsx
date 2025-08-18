@@ -291,6 +291,20 @@ const MapLibreMap = () => {
     }
   }
 
+  // for android purpose only
+  const handleDeleteAllAnnotations = async () => {
+    try {
+      await db.delete(markerAnnotation).all()
+      // Force refetch the data immediately
+      await queryClient.invalidateQueries({ queryKey: ['markerAnnotation'] })
+      await queryClient.refetchQueries({ queryKey: ['markerAnnotation'] })
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
+    } catch (error) {
+      console.error('Error deleting all annotations:', error)
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error)
+    }
+  }
+
   return (
     <View style={styles.container}>
       <MapView
@@ -691,6 +705,32 @@ const MapLibreMap = () => {
           )
         })}
       </MapView>
+      {Platform.OS === 'android' &&
+        markerAnnotationData &&
+        markerAnnotationData.length > 0 && (
+          <Pressable
+            style={{
+              position: 'absolute',
+              top: 20,
+              right: 15,
+              padding: 10,
+              backgroundColor: Colors.rose600,
+              opacity: 0.7,
+              borderRadius: 8,
+            }}
+            onPress={handleDeleteAllAnnotations}
+          >
+            <Text
+              style={{
+                color: Colors.white,
+                fontFamily: 'IBM-Regular',
+                fontSize: 10,
+              }}
+            >
+              Delete all markers
+            </Text>
+          </Pressable>
+        )}
       {uniqueTags.length > 0 && (
         <View
           style={[
@@ -735,7 +775,7 @@ const MapLibreMap = () => {
       <View
         style={{
           position: 'absolute',
-          bottom: bottom + 145,
+          bottom: Platform.OS === 'ios' ? bottom + 145 : bottom + 165,
           right: 15,
           gap: 15,
         }}

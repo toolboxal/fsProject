@@ -113,49 +113,51 @@ const settingsPage = () => {
       >
         version 1.5.0
       </Text>
-      <Pressable
-        onPress={openAppStore}
-        style={{
-          padding: 10,
-          borderRadius: 5,
-          backgroundColor: 'white',
-          flexDirection: 'row',
-          alignItems: 'center',
-          marginVertical: 10,
-          gap: 10,
-        }}
-      >
-        <Image
-          source={require('@/assets/images/preciouslives-icon.png')}
+      {Platform.OS === 'ios' && (
+        <Pressable
+          onPress={openAppStore}
           style={{
-            width: 60,
-            height: 60,
-            aspectRatio: 1,
-            borderRadius: 10,
+            padding: 10,
+            borderRadius: 5,
+            backgroundColor: 'white',
+            flexDirection: 'row',
+            alignItems: 'center',
+            marginVertical: 10,
+            gap: 10,
           }}
-        />
-        <View>
-          <Text
+        >
+          <Image
+            source={require('@/assets/images/preciouslives-icon.png')}
             style={{
-              fontFamily: 'IBM-SemiBold',
-              fontSize: 18,
-              marginBottom: 3,
-              color: Colors.primary700,
+              width: 60,
+              height: 60,
+              aspectRatio: 1,
+              borderRadius: 10,
             }}
-          >
-            preciousLives App
-          </Text>
-          <Text
-            style={{
-              fontFamily: 'IBM-Regular',
-              fontSize: 14,
-              color: Colors.primary700,
-            }}
-          >
-            GoBag App available on App Store.
-          </Text>
-        </View>
-      </Pressable>
+          />
+          <View>
+            <Text
+              style={{
+                fontFamily: 'IBM-SemiBold',
+                fontSize: 18,
+                marginBottom: 3,
+                color: Colors.primary700,
+              }}
+            >
+              preciousLives App
+            </Text>
+            <Text
+              style={{
+                fontFamily: 'IBM-Regular',
+                fontSize: 14,
+                color: Colors.primary700,
+              }}
+            >
+              GoBag App available on App Store.
+            </Text>
+          </View>
+        </Pressable>
+      )}
 
       <View style={styles.sectionContainer}>
         <Text style={styles.sectionHeadTxt}>
