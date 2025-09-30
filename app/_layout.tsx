@@ -116,7 +116,7 @@ const RootLayout = () => {
       getLocationPermission()
     }
 
-    console.log('PostHog API Key:', postHogApiKey)
+    // console.log('PostHog API Key:', postHogApiKey)
 
     prepare()
   }, [])
@@ -137,7 +137,7 @@ const RootLayout = () => {
     <PostHogProvider
       // apiKey={postHogApiKey}
       options={{ disabled: !postHogApiKey }}
-      autocapture={true}
+      autocapture={false}
       client={posthog}
     >
       <QueryClientProvider client={queryClient}>

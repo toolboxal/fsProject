@@ -74,7 +74,13 @@ const useMyStore = create<Store>((set) => ({
   setAddress: (location) => set({ address: location }),
   setGeoCoords: (geo) => set({ geoCoords: geo }),
   setSelectedPerson: (selected) => set({ selectedPerson: selected }),
-  language: storage.getString('language') || 'en',
+  language: (() => {
+    try {
+      return storage.getString('language') || 'en'
+    } catch {
+      return 'en'
+    }
+  })(),
   setLanguage: (lang: string) => set({ language: lang }),
   pressedCoords: { latitude: 0, longitude: 0 },
   setPressedCoords: (coords: { latitude: number; longitude: number }) =>

@@ -27,15 +27,14 @@ import {
 } from '@/drizzle/schema'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Colors } from '@/constants/Colors'
-import { useState, useMemo, useEffect, useRef } from 'react'
+import { useState, useMemo, useEffect, useRef, useCallback } from 'react'
 import { Feather, FontAwesome5, Ionicons } from '@expo/vector-icons'
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6'
 import * as Haptics from 'expo-haptics'
 import { format } from 'date-fns'
-import { useRouter } from 'expo-router'
+import { useRouter, useFocusEffect } from 'expo-router'
 import getCurrentLocation from '@/utils/getCurrentLoc'
 import { useTranslations } from '@/app/_layout'
-import { useIsFocused } from '@react-navigation/native'
 import MapAnnotateModal from './MapAnnotateModal'
 import Foundation from '@expo/vector-icons/Foundation'
 import { X } from 'lucide-react-native'
@@ -53,7 +52,6 @@ const MapLibreMap = () => {
   const pressedCoords = useMyStore((state) => state.pressedCoords)
   const i18n = useTranslations()
   const queryClient = useQueryClient()
-  const isFocused = useIsFocused()
   const cameraRef = useRef<CameraRef>(null)
 
   const statusOptions: {
@@ -270,13 +268,13 @@ const MapLibreMap = () => {
     setAddress(getAddress[0])
   }
 
-  useEffect(() => {
-    if (isFocused) {
+  useFocusEffect(
+    useCallback(() => {
       console.log('Maps tab focused, refreshing data')
       queryClient.invalidateQueries({ queryKey: ['persons'] })
       queryClient.invalidateQueries({ queryKey: ['followUps'] })
-    }
-  }, [isFocused, queryClient])
+    }, [queryClient])
+  )
 
   const handleDeleteAnnotation = async (id: number) => {
     try {
