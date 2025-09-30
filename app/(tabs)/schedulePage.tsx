@@ -74,8 +74,12 @@ const fetchCalendarEvents = async () => {
   endDate.setDate(endDate.getDate() + 365)
   const calId = storage.getString('calendar.id')
   console.log('calId', calId)
+  if (!calId) {
+    console.warn('Calendar ID not available. MMKV storage not initialized.')
+    return [] // Return empty array if calendar ID is not available
+  }
   const calendarEvents = await Calendar.getEventsAsync(
-    [storage.getString('calendar.id')!],
+    [calId],
     startDate,
     endDate
   )
@@ -152,7 +156,18 @@ const schedulePage = () => {
           Error:{' '}
           {error instanceof Error ? error.message : 'Failed to load events'}
         </Text>
-        <Button title="Try Again" onPress={() => refetch()} />
+        {/* <Button title="Try Again" onPress={() => refetch()} /> */}
+        <Text
+          style={{
+            textAlign: 'center',
+            fontSize: 16,
+            color: Colors.primary500,
+            marginVertical: 5,
+          }}
+          numberOfLines={2}
+        >
+          {`Go to Options -> Settings -> Location and Calendar \n to enable Calendar access`}
+        </Text>
       </View>
     )
   }
