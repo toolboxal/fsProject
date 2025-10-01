@@ -641,7 +641,13 @@ const MapLibreMap = () => {
                         }}
                       >
                         {i18n.t('statusOptions.labelInitialVisit')}{' '}
-                        {person.date}
+                        {(() => {
+                          try {
+                            return format(new Date(person.date), 'dd MMM yyyy')
+                          } catch {
+                            return String(person.date)
+                          }
+                        })()}
                       </Text>
                     )}
                     {person.publications && (

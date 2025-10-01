@@ -22,6 +22,7 @@ import { I18n } from 'i18n-js'
 import { en, es, ja, zh, ptBR, fr, ko } from '../constants/localizations'
 import { PostHogProvider } from 'posthog-react-native'
 import { posthog } from '@/utils/posthog'
+import { migrateOldDates } from '@/utils/migrateOldDates'
 
 const postHogApiKey = process.env.EXPO_PUBLIC_FSPAL_POSTHOG_API_KEY
 
@@ -85,6 +86,9 @@ const RootLayout = () => {
           'IBMSerif-SemiBoldItalic': require('../assets/fonts/IBMPlexSerif-SemiBoldItalic.ttf'),
         })
         await migrate(db, migrations)
+        
+        // Automatically migrate old date formats to ISO format
+        await migrateOldDates()
 
         if ((Text as any).defaultProps == null) (Text as any).defaultProps = {}
         ;(Text as any).defaultProps.allowFontScaling = false

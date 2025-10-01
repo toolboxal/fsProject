@@ -5,7 +5,14 @@ import { toast } from 'sonner-native'
 import { z } from 'zod'
 
 import { db } from '@/drizzle/db'
-import { Person, Report, tags, personsToTags, followUp, markerAnnotation } from '@/drizzle/schema'
+import {
+  Person,
+  Report,
+  tags,
+  personsToTags,
+  followUp,
+  markerAnnotation,
+} from '@/drizzle/schema'
 import { QueryClient } from '@tanstack/react-query'
 import { useTranslations } from '@/app/_layout'
 import { eq } from 'drizzle-orm'
@@ -189,7 +196,10 @@ const restoreBackupFunc = async (queryClient: QueryClient) => {
     }
 
     // Restore marker annotations if they exist in the backup
-    if (backupData.markerAnnotation && Array.isArray(backupData.markerAnnotation)) {
+    if (
+      backupData.markerAnnotation &&
+      Array.isArray(backupData.markerAnnotation)
+    ) {
       for (const annotationRecord of backupData.markerAnnotation) {
         try {
           await db.insert(markerAnnotation).values(annotationRecord)

@@ -20,7 +20,7 @@ export const Person = sqliteTable('person', {
   contact: text('contact'),
   category: text('category').default('CA'),
   remarks: text('remarks'),
-  date: text('date'),
+  date: text('date'), // Temporarily text for migration
   latitude: real('latitude').default(0),
   longitude: real('longitude').default(0),
   publications: text('publications').default(''),

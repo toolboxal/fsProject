@@ -530,7 +530,14 @@ const DetailsModal = ({ modalVisible, setModalVisible }: props) => {
                   )}
                 </View>
                 <Text style={styles.dateText}>
-                  {i18n.t('detailsModal.labelInitialVisit')} {date}
+                  {i18n.t('detailsModal.labelInitialVisit')}{' '}
+                  {(() => {
+                    try {
+                      return date ? format(new Date(date), 'dd MMM yyyy') : ''
+                    } catch {
+                      return ''
+                    }
+                  })()}
                 </Text>
                 {publications && (
                   <Text style={styles.publicationsText}>{publications}</Text>

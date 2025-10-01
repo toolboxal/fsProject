@@ -70,6 +70,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     padding: 15,
     paddingBottom: 50,
+    paddingTop: 30,
   },
   header: {
     fontFamily: 'IBM-Bold',

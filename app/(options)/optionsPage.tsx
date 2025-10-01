@@ -23,9 +23,11 @@ import restoreBackupFunc from '@/utils/restoreBackup'
 import createDocx from '@/utils/createDocx'
 import deleteAllRecords from '@/utils/deleteAllRecords'
 import deleteAllReports from '@/utils/deleteAllReports'
+import { resetDateMigrationFlag } from '@/utils/migrateOldDates'
 import * as MailComposer from 'expo-mail-composer'
 import * as Device from 'expo-device'
 import { CircleAlert } from 'lucide-react-native'
+import Constants from 'expo-constants'
 
 const optionsPage = () => {
   const queryClient = useQueryClient()
@@ -63,6 +65,13 @@ OS: ${Device.osName}
 OS Version: ${Device.osVersion}`,
     })
   }
+
+  const handleResetMigration = async () => {
+    await resetDateMigrationFlag()
+    toast.success('Migration flag reset - will run on next app restart')
+  }
+
+  const isDev = __DEV__
 
   return (
     <View style={{ flex: 1 }}>
@@ -146,6 +155,15 @@ OS Version: ${Device.osVersion}`,
             headerTxt={i18n.t('options.restoreBackupTitle')}
             descTxt={i18n.t('options.restoreBackupDesc')}
           />
+          {/* Dev Only: Reset Migration Flag */}
+          {isDev && (
+            <SingleOption
+              handler={handleResetMigration}
+              headerTxt="🔧 Reset Migration Flag"
+              descTxt="[DEV ONLY] Allow migration to run again"
+              styleBtn={{ backgroundColor: Colors.sky200 }}
+            />
+          )}
         </View>
         <View style={styles.sectionContainer}>
           <Text style={styles.sectionHeadTxt}>
@@ -334,7 +352,7 @@ const styles = StyleSheet.create({
   mainContainer: {
     // flex: 1,
     backgroundColor: Colors.primary300,
-    paddingVertical: 10,
+    paddingVertical: 20,
     paddingHorizontal: 15,
     gap: 10,
     height: Platform.OS === 'ios' ? '135%' : '150%',

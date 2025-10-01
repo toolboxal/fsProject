@@ -137,10 +137,12 @@ const RecordsPage = () => {
       <Stack.Screen
         options={{
           headerTitle: '',
+
           headerStyle: {
             backgroundColor: Colors.primary50,
             // height: top + 45,
           },
+
           headerSearchBarOptions: {
             tintColor: Colors.primary700,
             textColor: Colors.primary50,
@@ -361,18 +363,21 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 3,
     alignItems: 'center',
-    // marginLeft: 10,
-    // padding: 5,
+    marginLeft: 5,
+    padding: 5,
+    backgroundColor: Colors.primary50,
+    borderRadius: 8,
   },
   headerRightBtn: {
-    // marginRight: 15,
-    // padding: 5,
+    marginRight: 5,
+    padding: 5,
+    backgroundColor: Colors.primary50,
+    borderRadius: 8,
   },
   tag: {
     borderRadius: 8,
     padding: 10,
     marginHorizontal: 3,
-    minWidth: 80,
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',

@@ -31,6 +31,8 @@ import AntDesign from '@expo/vector-icons/AntDesign'
 import FormTagModal from './reportComponents/FormTagModal'
 import { getLocales } from 'expo-localization'
 import PhoneInput, { ICountry } from 'react-native-international-phone-number'
+import DatePickerModal from './DatePickerModal'
+import { format } from 'date-fns'
 
 type TFormData = Omit<
   TPerson,
@@ -39,6 +41,8 @@ type TFormData = Omit<
 
 const Form = () => {
   const queryClient = useQueryClient()
+  const [showDatePicker, setShowDatePicker] = useState(false)
+  const [initialDate, setInitialDate] = useState(new Date())
   const [category, setCategory] = useState('RV')
   const [status, setStatus] = useState<TPerson['status']>('frequent')
   const [selectedTags, setSelectedTags] = useState<number[]>([])
@@ -72,7 +76,6 @@ const Form = () => {
   useEffect(() => {
     setValue('block', displayBlock || '')
     setValue('street', street || '')
-    setValue('date', todayDate)
   }, [address])
 
   const categoryOptions = [
@@ -110,14 +113,14 @@ const Form = () => {
     getValues,
     setError,
     formState: { errors },
-  } = useForm({
+  } = useForm<TFormData>({
     defaultValues: {
       block: '',
       unit: '',
       street: '',
       name: '',
       contact: '',
-      date: '',
+      date: null,
       remarks: '',
       publications: '',
     },
@@ -155,21 +158,13 @@ const Form = () => {
       setError('name', { type: 'max', message: 'exceed 25 characters' })
       return
     }
-    const dateCheck = data['date']
-    if (dateCheck === '' || dateCheck === null) {
-      setError('date', { type: 'min', message: 'cannot be empty' })
-      return
-    } else if (dateCheck.length > 11) {
-      setError('date', { type: 'max', message: 'exceed 11 characters' })
-      return
-    }
     const toUpperBlock = data.block === null ? '' : data.block.toUpperCase()
 
     const fullPhoneNumber = contactValue
       ? `${selectedCountry?.callingCode} ${contactValue}`
       : contactValue
 
-    const { name, unit, street, remarks, date, publications } = data
+    const { name, unit, street, remarks, publications } = data
 
     // Insert the new person record and get its ID
     const newPerson = await db
@@ -181,7 +176,7 @@ const Form = () => {
         remarks: remarks,
         contact: fullPhoneNumber,
         block: toUpperBlock,
-        date: date,
+        date: initialDate.toISOString(),
         latitude: updatedLat,
         longitude: updatedLng,
         category: category,
@@ -298,7 +293,7 @@ const Form = () => {
             name="unit"
             render={({ field: { value, onChange, onBlur } }) => (
               <TextInputComponent
-                value={value.toUpperCase()}
+                value={(value || '').toUpperCase()}
                 onChangeText={onChange}
                 onBlur={onBlur}
                 label={i18n.t('form.houseLabel')}
@@ -313,7 +308,7 @@ const Form = () => {
             name="block"
             render={({ field: { value, onChange, onBlur } }) => (
               <TextInputComponent
-                value={value.toUpperCase()}
+                value={(value || '').toUpperCase()}
                 onChangeText={onChange}
                 onBlur={onBlur}
                 label={i18n.t('form.aptLabel')}
@@ -366,7 +361,7 @@ const Form = () => {
           name="street"
           render={({ field: { value, onChange, onBlur } }) => (
             <TextInputComponent
-              value={value}
+              value={value || ''}
               onChangeText={onChange}
               onBlur={onBlur}
               label={i18n.t('form.streetLabel')}
@@ -375,10 +370,16 @@ const Form = () => {
             />
           )}
         />
+        <Text
+          style={{ fontFamily: 'IBM-Regular', fontSize: 13, marginVertical: 3 }}
+        >
+          Click on Update Map button if you have changed the street or apartment
+          number.
+        </Text>
         <View
           style={{
             height: 250,
-            marginTop: 20,
+            marginTop: 10,
             borderRadius: 10,
             overflow: 'hidden',
             pointerEvents: 'none',
@@ -407,7 +408,7 @@ const Form = () => {
               name="name"
               render={({ field: { value, onChange, onBlur } }) => (
                 <TextInputComponent
-                  value={value}
+                  value={(value || '').toUpperCase()}
                   onChangeText={onChange}
                   onBlur={onBlur}
                   label={i18n.t('form.nameLabel')}
@@ -422,7 +423,54 @@ const Form = () => {
               </Text>
             )}
           </View>
-          <Controller
+          <Pressable
+            onPress={() => setShowDatePicker(true)}
+            style={{
+              flexDirection: 'row',
+              // justifyContent: 'space-between',
+              alignItems: 'center',
+              // marginVertical: 20,
+              gap: 18,
+              alignSelf: 'flex-end',
+            }}
+          >
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: 7,
+                paddingHorizontal: 15,
+                backgroundColor: Colors.emerald50,
+                borderRadius: 5,
+                // shadowColor: '#000',
+                // shadowOffset: { width: 0.5, height: 2 },
+                // shadowOpacity: 0.1,
+                // shadowRadius: 2,
+                // elevation: 4,
+                borderWidth: 1,
+                borderColor: Colors.primary400,
+              }}
+            >
+              <Text
+                style={{
+                  fontFamily: 'IBM-Medium',
+                  fontSize: 17,
+                  color: Colors.primary900,
+                }}
+              >
+                {format(initialDate, 'dd MMM yyyy')}
+              </Text>
+            </View>
+          </Pressable>
+
+          <DatePickerModal
+            showDatePicker={showDatePicker}
+            setShowDatePicker={setShowDatePicker}
+            initialDate={initialDate}
+            setInitialDate={setInitialDate}
+          />
+          {/* <Controller
             control={control}
             name="date"
             render={({ field: { value, onChange, onBlur } }) => (
@@ -440,7 +488,7 @@ const Form = () => {
             <Text style={[styles.errorText, { left: 40 }]}>
               {errors['date']?.message?.toString()}
             </Text>
-          )}
+          )} */}
         </View>
         <Text style={styles.contactLabel}>{i18n.t('form.contactLabel')}</Text>
         <PhoneInput
@@ -470,7 +518,7 @@ const Form = () => {
           name="publications"
           render={({ field: { value, onChange, onBlur } }) => (
             <TextInputComponent
-              value={value}
+              value={value || ''}
               onChangeText={onChange}
               onBlur={onBlur}
               label={i18n.t('form.pubLabel')}
@@ -484,7 +532,7 @@ const Form = () => {
           name="remarks"
           render={({ field: { value, onChange, onBlur } }) => (
             <TextInputComponent
-              value={value}
+              value={value || ''}
               onChangeText={onChange}
               onBlur={onBlur}
               label={i18n.t('form.remarksLabel')}
