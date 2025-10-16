@@ -1,0 +1,1 @@
+ALTER TABLE `person` ADD `initial_visit` integer;

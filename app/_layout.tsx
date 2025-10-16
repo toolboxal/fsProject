@@ -13,6 +13,7 @@ import { Toaster } from 'sonner-native'
 import { migrate } from 'drizzle-orm/expo-sqlite/migrator'
 import migrations from '../drizzle/migrations/migrations'
 import { db, expoDb } from '@/drizzle/db'
+import { migrateDateField } from '@/utils/migrateDateField'
 import { useDrizzleStudio } from 'expo-drizzle-studio-plugin'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import * as Location from 'expo-location'
@@ -85,6 +86,9 @@ const RootLayout = () => {
           'IBMSerif-SemiBoldItalic': require('../assets/fonts/IBMPlexSerif-SemiBoldItalic.ttf'),
         })
         await migrate(db, migrations)
+
+        // Run one-time data migration for date field
+        await migrateDateField()
 
         if ((Text as any).defaultProps == null) (Text as any).defaultProps = {}
         ;(Text as any).defaultProps.allowFontScaling = false

@@ -117,6 +117,7 @@ const MapLibreMap = () => {
           followUp: true,
         },
       }),
+    refetchOnMount: 'always',
   })
 
   const tagsArr = data
@@ -247,6 +248,7 @@ const MapLibreMap = () => {
   }
 
   const toggleTagSelection = (tagId: string) => {
+    // console.log(tagId)
     setSelectedTags((prev) =>
       prev.includes(tagId)
         ? prev.filter((id) => id !== tagId)
@@ -254,14 +256,20 @@ const MapLibreMap = () => {
     )
   }
 
+  const markerPositions = useMemo(() => {
+    return getMarkerPositions()
+  }, [data])
+
   const filteredMarkers = useMemo(() => {
-    if (selectedTags.length === 0) return getMarkerPositions()
-    return getMarkerPositions().filter(({ person }) =>
+    if (selectedTags.length === 0) return markerPositions
+    return markerPositions.filter(({ person }) =>
       person.personsToTags?.some((tag) =>
         selectedTags.includes(tag.tag.tagName)
       )
     )
-  }, [selectedTags, data])
+  }, [selectedTags, markerPositions])
+
+  console.log(filteredMarkers)
 
   const handleRefreshNavigation = async () => {
     const { latitude, longitude, getAddress } = await getCurrentLocation()
@@ -407,7 +415,7 @@ const MapLibreMap = () => {
           </PointAnnotation>
         ))}
 
-        {filteredMarkers.map(({ person, offset }) => {
+        {filteredMarkers.map(({ person, offset }, index) => {
           // Sort follow-ups by date if they exist
           const sortedFollowUps =
             person.followUp && person.followUp.length > 0
@@ -421,8 +429,8 @@ const MapLibreMap = () => {
             person.latitude &&
             person.longitude && (
               <PointAnnotation
-                key={person.id.toString()}
-                id={`person-${person.id}`}
+                key={`person-${person.id}-${index}`}
+                id={`person-${person.id}-${index}`}
                 coordinate={[
                   person.longitude + offset[0],
                   person.latitude + offset[1],
@@ -643,7 +651,9 @@ const MapLibreMap = () => {
                         }}
                       >
                         {i18n.t('statusOptions.labelInitialVisit')}{' '}
-                        {person.date}
+                        {person.initialVisit
+                          ? format(new Date(person.initialVisit), 'dd MMM yyyy')
+                          : person.date}
                       </Text>
                     )}
                     {person.publications && (

@@ -20,7 +20,8 @@ export const Person = sqliteTable('person', {
   contact: text('contact'),
   category: text('category').default('CA'),
   remarks: text('remarks'),
-  date: text('date'),
+  date: text('date'), // Deprecated: Use dateVisited instead
+  initialVisit: integer('initial_visit', { mode: 'timestamp' }), // New proper date field
   latitude: real('latitude').default(0),
   longitude: real('longitude').default(0),
   publications: text('publications').default(''),

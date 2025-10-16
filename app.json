@@ -22,7 +22,10 @@
         "NSLocationWhenInUseUsageDescription": "Your current location will be used to locate the nearest records you create on your phone",
         "NSLocationAlwaysUsageDescription": "Your current location will be used to locate the nearest records you create on your phone",
         "NSLocationAlwaysAndWhenInUseUsageDescription": "Your current location will be used to locate the nearest records you create on your phone",
-        "LSApplicationQueriesSchemes": ["whatsapp", "whatsapp"],
+        "LSApplicationQueriesSchemes": [
+          "whatsapp",
+          "whatsapp"
+        ],
         "ITSAppUsesNonExemptEncryption": false
       }
     },
@@ -75,7 +78,9 @@
           "backgroundColor": "#34D399",
           "imageWidth": 200
         }
-      ]
+      ],
+      "expo-mail-composer",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true

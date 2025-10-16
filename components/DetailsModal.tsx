@@ -62,6 +62,7 @@ const DetailsModal = ({ modalVisible, setModalVisible }: props) => {
     status,
     contact,
     date,
+    initialVisit,
     street,
     latitude,
     longitude,
@@ -530,7 +531,10 @@ const DetailsModal = ({ modalVisible, setModalVisible }: props) => {
                   )}
                 </View>
                 <Text style={styles.dateText}>
-                  {i18n.t('detailsModal.labelInitialVisit')} {date}
+                  {i18n.t('detailsModal.labelInitialVisit')}{' '}
+                  {initialVisit
+                    ? format(new Date(initialVisit), 'dd MMM yyyy')
+                    : date}
                 </Text>
                 {publications && (
                   <Text style={styles.publicationsText}>{publications}</Text>

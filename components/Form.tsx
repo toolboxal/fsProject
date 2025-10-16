@@ -34,7 +34,7 @@ import PhoneInput, { ICountry } from 'react-native-international-phone-number'
 
 type TFormData = Omit<
   TPerson,
-  'id' | 'category' | 'latitude' | 'longitude' | 'status'
+  'id' | 'category' | 'latitude' | 'longitude' | 'status' | 'initialVisit'
 >
 
 const Form = () => {
@@ -181,7 +181,8 @@ const Form = () => {
         remarks: remarks,
         contact: fullPhoneNumber,
         block: toUpperBlock,
-        date: date,
+        date: date, // Keep for backward compatibility
+        initialVisit: new Date(), // New proper timestamp field
         latitude: updatedLat,
         longitude: updatedLng,
         category: category,
