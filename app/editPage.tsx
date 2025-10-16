@@ -2,8 +2,6 @@ import { Colors } from '@/constants/Colors'
 import {
   View,
   Text,
-  KeyboardAvoidingView,
-  Platform,
   StatusBar,
   StyleSheet,
   ScrollView,
@@ -27,29 +25,27 @@ import { toast } from 'sonner-native'
 import * as Haptics from 'expo-haptics'
 
 import { db } from '@/drizzle/db'
-import {
-  Person,
-  personsToTags,
-  TPerson,
-  TPersonsToTags,
-  TTags,
-} from '@/drizzle/schema'
+import { Person, personsToTags, TPerson } from '@/drizzle/schema'
 import { eq } from 'drizzle-orm'
 import WebView from 'react-native-webview'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslations } from '@/app/_layout'
-import { CirclePlusIcon } from 'lucide-react-native'
 import FormTagModal from '@/components/reportComponents/FormTagModal'
 import { getLocales } from 'expo-localization'
 import PhoneInput, { ICountry } from 'react-native-international-phone-number'
-import {
-  getCountryCallingCode,
-  parsePhoneNumberFromString,
-} from 'libphonenumber-js'
+import { parsePhoneNumberFromString } from 'libphonenumber-js'
+import DatePickerModal from '@/components/DatePickerModal'
+import { format } from 'date-fns'
 
 type TFormData = Omit<
   TPerson,
-  'id' | 'category' | 'latitude' | 'longitude' | 'interest' | 'status'
+  | 'id'
+  | 'category'
+  | 'latitude'
+  | 'longitude'
+  | 'interest'
+  | 'status'
+  | 'initialVisit'
 >
 
 const EditPage = () => {
@@ -59,6 +55,11 @@ const EditPage = () => {
   const [category, setCategory] = useState(selectedPerson.category!)
   const [status, setStatus] = useState<TPerson['status']>(
     selectedPerson.status || 'frequent'
+  )
+
+  const [showDatePicker, setShowDatePicker] = useState(false)
+  const [initialVisit, setInitialVisit] = useState(
+    selectedPerson.initialVisit || new Date()
   )
 
   const [openTagModal, setOpenTagModal] = useState(false)
@@ -205,6 +206,7 @@ const EditPage = () => {
         contact: fullPhoneNumber,
         remarks: remarks,
         date: date,
+        initialVisit: initialVisit || new Date(), // New proper timestamp field
         category: category,
         latitude: updatedLat,
         longitude: updatedLng,
@@ -416,10 +418,16 @@ const EditPage = () => {
               />
             )}
           />
+          <Text
+            style={{ fontFamily: 'IBM-Regular', fontSize: 12, marginTop: 1 }}
+          >
+            Press 'Update Map' button whenever you manually change street
+            address or apartment for mapping to be accurate.
+          </Text>
           <View
             style={{
               height: 250,
-              marginTop: 20,
+              marginTop: 10,
               borderRadius: 10,
               overflow: 'hidden',
               pointerEvents: 'none',
@@ -465,7 +473,7 @@ const EditPage = () => {
                 </Text>
               )}
             </View>
-            <Controller
+            {/* <Controller
               control={control}
               name="date"
               render={({ field: { value, onChange, onBlur } }) => (
@@ -480,6 +488,55 @@ const EditPage = () => {
                   }}
                 />
               )}
+            /> */}
+            <Pressable
+              onPress={() => setShowDatePicker(true)}
+              style={{
+                flexDirection: 'column',
+                // justifyContent: 'space-between',
+                alignItems: 'flex-start',
+              }}
+            >
+              <Text
+                style={{
+                  fontFamily: 'IBM-Regular',
+                  color: Colors.primary900,
+                  paddingLeft: 3,
+                  fontSize: 16,
+                  marginBottom: 3,
+                }}
+              >
+                initial visit
+              </Text>
+              <View
+                style={{
+                  borderWidth: 1,
+                  borderColor: Colors.primary400,
+                  borderRadius: 5,
+                  paddingHorizontal: 12,
+                  paddingVertical: 7,
+                  backgroundColor: Colors.emerald50,
+                  width: 130,
+                }}
+              >
+                <Text
+                  style={[
+                    {
+                      fontFamily: 'IBM-Medium',
+                      fontSize: 17,
+                      color: Colors.primary900,
+                    },
+                  ]}
+                >
+                  {format(initialVisit, 'dd MMM yyyy')}
+                </Text>
+              </View>
+            </Pressable>
+            <DatePickerModal
+              showDatePicker={showDatePicker}
+              setShowDatePicker={setShowDatePicker}
+              initialVisit={initialVisit}
+              setInitialVisit={setInitialVisit}
             />
           </View>
           <Text style={styles.contactLabel}>{i18n.t('form.contactLabel')}</Text>

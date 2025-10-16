@@ -62,7 +62,7 @@ const tagsPage = () => {
           padding: 8,
           backgroundColor: Colors.primary300,
         }}
-        contentContainerStyle={{ paddingBottom: 30 }}
+        contentContainerStyle={{ paddingBottom: 30, paddingTop: 20 }}
       >
         {tagsArr ? (
           tagsArr.map((tag) => (

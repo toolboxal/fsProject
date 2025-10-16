@@ -51,7 +51,7 @@ const settingsPage = () => {
   return (
     <ScrollView
       style={styles.mainContainer}
-      contentContainerStyle={{ paddingBottom: 100 }}
+      contentContainerStyle={{ paddingBottom: 100, paddingTop: 20 }}
     >
       <View style={styles.sectionContainer}>
         <Text style={styles.sectionHeadTxt}>

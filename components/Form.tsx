@@ -31,6 +31,8 @@ import AntDesign from '@expo/vector-icons/AntDesign'
 import FormTagModal from './reportComponents/FormTagModal'
 import { getLocales } from 'expo-localization'
 import PhoneInput, { ICountry } from 'react-native-international-phone-number'
+import DatePickerModal from './DatePickerModal'
+import { format } from 'date-fns'
 
 type TFormData = Omit<
   TPerson,
@@ -39,6 +41,8 @@ type TFormData = Omit<
 
 const Form = () => {
   const queryClient = useQueryClient()
+  const [showDatePicker, setShowDatePicker] = useState(false)
+  const [initialVisit, setInitialVisit] = useState(new Date())
   const [category, setCategory] = useState('RV')
   const [status, setStatus] = useState<TPerson['status']>('frequent')
   const [selectedTags, setSelectedTags] = useState<number[]>([])
@@ -155,14 +159,6 @@ const Form = () => {
       setError('name', { type: 'max', message: 'exceed 25 characters' })
       return
     }
-    const dateCheck = data['date']
-    if (dateCheck === '' || dateCheck === null) {
-      setError('date', { type: 'min', message: 'cannot be empty' })
-      return
-    } else if (dateCheck.length > 11) {
-      setError('date', { type: 'max', message: 'exceed 11 characters' })
-      return
-    }
     const toUpperBlock = data.block === null ? '' : data.block.toUpperCase()
 
     const fullPhoneNumber = contactValue
@@ -182,7 +178,7 @@ const Form = () => {
         contact: fullPhoneNumber,
         block: toUpperBlock,
         date: date, // Keep for backward compatibility
-        initialVisit: new Date(), // New proper timestamp field
+        initialVisit: initialVisit || new Date(), // New proper timestamp field
         latitude: updatedLat,
         longitude: updatedLng,
         category: category,
@@ -376,10 +372,14 @@ const Form = () => {
             />
           )}
         />
+        <Text style={{ fontFamily: 'IBM-Regular', fontSize: 12, marginTop: 1 }}>
+          Press 'Update Map' button whenever you manually change street address
+          or apartment for mapping to be accurate.
+        </Text>
         <View
           style={{
             height: 250,
-            marginTop: 20,
+            marginTop: 10,
             borderRadius: 10,
             overflow: 'hidden',
             pointerEvents: 'none',
@@ -423,7 +423,7 @@ const Form = () => {
               </Text>
             )}
           </View>
-          <Controller
+          {/* <Controller
             control={control}
             name="date"
             render={({ field: { value, onChange, onBlur } }) => (
@@ -441,7 +441,56 @@ const Form = () => {
             <Text style={[styles.errorText, { left: 40 }]}>
               {errors['date']?.message?.toString()}
             </Text>
-          )}
+          )} */}
+          <Pressable
+            onPress={() => setShowDatePicker(true)}
+            style={{
+              flexDirection: 'column',
+              // justifyContent: 'space-between',
+              alignItems: 'flex-start',
+            }}
+          >
+            <Text
+              style={{
+                fontFamily: 'IBM-Regular',
+                color: Colors.primary900,
+                paddingLeft: 3,
+                fontSize: 16,
+                marginBottom: 3,
+              }}
+            >
+              initial visit
+            </Text>
+            <View
+              style={{
+                borderWidth: 1,
+                borderColor: Colors.primary400,
+                borderRadius: 5,
+                paddingHorizontal: 12,
+                paddingVertical: 7,
+                backgroundColor: Colors.emerald50,
+                width: 130,
+              }}
+            >
+              <Text
+                style={[
+                  {
+                    fontFamily: 'IBM-Medium',
+                    fontSize: 17,
+                    color: Colors.primary900,
+                  },
+                ]}
+              >
+                {format(initialVisit, 'dd MMM yyyy')}
+              </Text>
+            </View>
+          </Pressable>
+          <DatePickerModal
+            showDatePicker={showDatePicker}
+            setShowDatePicker={setShowDatePicker}
+            initialVisit={initialVisit}
+            setInitialVisit={setInitialVisit}
+          />
         </View>
         <Text style={styles.contactLabel}>{i18n.t('form.contactLabel')}</Text>
         <PhoneInput
