@@ -37,6 +37,13 @@ const localeMap: Record<string, Locale> = {
   ko: ko,
 }
 
+const fsTypeList = [
+  { type: 'hh', label: 'house to house', color: Colors.emerald300 },
+  { type: 'cart', label: 'cart', color: Colors.rose400 },
+  { type: 'publ', label: 'public', color: Colors.sky500 },
+  { type: 'inf', label: 'informal', color: Colors.lemon500 },
+]
+
 const reportPage = () => {
   const { bottom, top } = useSafeAreaInsets()
   const [modalVisible, setModalVisible] = useState(false)
@@ -87,9 +94,13 @@ const reportPage = () => {
     (acc, curr) => ({
       bs: acc.bs + (curr.bs || 0),
       hrs: acc.hrs + (curr.hrs || 0),
+      hhHrs: acc.hhHrs + (curr.type === 'hh' ? curr.hrs || 0 : 0),
+      cartHrs: acc.cartHrs + (curr.type === 'cart' ? curr.hrs || 0 : 0),
+      publHrs: acc.publHrs + (curr.type === 'publ' ? curr.hrs || 0 : 0),
+      infHrs: acc.infHrs + (curr.type === 'inf' ? curr.hrs || 0 : 0),
     }),
-    { bs: 0, hrs: 0 }
-  ) || { bs: 0, hrs: 0 }
+    { bs: 0, hrs: 0, hhHrs: 0, cartHrs: 0, publHrs: 0, infHrs: 0 }
+  ) || { bs: 0, hrs: 0, hhHrs: 0, cartHrs: 0, publHrs: 0, infHrs: 0 }
 
   const creditTotals = filteredData?.reduce(
     (acc, curr) => ({
@@ -174,31 +185,175 @@ const reportPage = () => {
                 {convertFloatToTime(totals.hrs)}
               </Text>
             </View>
-            <View style={[styles.totalValues, { alignItems: 'flex-end' }]}>
-              <Text style={[styles.totalLabel, { color: Colors.purple800 }]}>
-                {i18n.t('reports.stickyHeader3')}
-              </Text>
-              <Text style={[styles.remainingHrs, { color: Colors.purple800 }]}>
-                {/* {600 - totals.hrs <= 0
+            {/* FS hrs breakdown table */}
+            <View
+              style={{
+                marginVertical: 5,
+                borderTopWidth: 1,
+                borderBottomWidth: 1,
+                borderColor: Colors.emerald300,
+                borderRadius: 8,
+                // paddingVertical: 2,
+              }}
+            >
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'space-around',
+                  paddingVertical: 5,
+                }}
+              >
+                <View
+                  style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}
+                >
+                  <View
+                    style={{
+                      width: 8,
+                      height: 8,
+                      borderRadius: 100,
+                      backgroundColor: fsTypeList[0].color,
+                    }}
+                  />
+                  <Text style={{ fontFamily: 'IBMSerif-Bold', fontSize: 14 }}>
+                    HH
+                  </Text>
+                </View>
+                <View
+                  style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}
+                >
+                  <View
+                    style={{
+                      width: 8,
+                      height: 8,
+                      borderRadius: 100,
+                      backgroundColor: fsTypeList[1].color,
+                    }}
+                  />
+                  <Text style={{ fontFamily: 'IBMSerif-Bold', fontSize: 14 }}>
+                    Cart
+                  </Text>
+                </View>
+                <View
+                  style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}
+                >
+                  <View
+                    style={{
+                      width: 8,
+                      height: 8,
+                      borderRadius: 100,
+                      backgroundColor: fsTypeList[2].color,
+                    }}
+                  />
+                  <Text style={{ fontFamily: 'IBMSerif-Bold', fontSize: 14 }}>
+                    Public
+                  </Text>
+                </View>
+                <View
+                  style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}
+                >
+                  <View
+                    style={{
+                      width: 8,
+                      height: 8,
+                      borderRadius: 100,
+                      backgroundColor: fsTypeList[3].color,
+                    }}
+                  />
+                  <Text style={{ fontFamily: 'IBMSerif-Bold', fontSize: 14 }}>
+                    Informal
+                  </Text>
+                </View>
+              </View>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'space-around',
+                  paddingVertical: 5,
+                }}
+              >
+                <Text
+                  style={{
+                    fontFamily: 'IBMSerif-Medium',
+                    fontSize: 14,
+                    flex: 1,
+                    textAlign: 'center',
+                  }}
+                >
+                  {convertFloatToTime(totals.hhHrs)}
+                </Text>
+                <Text
+                  style={{
+                    fontFamily: 'IBMSerif-Medium',
+                    fontSize: 14,
+                    flex: 1,
+                    textAlign: 'center',
+                  }}
+                >
+                  {convertFloatToTime(totals.cartHrs)}
+                </Text>
+                <Text
+                  style={{
+                    fontFamily: 'IBMSerif-Medium',
+                    fontSize: 14,
+                    flex: 1,
+                    textAlign: 'center',
+                  }}
+                >
+                  {convertFloatToTime(totals.publHrs)}
+                </Text>
+                <Text
+                  style={{
+                    fontFamily: 'IBMSerif-Medium',
+                    fontSize: 14,
+                    flex: 1,
+                    textAlign: 'center',
+                  }}
+                >
+                  {convertFloatToTime(totals.infHrs)}
+                </Text>
+              </View>
+            </View>
+            {/* total credits and Days left */}
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                marginTop: 3,
+              }}
+            >
+              <View>
+                <Text style={[styles.totalLabel, { color: Colors.purple800 }]}>
+                  {i18n.t('reports.stickyHeader3')}
+                </Text>
+                <Text
+                  style={[styles.remainingHrs, { color: Colors.purple800 }]}
+                >
+                  {/* {600 - totals.hrs <= 0
                   ? '0h 0m'
                   : convertFloatToTime(600 - totals.hrs)} */}
-                {convertFloatToTime(creditTotals.credit)}
-              </Text>
-              <Text style={[styles.totalLabel, { textAlign: 'right' }]}>
-                {i18n.t('reports.stickyHeader4')}
-              </Text>
-              <Text style={styles.remainingHrs}>
-                {selectedYr === svcYrs.previousYr
-                  ? `0${i18n.t('reports.stickyDays')}`
-                  : formatDistanceStrict(
-                      new Date(),
-                      new Date(selectedYr, 8, 1, 0, 0, 0),
-                      {
-                        unit: 'day',
-                        locale: localeMap[lang] || enUS,
-                      }
-                    )}
-              </Text>
+                  {convertFloatToTime(creditTotals.credit)}
+                </Text>
+              </View>
+              <View>
+                <Text style={[styles.totalLabel, { textAlign: 'right' }]}>
+                  {i18n.t('reports.stickyHeader4')}
+                </Text>
+                <Text style={styles.remainingHrs}>
+                  {selectedYr === svcYrs.previousYr
+                    ? `0${i18n.t('reports.stickyDays')}`
+                    : formatDistanceStrict(
+                        new Date(),
+                        new Date(selectedYr, 8, 1, 0, 0, 0),
+                        {
+                          unit: 'day',
+                          locale: localeMap[lang] || enUS,
+                        }
+                      )}
+                </Text>
+              </View>
             </View>
           </View>
         </View>
@@ -272,30 +427,36 @@ const styles = StyleSheet.create({
   },
   stickyHeader: {
     backgroundColor: Colors.primary50,
-    paddingVertical: 8,
+    paddingVertical: 5,
     paddingHorizontal: 16,
     marginBottom: 10,
+    borderBottomColor: Colors.primary100,
+    borderBottomWidth: 2,
+    shadowColor: Colors.primary500,
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.33,
+    shadowRadius: 4,
+    elevation: 5,
   },
   totalRow: {
-    flexDirection: 'row',
+    flexDirection: 'column',
     justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    backgroundColor: Colors.emerald200,
+    backgroundColor: Colors.emerald50,
     padding: 10,
     borderRadius: 8,
     shadowColor: Colors.primary500,
-    shadowOffset: { width: -1, height: 2 },
+    shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 1,
     shadowRadius: 1,
     elevation: 5,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: Colors.primary300,
+    // borderWidth: 1,
+    // borderColor: Colors.primary300,
   },
   totalValues: {
     flexDirection: 'column',
     flex: 1,
     // backgroundColor: Colors.primary400,
-    gap: 2,
+    gap: 1,
   },
   totalYrHeader: {
     fontFamily: 'IBMSerif-Bold',
@@ -309,12 +470,12 @@ const styles = StyleSheet.create({
   },
   totalText: {
     fontFamily: 'IBMSerif-Bold',
-    fontSize: 30,
+    fontSize: 28,
     color: Colors.emerald900,
   },
   remainingHrs: {
     fontFamily: 'IBMSerif-Bold',
-    fontSize: 18,
+    fontSize: 17,
     color: Colors.emerald900,
   },
   dropDownContainer: {

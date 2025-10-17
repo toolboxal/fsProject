@@ -14,6 +14,7 @@ import m0009 from './0009_tidy_starhawk.sql';
 import m0010 from './0010_bizarre_cargill.sql';
 import m0011 from './0011_funny_doomsday.sql';
 import m0012 from './0012_lowly_bastion.sql';
+import m0013 from './0013_smart_sir_ram.sql';
 
   export default {
     journal,
@@ -30,7 +31,8 @@ m0008,
 m0009,
 m0010,
 m0011,
-m0012
+m0012,
+m0013
     }
   }
   

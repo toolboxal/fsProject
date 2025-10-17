@@ -10,7 +10,6 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
   Pressable,
-  Alert,
 } from 'react-native'
 import { Colors } from '@/constants/Colors'
 
@@ -28,6 +27,7 @@ import { useTranslations } from '@/app/_layout'
 import { enUS, es, ja, zhCN, ptBR, fr, ko } from 'date-fns/locale'
 import useMyStore from '@/store/store'
 import { ArrowRight } from 'lucide-react-native'
+import * as DropdownMenu from 'zeego/dropdown-menu'
 
 type TFormData = Omit<TReport, 'id' | 'created_at' | 'date'>
 
@@ -47,12 +47,20 @@ const localeMap: Record<string, Locale> = {
   ko: ko,
 }
 
+const fsTypeList = [
+  { type: 'hh', label: 'house to house', color: Colors.emerald300 },
+  { type: 'cart', label: 'cart', color: Colors.rose400 },
+  { type: 'publ', label: 'public', color: Colors.sky500 },
+  { type: 'inf', label: 'informal', color: Colors.lemon500 },
+]
+
 const ModalForm = ({ modalVisible, setModalVisible, svcYrs }: ModalProps) => {
   const queryClient = useQueryClient()
   const today = new Date()
   const [datePick, setDatePick] = useState(today)
   const [openPicker, setOpenPicker] = useState(false)
   const [toggleCredit, setToggleCredit] = useState(false)
+  const [fsType, setFsType] = useState<TFormData['type']>('hh')
 
   const i18n = useTranslations()
   const lang = useMyStore((state) => state.language)
@@ -64,6 +72,7 @@ const ModalForm = ({ modalVisible, setModalVisible, svcYrs }: ModalProps) => {
       credit: 0,
       comment: '',
       bs: 0,
+      type: 'hh' as 'hh' | 'publ' | 'inf' | 'cart',
     },
   })
 
@@ -91,6 +100,7 @@ const ModalForm = ({ modalVisible, setModalVisible, svcYrs }: ModalProps) => {
       bs: data.bs,
       credit: data.credit,
       comment: data.comment,
+      type: data.hrs && data.hrs > 0 ? fsType : null,
       created_at: datePick,
     })
     reset()
@@ -345,7 +355,7 @@ const ModalForm = ({ modalVisible, setModalVisible, svcYrs }: ModalProps) => {
                     </View>
                   </View>
                 ) : (
-                  <View style={{ flexDirection: 'row', gap: 20 }}>
+                  <View style={{ flexDirection: 'row', gap: 10 }}>
                     <View style={styles.inputContainers}>
                       <Text style={styles.label}>
                         {i18n.t('reportsModal.hoursLabel')}
@@ -412,6 +422,44 @@ const ModalForm = ({ modalVisible, setModalVisible, svcYrs }: ModalProps) => {
                             />
                           )}
                         />
+                      </View>
+                    </View>
+                    <View style={[styles.inputContainers]}>
+                      <Text style={styles.label}>
+                        {/* {i18n.t('reportsModal.bsLabel')} */}
+                        type
+                      </Text>
+                      <View
+                        style={[
+                          styles.trigger,
+                          {
+                            backgroundColor: fsTypeList.find(
+                              (t) => t.type === fsType
+                            )?.color,
+                          },
+                        ]}
+                      >
+                        <DropdownMenu.Root>
+                          <DropdownMenu.Trigger>
+                            <View style={styles.triggerContainer}>
+                              <Text style={styles.triggerTxt}>{fsType}</Text>
+                            </View>
+                          </DropdownMenu.Trigger>
+                          <DropdownMenu.Content>
+                            {fsTypeList.map((type) => (
+                              <DropdownMenu.Item
+                                key={type.type}
+                                onSelect={() =>
+                                  setFsType(type.type as TFormData['type'])
+                                }
+                              >
+                                <DropdownMenu.ItemTitle>
+                                  {type.label}
+                                </DropdownMenu.ItemTitle>
+                              </DropdownMenu.Item>
+                            ))}
+                          </DropdownMenu.Content>
+                        </DropdownMenu.Root>
                       </View>
                     </View>
                   </View>
@@ -561,6 +609,30 @@ const styles = StyleSheet.create({
   toggleBtnTxt: {
     fontFamily: 'IBM-Medium',
     fontSize: 16,
+  },
+  trigger: {
+    // backgroundColor: Colors.primary950,
+    // alignSelf: 'flex-start',
+    borderRadius: 10,
+    // shadowColor: Colors.primary500,
+    // shadowOffset: { width: -1, height: 1 },
+    // shadowOpacity: 1,
+    // shadowRadius: 1,
+    // elevation: 5,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: Colors.primary300,
+    minWidth: 50,
+  },
+  triggerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 8,
+  },
+  triggerTxt: {
+    fontFamily: 'IBM-Medium',
+    fontSize: 16,
+    color: Colors.black,
   },
 })
 

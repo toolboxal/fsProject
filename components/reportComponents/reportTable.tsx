@@ -29,6 +29,13 @@ type TProps = {
   data: TReport[]
 }
 
+const fsTypeList = [
+  { type: 'hh', label: 'house to house', color: Colors.emerald300 },
+  { type: 'cart', label: 'cart', color: Colors.rose400 },
+  { type: 'publ', label: 'public', color: Colors.sky500 },
+  { type: 'inf', label: 'informal', color: Colors.lemon500 },
+]
+
 const ReportTable = ({ data }: TProps) => {
   const queryClient = useQueryClient()
   const lang = useMyStore((state) => state.language)
@@ -67,6 +74,27 @@ const ReportTable = ({ data }: TProps) => {
         header: () => <Text style={styles.headerTxt}>BS</Text>,
         cell: (info) => <Text style={styles.cellTxt}>{info.getValue()}</Text>,
         aggregationFn: 'sum',
+      }),
+      columnHelper.accessor('type', {
+        header: () => <Text style={styles.headerTxt}></Text>,
+        cell: (info) => (
+          // <Text style={styles.cellTxt}>
+          //   {convertFloatToTime(info.getValue() || 0)}
+          // </Text>
+          <View
+            style={{
+              backgroundColor: fsTypeList.find(
+                (item) => item.type === info.getValue()
+              )?.color,
+              width: 8,
+              height: 8,
+              borderRadius: 100,
+              alignSelf: 'center',
+              marginTop: 5,
+            }}
+          />
+        ),
+        // aggregationFn: 'sum',
       }),
       columnHelper.accessor('hrs', {
         header: () => <Text style={styles.headerTxt}>Hrs</Text>,
@@ -221,7 +249,12 @@ const ReportTable = ({ data }: TProps) => {
                 {headerGroup.headers.map((header) => (
                   <View
                     key={header.id}
-                    style={[styles.headerCell, styles.column]}
+                    style={[
+                      styles.headerCell,
+                      header.id === 'type' || header.id === 'bs'
+                        ? styles.typeColumn
+                        : styles.column,
+                    ]}
                   >
                     {flexRender(
                       header.column.columnDef.header,
@@ -258,7 +291,15 @@ const ReportTable = ({ data }: TProps) => {
                   }}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <View key={cell.id} style={[styles.cell, styles.column]}>
+                    <View
+                      key={cell.id}
+                      style={[
+                        styles.cell,
+                        cell.column.id === 'type' || cell.column.id === 'bs'
+                          ? styles.typeColumn
+                          : styles.column,
+                      ]}
+                    >
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()
@@ -269,30 +310,199 @@ const ReportTable = ({ data }: TProps) => {
               ))}
 
             {/* Subtotal Row */}
-            <View style={styles.subtotalRow}>
-              <View style={[styles.cell, styles.column]}>
-                <Text style={[styles.subtotalText, { fontSize: 11 }]}>
-                  {i18n.t('reports.tableSubtotalLabel')}
-                </Text>
+            <View style={styles.subtotalContainer}>
+              <View style={styles.subtotalRow}>
+                <View style={[styles.cell, styles.column]}>
+                  <Text style={[styles.subtotalText, { fontSize: 11 }]}>
+                    {i18n.t('reports.tableSubtotalLabel')}
+                  </Text>
+                </View>
+                <View style={[styles.cell, { flex: 0.3 }]}>
+                  <Text style={styles.subtotalText}>
+                    {monthGroup.getValue('bs')}
+                  </Text>
+                </View>
+                <View style={[styles.cell, { flex: 0.3 }]} />
+                <View style={[styles.cell, styles.column]}>
+                  <Text style={styles.subtotalText}>
+                    {convertFloatToTime(monthGroup.getValue('hrs'))}
+                  </Text>
+                </View>
+                <View style={[styles.cell, styles.column]}>
+                  <Text
+                    style={[styles.subtotalText, { color: Colors.purple800 }]}
+                  >
+                    {convertFloatToTime(monthGroup.getValue('credit'))}
+                  </Text>
+                </View>
+                <View style={[styles.cell, styles.column]} />
               </View>
-              <View style={[styles.cell, styles.column]}>
-                <Text style={styles.subtotalText}>
-                  {monthGroup.getValue('bs')}
-                </Text>
-              </View>
-              <View style={[styles.cell, styles.column]}>
-                <Text style={styles.subtotalText}>
-                  {convertFloatToTime(monthGroup.getValue('hrs'))}
-                </Text>
-              </View>
-              <View style={[styles.cell, styles.column]}>
-                <Text
-                  style={[styles.subtotalText, { color: Colors.purple800 }]}
+              <View
+                style={[
+                  styles.subtotalRow,
+                  { backgroundColor: Colors.primary50 },
+                ]}
+              >
+                <View
+                  style={[
+                    styles.cell,
+                    styles.column,
+                    {
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      flexDirection: 'row',
+                      gap: 2,
+                    },
+                  ]}
                 >
-                  {convertFloatToTime(monthGroup.getValue('credit'))}
-                </Text>
+                  <View
+                    style={{
+                      backgroundColor: fsTypeList[0].color,
+                      width: 10,
+                      height: 10,
+                      borderRadius: 100,
+                    }}
+                  />
+                  <Text style={{ fontSize: 11 }}>HH</Text>
+                </View>
+                <View
+                  style={[
+                    styles.cell,
+                    styles.column,
+                    {
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      flexDirection: 'row',
+                      gap: 2,
+                    },
+                  ]}
+                >
+                  <View
+                    style={{
+                      backgroundColor: fsTypeList[1].color,
+                      width: 10,
+                      height: 10,
+                      borderRadius: 100,
+                    }}
+                  />
+                  <Text style={{ fontSize: 11 }}>Cart</Text>
+                </View>
+                <View
+                  style={[
+                    styles.cell,
+                    styles.column,
+                    {
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      flexDirection: 'row',
+                      gap: 2,
+                    },
+                  ]}
+                >
+                  <View
+                    style={{
+                      backgroundColor: fsTypeList[2].color,
+                      width: 10,
+                      height: 10,
+                      borderRadius: 100,
+                    }}
+                  />
+                  <Text style={{ fontSize: 11 }}>Public</Text>
+                </View>
+                <View
+                  style={[
+                    styles.cell,
+                    styles.column,
+                    {
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      flexDirection: 'row',
+                      gap: 2,
+                    },
+                  ]}
+                >
+                  <View
+                    style={{
+                      backgroundColor: fsTypeList[3].color,
+                      width: 10,
+                      height: 10,
+                      borderRadius: 100,
+                    }}
+                  />
+                  <Text style={{ fontSize: 11 }}>Informal</Text>
+                </View>
               </View>
-              <View style={[styles.cell, styles.column]} />
+              <View
+                style={[
+                  styles.subtotalRow,
+                  {
+                    backgroundColor: Colors.primary50,
+                    borderBottomColor: Colors.primary500,
+                    borderBottomWidth: 1,
+                  },
+                ]}
+              >
+                <View
+                  style={[
+                    styles.cell,
+                    styles.column,
+                    { alignItems: 'center', justifyContent: 'center' },
+                  ]}
+                >
+                  <Text style={{ fontSize: 11 }}>
+                    {convertFloatToTime(
+                      monthGroup.subRows
+                        .filter((row) => row.original.type === 'hh')
+                        .reduce((sum, row) => sum + (row.original.hrs || 0), 0)
+                    )}
+                  </Text>
+                </View>
+                <View
+                  style={[
+                    styles.cell,
+                    styles.column,
+                    { alignItems: 'center', justifyContent: 'center' },
+                  ]}
+                >
+                  <Text style={{ fontSize: 11 }}>
+                    {convertFloatToTime(
+                      monthGroup.subRows
+                        .filter((row) => row.original.type === 'cart')
+                        .reduce((sum, row) => sum + (row.original.hrs || 0), 0)
+                    )}
+                  </Text>
+                </View>
+                <View
+                  style={[
+                    styles.cell,
+                    styles.column,
+                    { alignItems: 'center', justifyContent: 'center' },
+                  ]}
+                >
+                  <Text style={{ fontSize: 11 }}>
+                    {convertFloatToTime(
+                      monthGroup.subRows
+                        .filter((row) => row.original.type === 'publ')
+                        .reduce((sum, row) => sum + (row.original.hrs || 0), 0)
+                    )}
+                  </Text>
+                </View>
+                <View
+                  style={[
+                    styles.cell,
+                    styles.column,
+                    { alignItems: 'center', justifyContent: 'center' },
+                  ]}
+                >
+                  <Text style={{ fontSize: 11 }}>
+                    {convertFloatToTime(
+                      monthGroup.subRows
+                        .filter((row) => row.original.type === 'inf')
+                        .reduce((sum, row) => sum + (row.original.hrs || 0), 0)
+                    )}
+                  </Text>
+                </View>
+              </View>
             </View>
           </View>
         </View>
@@ -338,10 +548,13 @@ const styles = StyleSheet.create({
   },
   headerCell: {
     padding: 10,
+    paddingHorizontal: 5,
     backgroundColor: Colors.primary200,
   },
   cell: {
     padding: 10,
+    paddingHorizontal: 5,
+    justifyContent: 'center',
   },
   cellTxt: {
     fontFamily: 'IBM-Regular',
@@ -349,15 +562,21 @@ const styles = StyleSheet.create({
   },
   headerTxt: {
     fontFamily: 'IBM-SemiBold',
-    fontSize: 13,
+    fontSize: 12,
   },
-  subtotalRow: {
-    flexDirection: 'row',
-    backgroundColor: Colors.primary200,
+  subtotalContainer: {
+    flexDirection: 'column',
     borderTopWidth: 1,
     borderTopColor: Colors.primary500,
     borderBottomLeftRadius: 8,
     borderBottomRightRadius: 8,
+    overflow: 'hidden',
+  },
+  subtotalRow: {
+    flexDirection: 'row',
+    backgroundColor: Colors.primary200,
+    borderTopColor: Colors.primary500,
+    borderTopWidth: StyleSheet.hairlineWidth,
   },
   subtotalText: {
     fontFamily: 'IBM-SemiBold',
@@ -365,5 +584,8 @@ const styles = StyleSheet.create({
   },
   column: {
     flex: 1,
+  },
+  typeColumn: {
+    flex: 0.3,
   },
 })
