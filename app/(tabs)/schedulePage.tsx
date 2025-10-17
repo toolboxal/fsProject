@@ -152,7 +152,14 @@ const schedulePage = () => {
           Error:{' '}
           {error instanceof Error ? error.message : 'Failed to load events'}
         </Text>
-        <Button title="Try Again" onPress={() => refetch()} />
+        <Text
+          style={{
+            fontFamily: 'IBM-Regular',
+            fontSize: 16,
+            color: Colors.primary600,
+            textAlign: 'center',
+          }}
+        >{`To grant access, go to app's Options > Settings > Permissions > Location and Calendar`}</Text>
       </View>
     )
   }
@@ -388,7 +395,9 @@ const styles = StyleSheet.create({
   errorText: {
     color: 'red',
     textAlign: 'center',
-    marginBottom: 16,
+    marginVertical: 20,
+    fontFamily: 'IBM-Regular',
+    fontSize: 16,
   },
   sectionHeader: {
     fontSize: 22,

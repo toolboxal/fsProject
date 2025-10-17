@@ -67,6 +67,7 @@
     "react-dom": "19.0.0",
     "react-hook-form": "^7.65.0",
     "react-native": "0.79.5",
+    "react-native-bouncy-checkbox": "^4.1.2",
     "react-native-calendars": "^1.1313.0",
     "react-native-gesture-handler": "~2.24.0",
     "react-native-international-phone-number": "^0.9.3",

@@ -110,7 +110,9 @@ const shareAsNonFSPal = async (personId: number) => {
                 break: 1,
               })
               const date = new TextRun({
-                text: record.date || '-',
+                text: record.initialVisit
+                  ? format(new Date(record.initialVisit), 'dd MMM yyyy')
+                  : '-',
                 font: 'Helvetica',
                 size: 20,
                 break: 1,

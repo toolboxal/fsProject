@@ -78,9 +78,16 @@ const restoreBackupFunc = async (queryClient: QueryClient) => {
       console.log('Processing person data for insertion:', personData)
       // Insert the person and get the new ID
       try {
+        // Convert initialVisit string back to Date object if it exists
+        const processedPersonData = {
+          ...personData,
+          initialVisit: personData.initialVisit
+            ? new Date(personData.initialVisit)
+            : null,
+        }
         const [insertedPerson] = await db
           .insert(Person)
-          .values(personData)
+          .values(processedPersonData)
           .returning({ id: Person.id })
         const personId = insertedPerson.id
         console.log('Successfully inserted person with ID:', personId)

@@ -44,14 +44,21 @@ const uploadRecord = async (
 
     // Validate
     if (data.shareId !== 'fsPalShare') {
-      throw new Error('Invalid file or Sharer has to update his app first')
+      throw new Error('Invalid file. Please ensure both apps are updated to the latest version.')
     }
 
     // Insert the person record and get the new ID
     console.log('Restoring person data:', data.data)
+    // Convert initialVisit string back to Date object if it exists
+    const processedPersonData = {
+      ...data.data,
+      initialVisit: data.data.initialVisit
+        ? new Date(data.data.initialVisit)
+        : null,
+    }
     const [insertedPerson] = await db
       .insert(Person)
-      .values(data.data)
+      .values(processedPersonData)
       .returning({ id: Person.id })
     const personId = insertedPerson.id
     console.log('Successfully inserted person with ID:', personId)
