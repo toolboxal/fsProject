@@ -210,7 +210,7 @@ const RootLayout = () => {
                     options={{
                       presentation: 'modal',
                       headerShown: true,
-                      headerTitle: 'reminders & notes',
+                      headerTitle: 'notes',
                       gestureEnabled: false,
                       headerRight: () => (
                         <Pressable

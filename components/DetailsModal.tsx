@@ -750,7 +750,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     backgroundColor: Colors.primary950,
-    height: '50%',
+    height: '55%',
     overflow: 'hidden',
   },
   cardContainer2: {

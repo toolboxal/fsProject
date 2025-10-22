@@ -69,13 +69,15 @@ const AnnoucementModal = ({ visible, onClose }: AnnoucementModalProps) => {
                   },
                 ]}
               >
-                version 1.5.0
+                version 1.6.0
               </Text>
               <Text style={[styles.headerTxt, { color: Colors.primary600 }]}>
-                NEW FEATURE - ADD MARKERS TO MAP 😀
+                Split hours into different categories (Just for your own
+                reference)
               </Text>
               <Image
-                source={require('@/assets/images/announcement2.png')}
+                source={require('@/assets/images/announce1.jpeg')}
+                resizeMode="contain"
                 style={{
                   width: '100%',
                   height: 150,
@@ -83,27 +85,24 @@ const AnnoucementModal = ({ visible, onClose }: AnnoucementModalProps) => {
                   overflow: 'hidden',
                 }}
               />
-              <Text style={styles.currentUserTxt}>
-                Long press anywhere on the map and choose between creating a
-                record or adding a marker.
+              <Text style={[styles.headerTxt, { color: Colors.primary600 }]}>
+                Add notes feature
               </Text>
               <Image
-                source={require('@/assets/images/announcement.png')}
+                source={require('@/assets/images/announce2.jpeg')}
+                resizeMode="contain"
                 style={{
                   width: '100%',
-                  height: 150,
+                  height: 160,
                   borderRadius: 10,
                   overflow: 'hidden',
                 }}
               />
-              <Text style={styles.currentUserTxt}>
-                Drop a marker for the week's field service meeting point or
-                where you like to continue informal witnessing.
-              </Text>
 
-              {/* <Text style={styles.currentUserTxt}>
-                You can email me any bugs encountered or feedback for the app
-              </Text> */}
+              <Text style={styles.currentUserTxt}>
+                Lastly, date field changed to 'dd Month yyyy' format to avoid
+                confusion.
+              </Text>
 
               {/* <Text style={styles.currentUserTxt}>
                 your feedback and suggestions have been invaluable.
@@ -174,7 +173,7 @@ const styles = StyleSheet.create({
   modalContent: {
     marginBottom: 15,
     backgroundColor: Colors.primary100,
-    borderRadius: 20,
+    borderRadius: 25,
     padding: 18,
     width: '95%',
     maxWidth: 400,

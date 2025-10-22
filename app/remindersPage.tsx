@@ -28,7 +28,7 @@ import { Tabs, useRouter } from 'expo-router'
 import { I18n } from 'i18n-js'
 import { en, es, ja, zh, ptBR, fr, ko } from '../constants/localizations'
 import { useActionSheet } from '@expo/react-native-action-sheet'
-import { eq } from 'drizzle-orm'
+import { eq, desc } from 'drizzle-orm'
 import { toast } from 'sonner-native'
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
 
@@ -50,7 +50,8 @@ const remindersPage = () => {
 
   const { data: remindersData } = useQuery({
     queryKey: ['reminders'],
-    queryFn: () => db.select().from(reminders),
+    queryFn: () =>
+      db.select().from(reminders).orderBy(desc(reminders.created_at)),
   })
 
   console.log('from remindersPage', remindersData)
@@ -313,7 +314,10 @@ const remindersPage = () => {
                   }}
                 >
                   <Text style={styles.reminderItemDate}>
-                    {format(new Date(reminder.created_at), 'dd MMM yyyy')}
+                    {format(
+                      new Date(reminder.created_at),
+                      'dd MMM yyyy | HH:mm'
+                    )}
                   </Text>
                   <Text style={styles.reminderItemTxt}>
                     {reminder.reminder}
@@ -327,9 +331,10 @@ const remindersPage = () => {
                 fontFamily: 'IBM-Regular',
                 fontSize: 18,
                 textAlign: 'center',
+                color: Colors.primary500,
               }}
             >
-              No reminders found. Add one now!
+              No reminders found. Add one now.
             </Text>
           )}
         </View>
@@ -390,10 +395,10 @@ const styles = StyleSheet.create({
   },
   reminderItemDate: {
     fontFamily: 'IBM-Medium',
-    fontSize: 13,
-    color: Colors.primary300,
+    fontSize: 12,
+    color: Colors.primary400,
     alignSelf: 'flex-end',
-    marginBottom: 1,
+    marginBottom: 3,
   },
   reminderItemTxt: {
     fontFamily: 'IBM-Regular',

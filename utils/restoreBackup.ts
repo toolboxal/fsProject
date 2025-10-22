@@ -5,7 +5,7 @@ import { toast } from 'sonner-native'
 import { z } from 'zod'
 
 import { db } from '@/drizzle/db'
-import { Person, Report, tags, personsToTags, followUp, markerAnnotation } from '@/drizzle/schema'
+import { Person, Report, tags, personsToTags, followUp, markerAnnotation, reminders } from '@/drizzle/schema'
 import { QueryClient } from '@tanstack/react-query'
 import { useTranslations } from '@/app/_layout'
 import { eq } from 'drizzle-orm'
@@ -15,6 +15,7 @@ const backupDataSchema = z.object({
   person: z.array(z.any()),
   report: z.array(z.any()),
   markerAnnotation: z.array(z.any()).optional(), // Make it optional for backward compatibility
+  reminders: z.array(z.any()).optional(), // Make it optional for backward compatibility
   backupDate: z.string(),
   backupID: z.literal('fspalbackup'),
 })
@@ -52,6 +53,7 @@ const restoreBackupFunc = async (queryClient: QueryClient) => {
     await db.delete(tags)
     await db.delete(followUp)
     await db.delete(markerAnnotation)
+    await db.delete(reminders)
 
     // Restore report records
     for (const reportRecord of backupData.report) {
@@ -207,11 +209,30 @@ const restoreBackupFunc = async (queryClient: QueryClient) => {
       }
     }
 
+    // Restore reminders if they exist in the backup
+    if (backupData.reminders && Array.isArray(backupData.reminders)) {
+      for (const reminderRecord of backupData.reminders) {
+        try {
+          const processedReminder = {
+            ...reminderRecord,
+            created_at: reminderRecord.created_at
+              ? new Date(reminderRecord.created_at)
+              : new Date(),
+          }
+          await db.insert(reminders).values(processedReminder)
+          console.log('Successfully inserted reminder')
+        } catch (reminderError) {
+          console.error('Error inserting reminder:', reminderError)
+        }
+      }
+    }
+
     // Invalidate queries to refresh the UI
     queryClient.invalidateQueries({ queryKey: ['persons'] })
     queryClient.invalidateQueries({ queryKey: ['reports'] })
     queryClient.invalidateQueries({ queryKey: ['tags'] })
     queryClient.invalidateQueries({ queryKey: ['markerAnnotation'] })
+    queryClient.invalidateQueries({ queryKey: ['reminders'] })
 
     toast.success('successfully restored')
   } catch (error) {
