@@ -16,7 +16,7 @@ import { format, Locale } from 'date-fns'
 import { useActionSheet } from '@expo/react-native-action-sheet'
 import { Colors } from '@/constants/Colors'
 import { toast } from 'sonner-native'
-import FontAwesome6 from '@expo/vector-icons/FontAwesome6'
+
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
 import convertFloatToTime from '@/utils/convertFloatToTime'
 import useMyStore from '@/store/store'
@@ -285,7 +285,7 @@ const ReportTable = ({ data }: TProps) => {
                       },
                     ]
                   }}
-                  onPress={() => {
+                  onLongPress={() => {
                     const { id: rowId, date: rowDate } = row.original
                     handleActionSheet(rowId, rowDate)
                   }}
@@ -358,8 +358,8 @@ const ReportTable = ({ data }: TProps) => {
                   <View
                     style={{
                       backgroundColor: fsTypeList[0].color,
-                      width: 10,
-                      height: 10,
+                      width: 8,
+                      height: 8,
                       borderRadius: 100,
                     }}
                   />
@@ -380,8 +380,8 @@ const ReportTable = ({ data }: TProps) => {
                   <View
                     style={{
                       backgroundColor: fsTypeList[1].color,
-                      width: 10,
-                      height: 10,
+                      width: 8,
+                      height: 8,
                       borderRadius: 100,
                     }}
                   />
@@ -402,8 +402,8 @@ const ReportTable = ({ data }: TProps) => {
                   <View
                     style={{
                       backgroundColor: fsTypeList[2].color,
-                      width: 10,
-                      height: 10,
+                      width: 8,
+                      height: 8,
                       borderRadius: 100,
                     }}
                   />
@@ -424,8 +424,8 @@ const ReportTable = ({ data }: TProps) => {
                   <View
                     style={{
                       backgroundColor: fsTypeList[3].color,
-                      width: 10,
-                      height: 10,
+                      width: 8,
+                      height: 8,
                       borderRadius: 100,
                     }}
                   />

@@ -21,7 +21,7 @@ const OptionsLayout = () => {
           headerRight: () => (
             <Pressable
               onPress={() => {
-                router.dismiss()
+                router.back()
               }}
             >
               <Text style={{ fontFamily: 'IBM-Regular' }}>

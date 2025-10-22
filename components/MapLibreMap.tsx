@@ -269,7 +269,7 @@ const MapLibreMap = () => {
     )
   }, [selectedTags, markerPositions])
 
-  console.log(filteredMarkers)
+  // console.log(filteredMarkers)
 
   const handleRefreshNavigation = async () => {
     const { latitude, longitude, getAddress } = await getCurrentLocation()
@@ -787,7 +787,7 @@ const MapLibreMap = () => {
           position: 'absolute',
           bottom: Platform.OS === 'ios' ? bottom + 145 : bottom + 165,
           right: 15,
-          gap: 15,
+          gap: 12,
         }}
       >
         <Pressable
@@ -807,6 +807,19 @@ const MapLibreMap = () => {
           }}
         >
           <FontAwesome6 name="add" size={26} color={Colors.primary50} />
+        </Pressable>
+        <Pressable
+          style={[styles.addBtn, { backgroundColor: Colors.emerald900 }]}
+          onPress={() => {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+            router.push('/remindersPage')
+          }}
+        >
+          <FontAwesome6
+            name="pen-to-square"
+            size={24}
+            color={Colors.emerald400}
+          />
         </Pressable>
       </View>
     </View>

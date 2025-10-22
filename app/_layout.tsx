@@ -1,6 +1,6 @@
-import { Stack } from 'expo-router'
+import { useRouter, Stack } from 'expo-router'
 import { useCallback, useEffect, useState } from 'react'
-import { View, Text, TextInput } from 'react-native'
+import { View, Text, TextInput, Pressable } from 'react-native'
 
 import { Colors } from '@/constants/Colors'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
@@ -62,6 +62,8 @@ const RootLayout = () => {
   const setAddress = useMyStore((state) => state.setAddress)
   const setGeoCoords = useMyStore((state) => state.setGeoCoords)
   const lang = useMyStore((state) => state.language)
+
+  const router = useRouter()
 
   i18n.enableFallback = true
   i18n.locale = lang
@@ -202,6 +204,26 @@ const RootLayout = () => {
                   <Stack.Screen
                     name="(options)"
                     options={{ presentation: 'modal' }}
+                  />
+                  <Stack.Screen
+                    name="remindersPage"
+                    options={{
+                      presentation: 'modal',
+                      headerShown: true,
+                      headerTitle: 'reminders & notes',
+                      gestureEnabled: false,
+                      headerRight: () => (
+                        <Pressable
+                          onPress={() => {
+                            router.dismiss()
+                          }}
+                        >
+                          <Text style={{ fontFamily: 'IBM-Regular' }}>
+                            {i18n.t('options.closeBtn')}
+                          </Text>
+                        </Pressable>
+                      ),
+                    }}
                   />
                 </Stack>
                 <Toaster position="top-center" richColors />

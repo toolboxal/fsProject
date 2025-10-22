@@ -98,10 +98,23 @@ export const Report = sqliteTable('report', {
   credit: real('credit').default(0),
   comment: text('comment', { length: 20 }).default(''),
   bs: integer('bs').default(0),
-  type: text('type', { enum: ['hh', 'publ', 'inf', 'cart'] }),
+  type: text('type'),
   created_at: integer('created_at', { mode: 'timestamp' })
     .default(sql`CURRENT_TIMESTAMP`)
     .notNull(),
+})
+
+export const reminders = sqliteTable('reminders', {
+  id: integer('id').primaryKey(),
+  reminder: text('reminder').notNull(),
+  created_at: integer('created_at', { mode: 'timestamp' })
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+})
+
+export const assignments = sqliteTable('assignments', {
+  id: integer('id').primaryKey(),
+  publisher: text('publisher').notNull(),
 })
 
 export type TPerson = InferSelectModel<typeof Person>

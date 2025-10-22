@@ -1,10 +1,17 @@
-import { View, Text, StyleSheet, Pressable } from 'react-native'
+import {
+  View,
+  Text,
+  StyleSheet,
+  Pressable,
+  ScrollView,
+  Platform,
+} from 'react-native'
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { StatusBar } from 'expo-status-bar'
 import { router, Stack } from 'expo-router'
 import { Colors } from '@/constants/Colors'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
 import { FlashList } from '@shopify/flash-list'
 import SingleRecord from '@/components/SingleRecord'
 
@@ -19,7 +26,7 @@ import { Person, TPerson, TPersonWithTags } from '@/drizzle/schema'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { checkAndRequestReview } from '@/utils/storeReview'
 import DetailsModal from '@/components/DetailsModal'
-import { FlatList } from 'react-native-gesture-handler'
+import FontAwesome6 from '@expo/vector-icons/FontAwesome6'
 
 const filterOptions = [
   { type: 'all', label: 'All' },
@@ -38,7 +45,7 @@ const RecordsPage = () => {
   const queryClient = useQueryClient()
   const i18n = useTranslations()
 
-  const { top } = useSafeAreaInsets()
+  const { top, bottom } = useSafeAreaInsets()
 
   useEffect(() => {
     checkAndRequestReview()
@@ -216,22 +223,27 @@ const RecordsPage = () => {
             contentInsetAdjustmentBehavior="automatic"
             contentContainerStyle={{ paddingBottom: 120 }}
             data={flatMapped}
-            renderItem={({ item }) => {
-              if (typeof item === 'string') {
-                // Rendering header
-                return <Text style={styles.header}>{item}</Text>
-              } else {
-                // Render item
-                return (
-                  <SingleRecord item={item} setModalVisible={setModalVisible} />
-                )
-              }
-            }}
+            renderItem={useCallback(
+              ({ item }: { item: string | TPersonWithTags }) => {
+                if (typeof item === 'string') {
+                  // Rendering header
+                  return <Text style={styles.header}>{item}</Text>
+                } else {
+                  // Render item
+                  return (
+                    <SingleRecord
+                      item={item}
+                      setModalVisible={setModalVisible}
+                    />
+                  )
+                }
+              },
+              [setModalVisible]
+            )}
             stickyHeaderIndices={stickyHeaderIndices}
-            getItemType={(item) => {
+            getItemType={useCallback((item: string | TPersonWithTags) => {
               return typeof item === 'string' ? 'sectionHeader' : 'row'
-            }}
-            estimatedItemSize={50}
+            }, [])}
             refreshing={refreshing}
             onRefresh={onRefresh}
             ListHeaderComponent={
@@ -247,16 +259,16 @@ const RecordsPage = () => {
                   {i18n.t('records.emptyTagsText')}
                 </Text>
               ) : (
-                <FlatList
+                <ScrollView
                   style={{
                     paddingVertical: 6,
                     backgroundColor: Colors.primary50,
                   }}
                   horizontal
-                  contentInsetAdjustmentBehavior="automatic"
                   showsHorizontalScrollIndicator={false}
-                  data={tags}
-                  renderItem={({ item }) => (
+                  contentContainerStyle={{ paddingHorizontal: 4 }}
+                >
+                  {tags?.map((item) => (
                     <Pressable
                       key={item.id}
                       style={[
@@ -287,8 +299,8 @@ const RecordsPage = () => {
                         {item.tagName}
                       </Text>
                     </Pressable>
-                  )}
-                />
+                  ))}
+                </ScrollView>
               )
             }
           />
@@ -298,6 +310,33 @@ const RecordsPage = () => {
         modalVisible={modalVisible}
         setModalVisible={setModalVisible}
       />
+      <Pressable
+        style={{
+          position: 'fixed',
+          bottom: Platform.OS === 'android' ? 75 : bottom + 85,
+          backgroundColor: Colors.emerald900,
+          borderRadius: 100,
+          borderWidth: 2,
+          borderColor: Colors.primary300,
+          opacity: 0.85,
+          width: 62,
+          height: 62,
+          alignSelf: 'flex-end',
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'center',
+          marginRight: 10,
+        }}
+        onPress={() => {
+          router.push('/remindersPage')
+        }}
+      >
+        <FontAwesome6
+          name="pen-to-square"
+          size={24}
+          color={Colors.emerald400}
+        />
+      </Pressable>
     </SafeAreaView>
   )
 }
@@ -336,16 +375,17 @@ const styles = StyleSheet.create({
     borderRadius: 30,
   },
   header: {
-    fontFamily: 'IBM-Bold',
+    fontFamily: 'IBM-SemiBoldItalic',
     fontSize: 20,
     backgroundColor: Colors.primary300,
-    color: Colors.primary900,
+    color: Colors.emerald800,
     padding: 3,
     paddingLeft: 12,
   },
   safeArea: {
     flex: 1,
     backgroundColor: Colors.primary50,
+    position: 'relative',
   },
   btnTextLeft: {
     color: Colors.emerald800,

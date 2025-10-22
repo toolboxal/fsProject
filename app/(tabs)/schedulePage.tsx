@@ -337,6 +337,33 @@ const schedulePage = () => {
           <Text style={styles.fyiTxt}>{i18n.t('schedule.fyiTxt')}</Text>
         )}
       </ScrollView>
+      <Pressable
+        style={{
+          position: 'fixed',
+          bottom: Platform.OS === 'android' ? 75 : bottom + 51,
+          backgroundColor: Colors.emerald900,
+          borderRadius: 100,
+          borderWidth: 2,
+          borderColor: Colors.primary300,
+          opacity: 0.85,
+          width: 62,
+          height: 62,
+          alignSelf: 'flex-end',
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'center',
+          marginRight: -5,
+        }}
+        onPress={() => {
+          router.push('/remindersPage')
+        }}
+      >
+        <FontAwesome6
+          name="pen-to-square"
+          size={24}
+          color={Colors.emerald400}
+        />
+      </Pressable>
     </SafeAreaView>
   )
 }
