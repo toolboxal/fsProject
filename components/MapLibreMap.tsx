@@ -118,6 +118,8 @@ const MapLibreMap = () => {
         },
       }),
     refetchOnMount: 'always',
+    refetchOnWindowFocus: true,
+    staleTime: 0, // Consider data stale immediately to ensure fresh data
   })
 
   const tagsArr = data
@@ -280,9 +282,10 @@ const MapLibreMap = () => {
 
   useEffect(() => {
     if (isFocused) {
-      console.log('Maps tab focused, refreshing data')
-      queryClient.invalidateQueries({ queryKey: ['persons'] })
-      queryClient.invalidateQueries({ queryKey: ['followUps'] })
+      // console.log('Maps tab focused, refreshing data')
+      // Use refetchQueries to force immediate refetch instead of just invalidating
+      queryClient.refetchQueries({ queryKey: ['persons'] })
+      queryClient.refetchQueries({ queryKey: ['followUps'] })
     }
   }, [isFocused, queryClient])
 
@@ -425,12 +428,16 @@ const MapLibreMap = () => {
                 )
               : []
           // console.log('sortedFollowUps --->>', sortedFollowUps)
+          
+          // Create unique key with tag IDs so React re-renders when tags change
+          const tagIds = person.personsToTags?.map(pt => pt.tag.id).sort().join('-') || 'notags'
+          
           return (
             person.latitude &&
             person.longitude && (
               <PointAnnotation
-                key={`person-${person.id}-${index}`}
-                id={`person-${person.id}-${index}`}
+                key={`person-${person.id}-${tagIds}-${index}`}
+                id={`person-${person.id}-${tagIds}-${index}`}
                 coordinate={[
                   person.longitude + offset[0],
                   person.latitude + offset[1],

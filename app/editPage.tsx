@@ -58,9 +58,17 @@ const EditPage = () => {
   )
 
   const [showDatePicker, setShowDatePicker] = useState(false)
-  const [initialVisit, setInitialVisit] = useState(
-    selectedPerson.initialVisit || new Date()
-  )
+  const [initialVisit, setInitialVisit] = useState(() => {
+    // Handle null, undefined, or invalid dates
+    if (!selectedPerson.initialVisit) return new Date()
+    
+    const date = selectedPerson.initialVisit instanceof Date 
+      ? selectedPerson.initialVisit 
+      : new Date(selectedPerson.initialVisit)
+    
+    // Check if date is valid and not Unix epoch (1970)
+    return date.getTime() > 0 && !isNaN(date.getTime()) ? date : new Date()
+  })
 
   const [openTagModal, setOpenTagModal] = useState(false)
 
