@@ -27,7 +27,7 @@ import {
 } from '@/drizzle/schema'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Colors } from '@/constants/Colors'
-import { useState, useMemo, useEffect, useRef } from 'react'
+import { useState, useMemo, useEffect, useRef, useCallback } from 'react'
 import { Feather, FontAwesome5, Ionicons } from '@expo/vector-icons'
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6'
 import * as Haptics from 'expo-haptics'
@@ -40,6 +40,81 @@ import MapAnnotateModal from './MapAnnotateModal'
 import Foundation from '@expo/vector-icons/Foundation'
 import { X } from 'lucide-react-native'
 import { eq } from 'drizzle-orm'
+
+// Pure utility functions - moved outside component for better performance
+const openMapsForNavigation = async (latitude: number, longitude: number) => {
+  const scheme = Platform.select({
+    ios: 'maps:',
+    android: 'geo:',
+  })
+  const latLng = `${latitude},${longitude}`
+  const label = 'Selected Location'
+  const url = Platform.select({
+    ios: `${scheme}${latLng}?q=${label}@${latLng}`,
+    android: `${scheme}${latLng}?q=${latLng}(${label})`,
+  })
+
+  Linking.canOpenURL(url!).then((supported) => {
+    if (supported) {
+      Linking.openURL(url!)
+    } else {
+      // Fallback to Google Maps web URL
+      const webUrl = `https://www.google.com/maps/search/?api=1&query=${latLng}`
+      Linking.openURL(webUrl)
+    }
+  })
+}
+
+const handleCalling = async (phoneNumber: string) => {
+  if (!phoneNumber) return
+  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+  try {
+    // Format the phone number (remove any non-numeric characters)
+    const formattedNumber = phoneNumber.replace(/\D/g, '')
+    const callUrl = `tel:${formattedNumber}`
+
+    // Check if the device supports the tel URL scheme
+    const supported = await Linking.canOpenURL(callUrl)
+    if (supported) {
+      await Linking.openURL(callUrl)
+    } else {
+      Alert.alert('Error', 'Phone calling is not supported on this device')
+    }
+  } catch (error) {
+    console.error('Error making call:', error)
+    Alert.alert('Error', 'Unable to make the phone call')
+  }
+}
+
+const openWhatsApp = async (phoneNumber: string) => {
+  if (!phoneNumber) return
+  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+  try {
+    // Format the phone number (remove any non-numeric characters)
+    const formattedNumber = phoneNumber.replace(/\D/g, '')
+
+    // Try the wa.me URL first as it's more reliable
+    const url = `https://wa.me/${formattedNumber}`
+
+    // Check if WhatsApp can handle the URL
+    const supported = await Linking.canOpenURL(url)
+    if (supported) {
+      await Linking.openURL(url)
+    } else {
+      // Fallback to whatsapp:// scheme
+      const fallbackUrl = `whatsapp://send?phone=${formattedNumber}`
+      const fallbackSupported = await Linking.canOpenURL(fallbackUrl)
+      if (fallbackSupported) {
+        await Linking.openURL(fallbackUrl)
+      } else {
+        Alert.alert('Error', 'WhatsApp is not installed on this device')
+      }
+    }
+  } catch (error) {
+    console.log('Error opening WhatsApp:', error)
+    Alert.alert('Error', 'Unable to open WhatsApp')
+  }
+}
 
 const MapLibreMap = () => {
   const { bottom } = useSafeAreaInsets()
@@ -56,11 +131,12 @@ const MapLibreMap = () => {
   const isFocused = useIsFocused()
   const cameraRef = useRef<CameraRef>(null)
 
+  // Memoize statusOptions to prevent recreation on every render
   const statusOptions: {
     type: TPerson['status']
     color: string
     label: string
-  }[] = [
+  }[] = useMemo(() => [
     {
       type: 'irregular',
       label: i18n.t('statusOptions.labelIrregular'),
@@ -76,7 +152,7 @@ const MapLibreMap = () => {
       label: i18n.t('statusOptions.labelCommitted'),
       color: Colors.purple300,
     },
-  ]
+  ], [i18n])
 
   const router = useRouter()
   // MapLibre needs a style object for the map
@@ -135,7 +211,7 @@ const MapLibreMap = () => {
     .sort((a, b) => a.tagName.localeCompare(b.tagName))
 
   // Function to group markers by location and apply circular offset
-  const getMarkerPositions = () => {
+  const getMarkerPositions = useCallback(() => {
     if (!data) return []
 
     // Group markers by their exact coordinates
@@ -172,95 +248,20 @@ const MapLibreMap = () => {
     })
 
     return positionedMarkers
-  }
+  }, [data])
 
-  // Function to open maps with navigation
-  const openMapsForNavigation = async (latitude: number, longitude: number) => {
-    const scheme = Platform.select({
-      ios: 'maps:',
-      android: 'geo:',
-    })
-    const latLng = `${latitude},${longitude}`
-    const label = 'Selected Location'
-    const url = Platform.select({
-      ios: `${scheme}${latLng}?q=${label}@${latLng}`,
-      android: `${scheme}${latLng}?q=${latLng}(${label})`,
-    })
-
-    Linking.canOpenURL(url!).then((supported) => {
-      if (supported) {
-        Linking.openURL(url!)
-      } else {
-        // Fallback to Google Maps web URL
-        const webUrl = `https://www.google.com/maps/search/?api=1&query=${latLng}`
-        Linking.openURL(webUrl)
-      }
-    })
-  }
-
-  const handleCalling = async (phoneNumber: string) => {
-    if (!phoneNumber) return
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
-    try {
-      // Format the phone number (remove any non-numeric characters)
-      const formattedNumber = phoneNumber.replace(/\D/g, '')
-      const callUrl = `tel:${formattedNumber}`
-
-      // Check if the device supports the tel URL scheme
-      const supported = await Linking.canOpenURL(callUrl)
-      if (supported) {
-        await Linking.openURL(callUrl)
-      } else {
-        Alert.alert('Error', 'Phone calling is not supported on this device')
-      }
-    } catch (error) {
-      console.error('Error making call:', error)
-      Alert.alert('Error', 'Unable to make the phone call')
-    }
-  }
-
-  const openWhatsApp = async (phoneNumber: string) => {
-    if (!phoneNumber) return
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
-    try {
-      // Format the phone number (remove any non-numeric characters)
-      const formattedNumber = phoneNumber.replace(/\D/g, '')
-
-      // Try the wa.me URL first as it's more reliable
-      const url = `https://wa.me/${formattedNumber}`
-
-      // Check if WhatsApp can handle the URL
-      const supported = await Linking.canOpenURL(url)
-      if (supported) {
-        await Linking.openURL(url)
-      } else {
-        // Fallback to whatsapp:// scheme
-        const fallbackUrl = `whatsapp://send?phone=${formattedNumber}`
-        const fallbackSupported = await Linking.canOpenURL(fallbackUrl)
-        if (fallbackSupported) {
-          await Linking.openURL(fallbackUrl)
-        } else {
-          Alert.alert('Error', 'WhatsApp is not installed on this device')
-        }
-      }
-    } catch (error) {
-      console.log('Error opening WhatsApp:', error)
-      Alert.alert('Error', 'Unable to open WhatsApp')
-    }
-  }
-
-  const toggleTagSelection = (tagId: string) => {
+  const toggleTagSelection = useCallback((tagId: string) => {
     // console.log(tagId)
     setSelectedTags((prev) =>
       prev.includes(tagId)
         ? prev.filter((id) => id !== tagId)
         : [...prev, tagId]
     )
-  }
+  }, [])
 
   const markerPositions = useMemo(() => {
     return getMarkerPositions()
-  }, [data])
+  }, [getMarkerPositions])
 
   const filteredMarkers = useMemo(() => {
     if (selectedTags.length === 0) return markerPositions
@@ -273,12 +274,12 @@ const MapLibreMap = () => {
 
   // console.log(filteredMarkers)
 
-  const handleRefreshNavigation = async () => {
+  const handleRefreshNavigation = useCallback(async () => {
     const { latitude, longitude, getAddress } = await getCurrentLocation()
     setPressedCoords({ latitude, longitude })
     setGeoCoords({ latitude, longitude })
     setAddress(getAddress[0])
-  }
+  }, [setPressedCoords, setGeoCoords, setAddress])
 
   useEffect(() => {
     if (isFocused) {
@@ -289,7 +290,7 @@ const MapLibreMap = () => {
     }
   }, [isFocused, queryClient])
 
-  const handleDeleteAnnotation = async (id: number) => {
+  const handleDeleteAnnotation = useCallback(async (id: number) => {
     try {
       await db.delete(markerAnnotation).where(eq(markerAnnotation.id, id))
       // Force refetch the data immediately
@@ -300,10 +301,10 @@ const MapLibreMap = () => {
       console.error('Error deleting annotation:', error)
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error)
     }
-  }
+  }, [queryClient])
 
   // for android purpose only
-  const handleDeleteAllAnnotations = async () => {
+  const handleDeleteAllAnnotations = useCallback(async () => {
     try {
       await db.delete(markerAnnotation).all()
       // Force refetch the data immediately
@@ -314,7 +315,7 @@ const MapLibreMap = () => {
       console.error('Error deleting all annotations:', error)
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error)
     }
-  }
+  }, [queryClient])
 
   return (
     <View style={styles.container}>
