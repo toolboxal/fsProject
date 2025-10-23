@@ -117,7 +117,7 @@ const openWhatsApp = async (phoneNumber: string) => {
 }
 
 const MapLibreMap = () => {
-  const { bottom } = useSafeAreaInsets()
+  const { top, bottom } = useSafeAreaInsets()
   const [showAnnotateModal, setShowAnnotateModal] = useState(false)
   const [selectedTags, setSelectedTags] = useState<string[]>([])
   const setAddress = useMyStore((state) => state.setAddress)
@@ -130,29 +130,33 @@ const MapLibreMap = () => {
   const queryClient = useQueryClient()
   const isFocused = useIsFocused()
   const cameraRef = useRef<CameraRef>(null)
+  const [showInfoPanel, setShowInfoPanel] = useState(false)
 
   // Memoize statusOptions to prevent recreation on every render
   const statusOptions: {
     type: TPerson['status']
     color: string
     label: string
-  }[] = useMemo(() => [
-    {
-      type: 'irregular',
-      label: i18n.t('statusOptions.labelIrregular'),
-      color: Colors.sky200,
-    },
-    {
-      type: 'frequent',
-      label: i18n.t('statusOptions.labelFrequent'),
-      color: Colors.purple100,
-    },
-    {
-      type: 'committed',
-      label: i18n.t('statusOptions.labelCommitted'),
-      color: Colors.purple300,
-    },
-  ], [i18n])
+  }[] = useMemo(
+    () => [
+      {
+        type: 'irregular',
+        label: i18n.t('statusOptions.labelIrregular'),
+        color: Colors.sky200,
+      },
+      {
+        type: 'frequent',
+        label: i18n.t('statusOptions.labelFrequent'),
+        color: Colors.purple100,
+      },
+      {
+        type: 'committed',
+        label: i18n.t('statusOptions.labelCommitted'),
+        color: Colors.purple300,
+      },
+    ],
+    [i18n]
+  )
 
   const router = useRouter()
   // MapLibre needs a style object for the map
@@ -290,18 +294,21 @@ const MapLibreMap = () => {
     }
   }, [isFocused, queryClient])
 
-  const handleDeleteAnnotation = useCallback(async (id: number) => {
-    try {
-      await db.delete(markerAnnotation).where(eq(markerAnnotation.id, id))
-      // Force refetch the data immediately
-      await queryClient.invalidateQueries({ queryKey: ['markerAnnotation'] })
-      await queryClient.refetchQueries({ queryKey: ['markerAnnotation'] })
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
-    } catch (error) {
-      console.error('Error deleting annotation:', error)
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error)
-    }
-  }, [queryClient])
+  const handleDeleteAnnotation = useCallback(
+    async (id: number) => {
+      try {
+        await db.delete(markerAnnotation).where(eq(markerAnnotation.id, id))
+        // Force refetch the data immediately
+        await queryClient.invalidateQueries({ queryKey: ['markerAnnotation'] })
+        await queryClient.refetchQueries({ queryKey: ['markerAnnotation'] })
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
+      } catch (error) {
+        console.error('Error deleting annotation:', error)
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error)
+      }
+    },
+    [queryClient]
+  )
 
   // for android purpose only
   const handleDeleteAllAnnotations = useCallback(async () => {
@@ -429,10 +436,14 @@ const MapLibreMap = () => {
                 )
               : []
           // console.log('sortedFollowUps --->>', sortedFollowUps)
-          
+
           // Create unique key with tag IDs so React re-renders when tags change
-          const tagIds = person.personsToTags?.map(pt => pt.tag.id).sort().join('-') || 'notags'
-          
+          const tagIds =
+            person.personsToTags
+              ?.map((pt) => pt.tag.id)
+              .sort()
+              .join('-') || 'notags'
+
           return (
             person.latitude &&
             person.longitude && (
@@ -753,7 +764,7 @@ const MapLibreMap = () => {
         <View
           style={[
             styles.tagsContainer,
-            { bottom: Platform.OS === 'android' ? 75 : bottom + 65 },
+            { bottom: Platform.OS === 'android' ? 75 : bottom + 70 },
           ]}
         >
           <FlatList
@@ -777,17 +788,6 @@ const MapLibreMap = () => {
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.flatListContent}
           />
-          <Text
-            style={{
-              fontFamily: 'IBM-Italic',
-              fontSize: 12,
-              color: Colors.primary600,
-              marginTop: 5,
-              textAlign: 'right',
-            }}
-          >
-            long press on map to add a new record or marker
-          </Text>
         </View>
       )}
       <View
@@ -830,6 +830,52 @@ const MapLibreMap = () => {
           />
         </Pressable>
       </View>
+      <Pressable
+        style={{
+          position: 'absolute',
+          top: top + 3,
+          right: 14,
+          // backgroundColor: Colors.sky300,
+          padding: 2,
+          borderRadius: 100,
+          borderWidth: 1,
+          borderColor: Colors.primary950,
+        }}
+        onPress={() => setShowInfoPanel((prev) => !prev)}
+      >
+        {showInfoPanel ? (
+          <Ionicons name="close" size={25} color={Colors.primary950} />
+        ) : (
+          <Ionicons
+            name="information-circle"
+            size={28}
+            color={Colors.primary950}
+          />
+        )}
+      </Pressable>
+      {showInfoPanel && (
+        <View
+          style={{
+            position: 'absolute',
+            top: top + 45,
+            right: 18,
+            backgroundColor: Colors.primary900,
+            padding: 12,
+            borderRadius: 12,
+          }}
+        >
+          <Text
+            style={{
+              fontFamily: 'IBM-Regular',
+              fontSize: 14,
+              color: Colors.white,
+              textAlign: 'right',
+            }}
+          >
+            {`If you want to create a new record at eg. Apt.789 \nbut have already left the area, long press on \nApt.789 on the map to drop a record there.`}
+          </Text>
+        </View>
+      )}
     </View>
   )
 }
