@@ -136,6 +136,29 @@ const RecordsPage = () => {
     .filter((item) => item !== null) as number[]
   // --------end of data formatting----------
 
+  // Move useCallback hooks outside conditional rendering to comply with Rules of Hooks
+  const renderItem = useCallback(
+    ({ item }: { item: string | TPersonWithTags }) => {
+      if (typeof item === 'string') {
+        // Rendering header
+        return <Text style={styles.header}>{item}</Text>
+      } else {
+        // Render item
+        return (
+          <SingleRecord
+            item={item}
+            setModalVisible={setModalVisible}
+          />
+        )
+      }
+    },
+    [setModalVisible]
+  )
+
+  const getItemType = useCallback((item: string | TPersonWithTags) => {
+    return typeof item === 'string' ? 'sectionHeader' : 'row'
+  }, [])
+
   console.log('recordsPage render')
 
   return (
@@ -197,7 +220,7 @@ const RecordsPage = () => {
         }}
       />
 
-      {(persons === undefined || persons.length) === 0 ? (
+      {persons === undefined || persons.length === 0 ? (
         <View
           style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
         >
@@ -223,27 +246,9 @@ const RecordsPage = () => {
             contentInsetAdjustmentBehavior="automatic"
             contentContainerStyle={{ paddingBottom: 120 }}
             data={flatMapped}
-            renderItem={useCallback(
-              ({ item }: { item: string | TPersonWithTags }) => {
-                if (typeof item === 'string') {
-                  // Rendering header
-                  return <Text style={styles.header}>{item}</Text>
-                } else {
-                  // Render item
-                  return (
-                    <SingleRecord
-                      item={item}
-                      setModalVisible={setModalVisible}
-                    />
-                  )
-                }
-              },
-              [setModalVisible]
-            )}
+            renderItem={renderItem}
             stickyHeaderIndices={stickyHeaderIndices}
-            getItemType={useCallback((item: string | TPersonWithTags) => {
-              return typeof item === 'string' ? 'sectionHeader' : 'row'
-            }, [])}
+            getItemType={getItemType}
             refreshing={refreshing}
             onRefresh={onRefresh}
             ListHeaderComponent={
