@@ -5,7 +5,15 @@ import { toast } from 'sonner-native'
 import { z } from 'zod'
 
 import { db } from '@/drizzle/db'
-import { Person, Report, tags, personsToTags, followUp, markerAnnotation, reminders } from '@/drizzle/schema'
+import {
+  Person,
+  Report,
+  tags,
+  personsToTags,
+  followUp,
+  markerAnnotation,
+  reminders,
+} from '@/drizzle/schema'
 import { QueryClient } from '@tanstack/react-query'
 import { useTranslations } from '@/app/_layout'
 import { eq } from 'drizzle-orm'
@@ -44,6 +52,17 @@ const restoreBackupFunc = async (queryClient: QueryClient) => {
     // Validate file uploaded is genuine
     if (backupData.backupID !== 'fspalbackup') {
       throw new Error('restoration failed: invalid backup file')
+    }
+
+    // Validate schema version - check for required tables and columns
+    // 1. Check if reminders table exists in backup
+    if (!backupData.reminders) {
+      Alert.alert(
+        'Outdated Backup File',
+        'This backup file is from an older version of the app and cannot be restored.\n\nPlease:\n1. Update to the latest app version\n2. Create a new backup\n3. Use the new backup file for restoration',
+        [{ text: 'OK' }]
+      )
+      return
     }
 
     // Delete all existing data
@@ -198,7 +217,10 @@ const restoreBackupFunc = async (queryClient: QueryClient) => {
     }
 
     // Restore marker annotations if they exist in the backup
-    if (backupData.markerAnnotation && Array.isArray(backupData.markerAnnotation)) {
+    if (
+      backupData.markerAnnotation &&
+      Array.isArray(backupData.markerAnnotation)
+    ) {
       for (const annotationRecord of backupData.markerAnnotation) {
         try {
           await db.insert(markerAnnotation).values(annotationRecord)

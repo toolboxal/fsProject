@@ -100,8 +100,20 @@ const AnnoucementModal = ({ visible, onClose }: AnnoucementModalProps) => {
               />
 
               <Text style={styles.currentUserTxt}>
-                Lastly, date field changed to 'dd Month yyyy' format to avoid
-                confusion.
+                Date field changed to 'dd Month yyyy' format to avoid confusion.
+              </Text>
+              <Text
+                style={[
+                  styles.currentUserTxt,
+                  {
+                    color: Colors.rose500,
+                    fontFamily: 'IBM-SemiBold',
+                    fontSize: 17,
+                  },
+                ]}
+              >
+                Current Users: Please create new backup file due to significant
+                changes in the database structure.
               </Text>
 
               {/* <Text style={styles.currentUserTxt}>
