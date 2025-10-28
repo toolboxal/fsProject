@@ -167,7 +167,7 @@ const ja = {
     contactLabel: '連絡先',
     pubLabel: '出版物',
     remarksLabel: '備考',
-    dateLabel: '日付',
+    dateLabel: '初回訪問',
     saveLabel: '保存',
     updateMapLabel: '地図を\n更新',
     callAgain: '再度連絡',

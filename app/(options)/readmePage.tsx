@@ -1,5 +1,6 @@
 import { Colors } from '@/constants/Colors'
-import { Text, StyleSheet, View, ScrollView, Image } from 'react-native'
+import { StyleSheet, View, ScrollView, Image } from 'react-native'
+import Text from '@/components/Text'
 import Ionicons from '@expo/vector-icons/Ionicons'
 import { useTranslations } from '../_layout'
 

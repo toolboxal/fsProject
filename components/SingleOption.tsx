@@ -1,4 +1,5 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native'
+import { Pressable, StyleSheet, View } from 'react-native'
+import Text from '@/components/Text'
 import { Colors } from '@/constants/Colors'
 import Entypo from '@expo/vector-icons/Entypo'
 import useMyStore from '@/store/store'

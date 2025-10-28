@@ -1,6 +1,5 @@
 import {
   View,
-  Text,
   ScrollView,
   StyleSheet,
   TouchableOpacity,
@@ -9,6 +8,7 @@ import {
   Pressable,
   FlatList,
 } from 'react-native'
+import Text from '@/components/Text'
 import { router } from 'expo-router'
 import * as Location from 'expo-location'
 import { useForm, Controller } from 'react-hook-form'
@@ -460,7 +460,7 @@ const Form = () => {
                 marginBottom: 3,
               }}
             >
-              initial visit
+              {i18n.t('form.dateLabel')}
             </Text>
             <View
               style={{

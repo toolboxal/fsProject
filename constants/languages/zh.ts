@@ -162,7 +162,7 @@ const zh = {
     contactLabel: '联系方式',
     pubLabel: '出版物',
     remarksLabel: '备注',
-    dateLabel: '日期',
+    dateLabel: '初次访问',
     saveLabel: '保存',
     updateMapLabel: '更新\n地图',
     callAgain: '再次联系',

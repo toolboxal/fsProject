@@ -1,12 +1,12 @@
 import {
   StyleSheet,
-  Text,
   View,
   Image,
   Pressable,
   Linking,
   Platform,
 } from 'react-native'
+import Text from '@/components/Text'
 import { useTranslations } from '../_layout'
 import { Colors } from '@/constants/Colors'
 import SingleOption from '@/components/SingleOption'

@@ -2,7 +2,6 @@ import { useCallback, useState } from 'react'
 import {
   StyleSheet,
   View,
-  Text,
   Button,
   ScrollView,
   ActivityIndicator,
@@ -10,6 +9,7 @@ import {
   Platform,
   RefreshControl,
 } from 'react-native'
+import Text from '@/components/Text'
 import { Tabs, useRouter } from 'expo-router'
 import * as Calendar from 'expo-calendar'
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'

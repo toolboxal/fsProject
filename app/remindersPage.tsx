@@ -3,11 +3,12 @@ import {
   Pressable,
   ScrollView,
   StyleSheet,
-  Text,
-  TextInput,
   TouchableWithoutFeedback,
   View,
+  TextInput as RNTextInput,
 } from 'react-native'
+import Text from '@/components/Text'
+import TextInput from '@/components/TextInput'
 
 import { useState, useEffect, useRef } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
@@ -46,7 +47,7 @@ const remindersPage = () => {
   const router = useRouter()
   const [showAddModal, setShowAddModal] = useState(false)
   const queryClient = useQueryClient()
-  const inputRef = useRef<TextInput>(null)
+  const inputRef = useRef<RNTextInput>(null)
 
   const { data: remindersData } = useQuery({
     queryKey: ['reminders'],

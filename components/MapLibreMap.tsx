@@ -2,12 +2,12 @@ import {
   StyleSheet,
   View,
   FlatList,
-  Text,
   Pressable,
   Platform,
   Alert,
   ScrollView,
 } from 'react-native'
+import Text from '@/components/Text'
 import * as Linking from 'expo-linking'
 import {
   MapView,

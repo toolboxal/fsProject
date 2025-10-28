@@ -4,14 +4,14 @@ import React from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import {
   StyleSheet,
-  Text,
   View,
   Modal,
   Pressable,
   KeyboardAvoidingView,
-  TextInput,
   Platform,
 } from 'react-native'
+import Text from '@/components/Text'
+import TextInput from '@/components/TextInput'
 import { db } from '@/drizzle/db'
 import useMyStore from '@/store/store'
 import { markerAnnotation } from '@/drizzle/schema'

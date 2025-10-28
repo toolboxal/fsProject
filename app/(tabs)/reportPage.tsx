@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react'
 import {
   StyleSheet,
-  Text,
   View,
   Pressable,
   ScrollView,
   Platform,
   RefreshControl,
 } from 'react-native'
+import Text from '@/components/Text'
 import { useRouter } from 'expo-router'
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import * as Haptics from 'expo-haptics'

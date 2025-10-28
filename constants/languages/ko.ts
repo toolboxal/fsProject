@@ -166,7 +166,7 @@ const ko = {
     contactLabel: '연락처',
     pubLabel: '출판물',
     remarksLabel: '비고',
-    dateLabel: '날짜',
+    dateLabel: '최초 방문',
     saveLabel: '저장',
     updateMapLabel: '지도\n업데이트',
     callAgain: '다시 연락',

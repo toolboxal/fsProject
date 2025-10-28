@@ -1,7 +1,6 @@
 import { Colors } from '@/constants/Colors'
 import {
   View,
-  Text,
   StatusBar,
   StyleSheet,
   ScrollView,
@@ -12,6 +11,7 @@ import {
   Pressable,
   FlatList,
 } from 'react-native'
+import Text from '@/components/Text'
 import * as Location from 'expo-location'
 import useMyStore from '@/store/store'
 import { useForm, Controller } from 'react-hook-form'

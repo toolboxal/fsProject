@@ -2,7 +2,6 @@ import { Colors } from '@/constants/Colors'
 import useMyStore from '@/store/store'
 import {
   StyleSheet,
-  Text,
   View,
   Modal,
   Pressable,
@@ -13,6 +12,7 @@ import {
   FlatList,
   KeyboardAvoidingView,
 } from 'react-native'
+import Text from '@/components/Text'
 
 import { XCircle, CirclePlus, MoveLeft } from 'lucide-react-native'
 import {

@@ -2,8 +2,6 @@ import React, { useState, useEffect } from 'react'
 import {
   Modal,
   View,
-  Text,
-  TextInput,
   KeyboardAvoidingView,
   Platform,
   StyleSheet,
@@ -11,6 +9,8 @@ import {
   Keyboard,
   Pressable,
 } from 'react-native'
+import Text from '@/components/Text'
+import TextInput from '@/components/TextInput'
 import { Colors } from '@/constants/Colors'
 
 import { format, isToday, Locale } from 'date-fns'

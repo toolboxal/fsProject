@@ -3,14 +3,14 @@ import { XCircle } from 'lucide-react-native'
 import { Controller, useForm } from 'react-hook-form'
 import {
   StyleSheet,
-  Text,
   View,
   Modal,
-  TextInput,
   Pressable,
   KeyboardAvoidingView,
   Platform,
 } from 'react-native'
+import Text from '@/components/Text'
+import TextInput from '@/components/TextInput'
 import { tags, TTags } from '@/drizzle/schema'
 import { db } from '@/drizzle/db'
 import { toast } from 'sonner-native'

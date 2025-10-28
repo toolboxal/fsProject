@@ -1,6 +1,8 @@
 import { useRouter, Stack } from 'expo-router'
 import { useCallback, useEffect, useState } from 'react'
-import { View, Text, TextInput, Pressable } from 'react-native'
+import { View, Pressable } from 'react-native'
+import Text from '@/components/Text'
+import TextInput from '@/components/TextInput'
 
 import { Colors } from '@/constants/Colors'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
@@ -91,13 +93,6 @@ const RootLayout = () => {
 
         // Run one-time data migration for date field
         await migrateDateField()
-
-        if ((Text as any).defaultProps == null) (Text as any).defaultProps = {}
-        ;(Text as any).defaultProps.allowFontScaling = false
-
-        if ((TextInput as any).defaultProps == null)
-          (TextInput as any).defaultProps = {}
-        ;(TextInput as any).defaultProps.allowFontScaling = false
 
         // await new Promise((resolve) => setTimeout(resolve, 2000))
       } catch (error) {

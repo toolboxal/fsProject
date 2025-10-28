@@ -2,12 +2,12 @@ import { Colors } from '@/constants/Colors'
 import useMyStore from '@/store/store'
 
 import {
-  Text,
   TouchableOpacity,
   StyleSheet,
   Pressable,
   View,
 } from 'react-native'
+import Text from '@/components/Text'
 import * as Haptics from 'expo-haptics'
 import FontAwesome from '@expo/vector-icons/FontAwesome6'
 import { TPerson } from '@/drizzle/schema'

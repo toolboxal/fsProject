@@ -4,11 +4,11 @@ import {
   Platform,
   Pressable,
   StyleSheet,
-  Text,
   TouchableWithoutFeedback,
   View,
   Image,
 } from 'react-native'
+import Text from '@/components/Text'
 import { Colors } from '@/constants/Colors'
 import EvilIcons from '@expo/vector-icons/EvilIcons'
 import { useTranslations } from '@/app/_layout'

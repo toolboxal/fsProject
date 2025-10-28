@@ -2,10 +2,10 @@ import {
   Pressable,
   ScrollView,
   StyleSheet,
-  Text,
   View,
   Alert,
 } from 'react-native'
+import Text from '@/components/Text'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { db } from '@/drizzle/db'
 import { tags, personsToTags } from '@/drizzle/schema'

@@ -1,11 +1,11 @@
 import {
   View,
-  Text,
   StyleSheet,
   Pressable,
   ScrollView,
   Platform,
 } from 'react-native'
+import Text from '@/components/Text'
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { StatusBar } from 'expo-status-bar'
 import { router, Stack } from 'expo-router'
