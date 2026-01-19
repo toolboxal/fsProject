@@ -1,10 +1,4 @@
-import {
-  View,
-  StyleSheet,
-  Pressable,
-  ScrollView,
-  Platform,
-} from 'react-native'
+import { View, StyleSheet, Pressable, ScrollView, Platform } from 'react-native'
 import Text from '@/components/Text'
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { StatusBar } from 'expo-status-bar'
@@ -17,6 +11,8 @@ import SingleRecord from '@/components/SingleRecord'
 
 import * as Haptics from 'expo-haptics'
 import useMyStore from '@/store/store'
+import { storage } from '@/store/storage'
+import { differenceInDays } from 'date-fns'
 import { Ionicons } from '@expo/vector-icons'
 import { useTranslations } from '../../_layout'
 
@@ -47,7 +43,20 @@ const RecordsPage = () => {
 
   const { top, bottom } = useSafeAreaInsets()
 
+  const lastBackupTimestamp = storage.getString('last_backup_timestamp')
+  const diffInDays = lastBackupTimestamp
+    ? differenceInDays(new Date(), new Date(lastBackupTimestamp))
+    : 0
+  console.log('differenceInDays', diffInDays)
+  const backupMsg =
+    lastBackupTimestamp && diffInDays >= 1
+      ? `Your last attempted backup was ${diffInDays} ${diffInDays === 1 ? 'day' : 'days'} ago.\nBackup to ${Platform.OS === 'ios' ? 'iCloud' : 'Google Drive'} ☁️ at least once a month.`
+      : lastBackupTimestamp && diffInDays === 0
+        ? `Thank you for backing up your data. 💪`
+        : `A reminder to backup your file and save to ${Platform.OS === 'ios' ? 'iCloud' : 'Google Drive'} ☁️.\nGo to Options -> create backup`
+
   useEffect(() => {
+    // storage.delete('last_backup_timestamp')
     checkAndRequestReview()
   }, [])
 
@@ -86,7 +95,7 @@ const RecordsPage = () => {
       }
       const personTagIds = (person.personsToTags || []).map((pt) => pt.tag.id)
       const matchesTags = selectedTags.some((tagId) =>
-        personTagIds.includes(tagId)
+        personTagIds.includes(tagId),
       )
       return matchesName && matchesTags
     }) || []
@@ -119,7 +128,7 @@ const RecordsPage = () => {
     a.title.localeCompare(b.title, undefined, {
       numeric: true,
       sensitivity: 'base',
-    })
+    }),
   )
   const flatMapped = sorted.flatMap((item) => [item.title, ...item.data])
 
@@ -144,15 +153,10 @@ const RecordsPage = () => {
         return <Text style={styles.header}>{item}</Text>
       } else {
         // Render item
-        return (
-          <SingleRecord
-            item={item}
-            setModalVisible={setModalVisible}
-          />
-        )
+        return <SingleRecord item={item} setModalVisible={setModalVisible} />
       }
     },
-    [setModalVisible]
+    [setModalVisible],
   )
 
   const getItemType = useCallback((item: string | TPersonWithTags) => {
@@ -242,6 +246,24 @@ const RecordsPage = () => {
             // width: '100%',
           }}
         >
+          <View
+            style={{
+              backgroundColor:
+                diffInDays > 60 ? Colors.rose700 : Colors.primary600,
+              paddingHorizontal: 5,
+              paddingVertical: 3,
+            }}
+          >
+            <Text
+              style={{
+                fontFamily: 'IBM-Regular',
+                fontSize: 12,
+                color: Colors.white,
+              }}
+            >
+              {backupMsg}
+            </Text>
+          </View>
           <FlashList
             contentInsetAdjustmentBehavior="automatic"
             contentContainerStyle={{ paddingBottom: 120 }}

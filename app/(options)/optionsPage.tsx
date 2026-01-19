@@ -134,7 +134,7 @@ OS Version: ${Device.osVersion}`,
                     },
                     style: 'destructive',
                   },
-                ]
+                ],
               )
             }}
             headerTxt={i18n.t('options.restoreBackupTitle')}
@@ -193,7 +193,7 @@ OS Version: ${Device.osVersion}`,
           <SingleOption
             handler={() => {
               Haptics.notificationAsync(
-                Haptics.NotificationFeedbackType.Warning
+                Haptics.NotificationFeedbackType.Warning,
               )
               Alert.alert(
                 `${i18n.t('options.deleteRecTitle')}`,
@@ -241,12 +241,12 @@ OS Version: ${Device.osVersion}`,
                         </View>,
                         {
                           duration: 3000,
-                        }
+                        },
                       )
                     },
                     style: 'destructive',
                   },
-                ]
+                ],
               )
             }}
             headerTxt={i18n.t('options.deleteRecTitle')}
@@ -257,7 +257,7 @@ OS Version: ${Device.osVersion}`,
           <SingleOption
             handler={() => {
               Haptics.notificationAsync(
-                Haptics.NotificationFeedbackType.Warning
+                Haptics.NotificationFeedbackType.Warning,
               )
               Alert.alert(
                 `${i18n.t('options.deleteRepTitle')}`,
@@ -305,12 +305,12 @@ OS Version: ${Device.osVersion}`,
                         </View>,
                         {
                           duration: 5000,
-                        }
+                        },
                       )
                     },
                     style: 'destructive',
                   },
-                ]
+                ],
               )
             }}
             headerTxt={i18n.t('options.deleteRepTitle')}

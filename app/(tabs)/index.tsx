@@ -12,7 +12,7 @@ const MapsPage = () => {
 
   useEffect(() => {
     // Check if this version's announcement has been shown
-    const currentVersion = '1.6.0' // Replace with your app's current version
+    const currentVersion = '1.6.1' // Replace with your app's current version
     const lastShownVersion = storage.getString('lastShownVersion')
 
     if (!lastShownVersion || lastShownVersion !== currentVersion) {

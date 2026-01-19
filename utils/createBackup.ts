@@ -3,7 +3,15 @@ import * as FileSystem from 'expo-file-system'
 import { Alert } from 'react-native'
 
 import { db } from '@/drizzle/db'
-import { Person, Report, TPersonWithTagsAndFollowUps, markerAnnotation, TMarkerAnnotation, reminders } from '@/drizzle/schema'
+import {
+  Person,
+  Report,
+  TPersonWithTagsAndFollowUps,
+  markerAnnotation,
+  TMarkerAnnotation,
+  reminders,
+} from '@/drizzle/schema'
+import { storage } from '@/store/storage'
 
 const createBackup = async () => {
   try {
@@ -20,10 +28,10 @@ const createBackup = async () => {
     })) as TPersonWithTagsAndFollowUps[]
 
     const reportRecords = await db.select().from(Report)
-    
+
     // Fetch all marker annotations
     const markerAnnotationRecords = await db.select().from(markerAnnotation)
-    
+
     // Fetch all reminders
     const reminderRecords = await db.select().from(reminders)
 
@@ -51,13 +59,15 @@ const createBackup = async () => {
       const { id, ...restOfData } = record
       return restOfData
     })
-    
+
     // Remove IDs from marker annotation records
-    const markerAnnotationDataWithoutId = markerAnnotationRecords.map((record) => {
-      const { id, ...restOfData } = record
-      return restOfData
-    })
-    
+    const markerAnnotationDataWithoutId = markerAnnotationRecords.map(
+      (record) => {
+        const { id, ...restOfData } = record
+        return restOfData
+      },
+    )
+
     // Remove IDs from reminder records
     const reminderDataWithoutId = reminderRecords.map((record) => {
       const { id, ...restOfData } = record
@@ -73,13 +83,21 @@ const createBackup = async () => {
       backupDate: new Date().toISOString(),
       backupID: 'fspalbackup',
     }
-
+    const todayDate = new Date().getDate()
+    const todayMonth = new Date().getMonth() + 1
+    const todayYear = new Date().getFullYear()
     const jsonData = JSON.stringify(backupData, null, 2)
-    const fileUri = FileSystem.documentDirectory + 'fspal_backup.json'
+    const fileUri =
+      FileSystem.documentDirectory +
+      `fspal_backup_${todayDate}_${todayMonth}_${todayYear}.json`
     await FileSystem.writeAsStringAsync(fileUri, jsonData)
 
     if (await Sharing.isAvailableAsync()) {
-      await Sharing.shareAsync(fileUri)
+      const result = await Sharing.shareAsync(fileUri)
+      console.log('result', result)
+
+      const timestamp = new Date().toISOString()
+      storage.set('last_backup_timestamp', timestamp)
     } else {
       Alert.alert('Sharing is not available on this device')
     }
