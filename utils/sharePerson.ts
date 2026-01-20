@@ -1,5 +1,5 @@
 import * as Sharing from 'expo-sharing'
-import * as FileSystem from 'expo-file-system'
+import { File, Paths } from 'expo-file-system'
 
 import { Alert } from 'react-native'
 
@@ -40,8 +40,10 @@ const sharePerson = async (personId: number) => {
     }
     const jsonData = JSON.stringify(payload)
 
-    const fileUri = FileSystem.documentDirectory + `${person[0].name}.json`
-    await FileSystem.writeAsStringAsync(fileUri, jsonData)
+    const fileName = `${person[0].name}.json`
+    const file = new File(Paths.document, fileName)
+    file.write(jsonData)
+    const fileUri = file.uri
 
     if (await Sharing.isAvailableAsync()) {
       await Sharing.shareAsync(fileUri)

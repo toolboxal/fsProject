@@ -1,5 +1,5 @@
 import * as DocumentPicker from 'expo-document-picker'
-import * as FileSystem from 'expo-file-system'
+import { File } from 'expo-file-system'
 import { Alert } from 'react-native'
 import { toast } from 'sonner-native'
 import { z } from 'zod'
@@ -35,6 +35,7 @@ const restoreBackupFunc = async (queryClient: QueryClient) => {
     // Pick the backup file
     const result = await DocumentPicker.getDocumentAsync({
       type: 'application/json',
+      copyToCacheDirectory: true,
     })
 
     if (result.canceled) {
@@ -43,7 +44,10 @@ const restoreBackupFunc = async (queryClient: QueryClient) => {
     }
 
     const fileUri = result.assets[0].uri
-    const fileContent = await FileSystem.readAsStringAsync(fileUri)
+    const filename = fileUri.split('/').pop() ?? 'backup.json'
+    const directory = fileUri.substring(0, fileUri.lastIndexOf('/'))
+    const file = new File(directory, filename)
+    const fileContent = await file.text()
     const backupData: BackupData = JSON.parse(fileContent)
 
     // Log the entire backup data structure for debugging
@@ -60,7 +64,7 @@ const restoreBackupFunc = async (queryClient: QueryClient) => {
       Alert.alert(
         'Outdated Backup File',
         'This backup file is from an older version of the app and cannot be restored.\n\nPlease:\n1. Update to the latest app version\n2. Create a new backup\n3. Use the new backup file for restoration',
-        [{ text: 'OK' }]
+        [{ text: 'OK' }],
       )
       return
     }
@@ -119,7 +123,7 @@ const restoreBackupFunc = async (queryClient: QueryClient) => {
             'Processing follow-up data for person ID:',
             personId,
             'Follow-up data:',
-            followUpItem
+            followUpItem,
           )
           try {
             const processedFollowUpItem = {
@@ -135,7 +139,7 @@ const restoreBackupFunc = async (queryClient: QueryClient) => {
             await db.insert(followUp).values(processedFollowUpItem)
             console.log(
               'Successfully inserted follow-up for person ID:',
-              personId
+              personId,
             )
           } catch (followUpError) {
             console.error(
@@ -144,7 +148,7 @@ const restoreBackupFunc = async (queryClient: QueryClient) => {
               'Data:',
               followUpItem,
               'Error:',
-              followUpError
+              followUpError,
             )
           }
         }
@@ -170,7 +174,7 @@ const restoreBackupFunc = async (queryClient: QueryClient) => {
                 'Successfully inserted new tag:',
                 tagName,
                 'with ID:',
-                tagId
+                tagId,
               )
             } catch (tagError) {
               console.error('Error inserting tag:', tagName, 'Error:', tagError)
@@ -188,7 +192,7 @@ const restoreBackupFunc = async (queryClient: QueryClient) => {
               'Successfully linked tag ID:',
               tagId,
               'to person ID:',
-              personId
+              personId,
             )
           } catch (linkError) {
             console.error(
@@ -197,7 +201,7 @@ const restoreBackupFunc = async (queryClient: QueryClient) => {
               'to person ID:',
               personId,
               'Error:',
-              linkError
+              linkError,
             )
           }
         }
@@ -206,12 +210,12 @@ const restoreBackupFunc = async (queryClient: QueryClient) => {
           'Error inserting person record:',
           personData,
           'Error:',
-          personError
+          personError,
         )
         throw new Error(
           `Failed to insert person record: ${
             personError instanceof Error ? personError.message : 'Unknown error'
-          }`
+          }`,
         )
       }
     }
@@ -264,7 +268,7 @@ const restoreBackupFunc = async (queryClient: QueryClient) => {
     } else {
       Alert.alert(
         'Restoration Error',
-        'An unknown error occurred during restoration.'
+        'An unknown error occurred during restoration.',
       )
       console.error('Restoration Error: Unknown error', error)
     }

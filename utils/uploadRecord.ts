@@ -1,5 +1,5 @@
 import * as DocumentPicker from 'expo-document-picker'
-import * as FileSystem from 'expo-file-system'
+import { File } from 'expo-file-system'
 import { Alert } from 'react-native'
 import { toast } from 'sonner-native'
 import {
@@ -27,24 +27,30 @@ type TRestoreFile = {
 const uploadRecord = async (
   queryClient: QueryClient,
   lang: string,
-  i18n: I18n
+  i18n: I18n,
 ) => {
   try {
     console.log('inside document picker')
     const result = await DocumentPicker.getDocumentAsync({
       type: 'application/json',
+      copyToCacheDirectory: true,
     })
     if (result.assets === null) {
       throw new Error('failed to open file')
     }
 
-    const uri = result.assets[0].uri
-    const fileContent = await FileSystem.readAsStringAsync(uri)
+    const fileUri = result.assets[0].uri
+    const filename = fileUri.split('/').pop() ?? 'record.json'
+    const directory = fileUri.substring(0, fileUri.lastIndexOf('/'))
+    const file = new File(directory, filename)
+    const fileContent = await file.text()
     const data: TRestoreFile = JSON.parse(fileContent)
 
     // Validate
     if (data.shareId !== 'fsPalShare') {
-      throw new Error('Invalid file. Please ensure both apps are updated to the latest version.')
+      throw new Error(
+        'Invalid file. Please ensure both apps are updated to the latest version.',
+      )
     }
 
     // Insert the person record and get the new ID
@@ -70,7 +76,7 @@ const uploadRecord = async (
           'Processing follow-up for person ID:',
           personId,
           'Data:',
-          followUpItem
+          followUpItem,
         )
         try {
           const processedFollowUpItem = {
@@ -86,7 +92,7 @@ const uploadRecord = async (
           await db.insert(followUp).values(processedFollowUpItem)
           console.log(
             'Successfully inserted follow-up for person ID:',
-            personId
+            personId,
           )
         } catch (followUpError) {
           console.error(
@@ -95,7 +101,7 @@ const uploadRecord = async (
             'Data:',
             followUpItem,
             'Error:',
-            followUpError
+            followUpError,
           )
         }
       }
@@ -126,7 +132,7 @@ const uploadRecord = async (
               'Successfully inserted new tag:',
               tagName,
               'with ID:',
-              tagId
+              tagId,
             )
           } catch (tagError) {
             console.error('Error inserting tag:', tagName, 'Error:', tagError)
@@ -144,7 +150,7 @@ const uploadRecord = async (
             'Successfully linked tag ID:',
             tagId,
             'to person ID:',
-            personId
+            personId,
           )
         } catch (linkError) {
           console.error(
@@ -153,7 +159,7 @@ const uploadRecord = async (
             'to person ID:',
             personId,
             'Error:',
-            linkError
+            linkError,
           )
         }
       }
@@ -165,7 +171,7 @@ const uploadRecord = async (
     toast.success(
       lang === 'en'
         ? `Record ${data.data.name} has been uploaded 👍`
-        : i18n.t('uploadRecordFunc.toastSuccess')
+        : i18n.t('uploadRecordFunc.toastSuccess'),
     )
   } catch (error) {
     if (error instanceof Error) {

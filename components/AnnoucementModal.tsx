@@ -54,7 +54,7 @@ const AnnoucementModal = ({ visible, onClose }: AnnoucementModalProps) => {
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             style={styles.keyboardView}
           >
-            <Pressable style={styles.modalContent}>
+            <View style={styles.modalContent}>
               <Pressable onPress={onClose} style={{ marginLeft: 'auto' }}>
                 <EvilIcons name="close" size={30} color={Colors.primary800} />
               </Pressable>
@@ -69,13 +69,12 @@ const AnnoucementModal = ({ visible, onClose }: AnnoucementModalProps) => {
                   },
                 ]}
               >
-                version 1.6.0
+                version 1.6.1
               </Text>
               <Text style={[styles.headerTxt, { color: Colors.primary600 }]}>
-                Split hours into different categories (Just for your own
-                reference)
+                Backup banner in records page
               </Text>
-              <Image
+              {/* <Image
                 source={require('@/assets/images/announce1.jpeg')}
                 resizeMode="contain"
                 style={{
@@ -84,85 +83,18 @@ const AnnoucementModal = ({ visible, onClose }: AnnoucementModalProps) => {
                   borderRadius: 10,
                   overflow: 'hidden',
                 }}
-              />
-              <Text style={[styles.headerTxt, { color: Colors.primary600 }]}>
-                Add notes feature
-              </Text>
-              <Image
-                source={require('@/assets/images/announce2.jpeg')}
-                resizeMode="contain"
-                style={{
-                  width: '100%',
-                  height: 160,
-                  borderRadius: 10,
-                  overflow: 'hidden',
-                }}
-              />
+              /> */}
 
               <Text style={styles.currentUserTxt}>
-                Date field changed to 'dd Month yyyy' format to avoid confusion.
+                {`Backup banner to show the last attempted backup to your own ${Platform.OS === 'ios' ? 'iCloud' : 'Google Drive'}.`}
               </Text>
               <Text
-                style={[
-                  styles.currentUserTxt,
-                  {
-                    color: Colors.rose500,
-                    fontFamily: 'IBM-SemiBold',
-                    fontSize: 17,
-                  },
-                ]}
+                style={[styles.currentUserTxt, { fontFamily: 'IBM-Italic' }]}
               >
-                Current Users: Please create new backup file due to significant
-                changes in the database structure.
+                * Your records and reports stay on your phone, not a server, so
+                keep them safe by backing up your data regularly.
               </Text>
-
-              {/* <Text style={styles.currentUserTxt}>
-                your feedback and suggestions have been invaluable.
-              </Text>
-              <Text style={styles.subHeaderTxt}>
-                what's new in version 1.4?
-              </Text>
-              <Text style={styles.subHeaderTxt}>GROUP BY TAGGING</Text>
-              <Text style={styles.currentUserTxt}>
-                eg. (weekends only), (chinese speaking), etc..
-              </Text>
-              <Text style={styles.subHeaderTxt}>FOLLOW UPS</Text>
-              <Text style={styles.currentUserTxt}>
-                now, you can add follow up notes for each person.
-              </Text>
-              <Text style={styles.subHeaderTxt}>CONTACT STATUS</Text>
-              <Text style={styles.currentUserTxt}>
-                assign person as 'established,' 'frequent visits' or 'hard to
-                find'.
-              </Text>
-              <Text style={styles.subHeaderTxt}>NAVIGATION AND CONTACT</Text>
-              <Text style={styles.currentUserTxt}>
-                link to apple/google maps to get directions. Also, you can
-                directly call or whatsapp the person.
-              </Text>
-
-              <Text
-                style={[
-                  styles.currentUserTxt,
-                  {
-                    fontFamily: 'IBM-Regular',
-                    fontSize: 15,
-                    marginTop: 20,
-                    marginBottom: 10,
-                    color: Colors.rose700,
-                  },
-                ]}
-              >
-                I have rewritten the code for the map to make it more
-                interactive. However, I can't implement the dark map and
-                clustering features at the moment.
-              </Text>
-              <Text style={styles.currentUserTxt}>
-                Thank you for your patience and feedback!
-              </Text>
-              <Text style={styles.currentUserTxt}>Agape</Text>
-              <Text style={styles.currentUserTxt}>Your Brother</Text> */}
-            </Pressable>
+            </View>
           </KeyboardAvoidingView>
         </Pressable>
       </TouchableWithoutFeedback>

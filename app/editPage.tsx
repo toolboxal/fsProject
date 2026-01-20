@@ -18,7 +18,8 @@ import { useForm, Controller } from 'react-hook-form'
 import TextInputComponent from '@/components/TextInputComponent'
 import { useState, useEffect } from 'react'
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6'
-import AntDesign from '@expo/vector-icons/AntDesign'
+// import AntDesign from '@expo/vector-icons/AntDesign'
+import Entypo from '@expo/vector-icons/Entypo'
 import { router } from 'expo-router'
 
 import { toast } from 'sonner-native'
@@ -54,18 +55,19 @@ const EditPage = () => {
   const selectedPerson = useMyStore((state) => state.selectedPerson)
   const [category, setCategory] = useState(selectedPerson.category!)
   const [status, setStatus] = useState<TPerson['status']>(
-    selectedPerson.status || 'frequent'
+    selectedPerson.status || 'frequent',
   )
 
   const [showDatePicker, setShowDatePicker] = useState(false)
   const [initialVisit, setInitialVisit] = useState(() => {
     // Handle null, undefined, or invalid dates
     if (!selectedPerson.initialVisit) return new Date()
-    
-    const date = selectedPerson.initialVisit instanceof Date 
-      ? selectedPerson.initialVisit 
-      : new Date(selectedPerson.initialVisit)
-    
+
+    const date =
+      selectedPerson.initialVisit instanceof Date
+        ? selectedPerson.initialVisit
+        : new Date(selectedPerson.initialVisit)
+
     // Check if date is valid and not Unix epoch (1970)
     return date.getTime() > 0 && !isNaN(date.getTime()) ? date : new Date()
   })
@@ -75,10 +77,12 @@ const EditPage = () => {
   const [updatedLat, setUpdatedLat] = useState(selectedPerson.latitude)
   const [updatedLng, setUpdatedLng] = useState(selectedPerson.longitude)
   const [selectedCountry, setSelectedCountry] = useState<undefined | ICountry>(
-    undefined
+    undefined,
   )
   const [contactValue, setContactValue] = useState<string>(
-    selectedPerson.contact ? selectedPerson.contact.replace(/^\+\d+\s/, '') : ''
+    selectedPerson.contact
+      ? selectedPerson.contact.replace(/^\+\d+\s/, '')
+      : '',
   )
   const [countryCallingCode, setCountryCallingCode] = useState<
     string | undefined
@@ -92,7 +96,7 @@ const EditPage = () => {
     setContactValue(
       selectedPerson.contact
         ? selectedPerson.contact.replace(/^\+\d+\s/, '')
-        : ''
+        : '',
     )
     const phoneNumber = parsePhoneNumberFromString(selectedPerson.contact || '')
     setCountryCallingCode(phoneNumber?.country)
@@ -623,12 +627,7 @@ const EditPage = () => {
                 setOpenTagModal(true)
               }}
             >
-              {/* <CirclePlusIcon
-                size={30}
-                color={Colors.primary700}
-                strokeWidth={1}
-              /> */}
-              <AntDesign name="pluscircle" size={26} color="black" />
+              <Entypo name="circle-with-plus" size={24} color="black" />
             </Pressable>
             {tags?.length === 0 ? (
               <Text

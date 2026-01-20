@@ -176,6 +176,7 @@ const RecordsPage = () => {
             // height: top + 45,
           },
           headerSearchBarOptions: {
+            placement: 'stacked',
             tintColor: Colors.primary700,
             textColor: Colors.primary50,
             hintTextColor: 'white',
@@ -246,24 +247,6 @@ const RecordsPage = () => {
             // width: '100%',
           }}
         >
-          <View
-            style={{
-              backgroundColor:
-                diffInDays > 60 ? Colors.rose700 : Colors.primary600,
-              paddingHorizontal: 5,
-              paddingVertical: 3,
-            }}
-          >
-            <Text
-              style={{
-                fontFamily: 'IBM-Regular',
-                fontSize: 12,
-                color: Colors.white,
-              }}
-            >
-              {backupMsg}
-            </Text>
-          </View>
           <FlashList
             contentInsetAdjustmentBehavior="automatic"
             contentContainerStyle={{ paddingBottom: 120 }}
@@ -286,48 +269,68 @@ const RecordsPage = () => {
                   {i18n.t('records.emptyTagsText')}
                 </Text>
               ) : (
-                <ScrollView
-                  style={{
-                    paddingVertical: 6,
-                    backgroundColor: Colors.primary50,
-                  }}
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                  contentContainerStyle={{ paddingHorizontal: 4 }}
-                >
-                  {tags?.map((item) => (
-                    <Pressable
-                      key={item.id}
-                      style={[
-                        styles.tag,
-                        selectedTags.includes(item.id) && {
-                          backgroundColor: Colors.emerald900,
-                          borderColor: Colors.emerald900,
-                        },
-                      ]}
-                      onPress={() => {
-                        setSelectedTags((prev) => {
-                          if (prev.includes(item.id)) {
-                            return prev.filter((id) => id !== item.id)
-                          } else {
-                            return [...prev, item.id]
-                          }
-                        })
+                <View>
+                  <View
+                    style={{
+                      backgroundColor:
+                        diffInDays > 60 ? Colors.rose700 : Colors.primary600,
+                      paddingHorizontal: 5,
+                      paddingVertical: 3,
+                    }}
+                  >
+                    <Text
+                      style={{
+                        fontFamily: 'IBM-Regular',
+                        fontSize: 12,
+                        color: Colors.white,
                       }}
                     >
-                      <Text
+                      {backupMsg}
+                    </Text>
+                  </View>
+                  <ScrollView
+                    style={{
+                      paddingVertical: 6,
+                      backgroundColor: Colors.primary50,
+                    }}
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={{ paddingHorizontal: 4 }}
+                  >
+                    {tags?.map((item) => (
+                      <Pressable
+                        key={item.id}
                         style={[
-                          styles.tagText,
+                          styles.tag,
                           selectedTags.includes(item.id) && {
-                            color: Colors.white,
+                            backgroundColor: Colors.emerald900,
+                            borderColor: Colors.emerald900,
                           },
                         ]}
+                        onPress={() => {
+                          setSelectedTags((prev) => {
+                            if (prev.includes(item.id)) {
+                              return prev.filter((id) => id !== item.id)
+                            } else {
+                              return [...prev, item.id]
+                            }
+                          })
+                        }}
                       >
-                        {item.tagName}
-                      </Text>
-                    </Pressable>
-                  ))}
-                </ScrollView>
+                        <Text
+                          style={[
+                            styles.tagText,
+                            selectedTags.includes(item.id) && {
+                              color: Colors.white,
+                            },
+                          ]}
+                        >
+                          {item.tagName}
+                        </Text>
+                      </Pressable>
+                    ))}
+                  </ScrollView>
+                </View>
               )
             }
           />

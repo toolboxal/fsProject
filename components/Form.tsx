@@ -26,8 +26,7 @@ import { Person, TPerson, personsToTags } from '@/drizzle/schema'
 import WebView from 'react-native-webview'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslations } from '@/app/_layout'
-// import { CirclePlusIcon } from 'lucide-react-native'
-import AntDesign from '@expo/vector-icons/AntDesign'
+import Entypo from '@expo/vector-icons/Entypo'
 import FormTagModal from './reportComponents/FormTagModal'
 import { getLocales } from 'expo-localization'
 import PhoneInput, { ICountry } from 'react-native-international-phone-number'
@@ -48,7 +47,7 @@ const Form = () => {
   const [selectedTags, setSelectedTags] = useState<number[]>([])
   const [openTagModal, setOpenTagModal] = useState(false)
   const [selectedCountry, setSelectedCountry] = useState<undefined | ICountry>(
-    undefined
+    undefined,
   )
   const [contactValue, setContactValue] = useState<string>('')
   const geoCoords = useMyStore((state) => state.geoCoords)
@@ -60,10 +59,10 @@ const Form = () => {
   let { latitude, longitude } = geoCoords
 
   const [updatedLat, setUpdatedLat] = useState(
-    pressedCoords.latitude || latitude
+    pressedCoords.latitude || latitude,
   )
   const [updatedLng, setUpdatedLng] = useState(
-    pressedCoords.longitude || longitude
+    pressedCoords.longitude || longitude,
   )
 
   const { todayDate } = getTimeDate()
@@ -206,7 +205,7 @@ const Form = () => {
     toast.success(
       lang === 'en'
         ? `Record ${name} has been created 👍`
-        : i18n.t('form.toastSuccess')
+        : i18n.t('form.toastSuccess'),
     )
     setPressedCoords({ latitude: 0, longitude: 0 })
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
@@ -574,7 +573,8 @@ const Form = () => {
               color={Colors.primary700}
               strokeWidth={1}
             /> */}
-            <AntDesign name="pluscircle" size={26} color="black" />
+            {/* <AntDesign name="plus-circle" size={24} color="black" /> */}
+            <Entypo name="circle-with-plus" size={24} color="black" />
           </Pressable>
           {tags?.length === 0 ? (
             <Text

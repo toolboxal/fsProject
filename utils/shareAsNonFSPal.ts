@@ -1,5 +1,6 @@
 import * as Sharing from 'expo-sharing'
-import * as FileSystem from 'expo-file-system'
+import { File, Paths } from 'expo-file-system'
+import { toByteArray } from 'react-native-quick-base64'
 import { Alert } from 'react-native'
 import { format } from 'date-fns'
 
@@ -39,7 +40,7 @@ const shareAsNonFSPal = async (personId: number) => {
         }
         return acc
       },
-      {}
+      {},
     )
 
     const dataWithoutId = Object.values(personData) as PersonWithFollowups[]
@@ -146,7 +147,7 @@ const shareAsNonFSPal = async (personId: number) => {
                     return new TextRun({
                       text: `Follow-up (${format(
                         new Date(Number(followup.date)),
-                        'dd MMM yyyy'
+                        'dd MMM yyyy',
                       )}): ${followup.notes}`,
                       font: 'Helvetica',
                       size: 20,
@@ -164,12 +165,13 @@ const shareAsNonFSPal = async (personId: number) => {
     })
 
     // Generate document
+    // Generate document
     const docBase64 = await Packer.toBase64String(doc)
-    const fileUri =
-      FileSystem.documentDirectory + `${allRecords[0].person.name}.docx`
-    await FileSystem.writeAsStringAsync(fileUri, docBase64, {
-      encoding: FileSystem.EncodingType.Base64,
-    })
+    const docData = toByteArray(docBase64)
+    const fileName = `${allRecords[0].person.name}.docx`
+    const file = new File(Paths.document, fileName)
+    file.write(docData)
+    const fileUri = file.uri
 
     if (await Sharing.isAvailableAsync()) {
       await Sharing.shareAsync(fileUri)

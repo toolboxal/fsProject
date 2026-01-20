@@ -1,5 +1,5 @@
 import * as Sharing from 'expo-sharing'
-import * as FileSystem from 'expo-file-system'
+import { File, Paths } from 'expo-file-system'
 import { Alert } from 'react-native'
 
 import { db } from '@/drizzle/db'
@@ -87,10 +87,10 @@ const createBackup = async () => {
     const todayMonth = new Date().getMonth() + 1
     const todayYear = new Date().getFullYear()
     const jsonData = JSON.stringify(backupData, null, 2)
-    const fileUri =
-      FileSystem.documentDirectory +
-      `fspal_backup_${todayDate}_${todayMonth}_${todayYear}.json`
-    await FileSystem.writeAsStringAsync(fileUri, jsonData)
+    const fileName = `fspal_backup_${todayDate}_${todayMonth}_${todayYear}.json`
+    const file = new File(Paths.document, fileName)
+    file.write(jsonData)
+    const fileUri = file.uri
 
     if (await Sharing.isAvailableAsync()) {
       const result = await Sharing.shareAsync(fileUri)
