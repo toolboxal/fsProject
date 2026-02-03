@@ -122,7 +122,7 @@ const ModalForm = ({ modalVisible, setModalVisible, svcYrs }: ModalProps) => {
           borderRadius: 8,
         }}
       >
-        <AntDesign name="checkcircle" size={17} color={Colors.emerald300} />
+        <AntDesign name="check-circle" size={17} color={Colors.emerald300} />
         <Text
           style={{
             fontFamily: 'IBM-Regular',
@@ -137,7 +137,7 @@ const ModalForm = ({ modalVisible, setModalVisible, svcYrs }: ModalProps) => {
       </View>,
       {
         duration: 3000,
-      }
+      },
     )
   }
 
@@ -434,7 +434,7 @@ const ModalForm = ({ modalVisible, setModalVisible, svcYrs }: ModalProps) => {
                           styles.trigger,
                           {
                             backgroundColor: fsTypeList.find(
-                              (t) => t.type === fsType
+                              (t) => t.type === fsType,
                             )?.color,
                           },
                         ]}

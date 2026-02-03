@@ -1,4 +1,11 @@
-import { View, StyleSheet, Pressable, ScrollView, Platform } from 'react-native'
+import {
+  View,
+  StyleSheet,
+  Pressable,
+  ScrollView,
+  Platform,
+  Appearance,
+} from 'react-native'
 import Text from '@/components/Text'
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { StatusBar } from 'expo-status-bar'
@@ -32,6 +39,7 @@ const filterOptions = [
 ]
 
 const RecordsPage = () => {
+  const colorScheme = Appearance.getColorScheme()
   const [refreshing, setRefreshing] = useState(false)
   // const selectedPerson = useMyStore((state) => state.selectedPerson)
   const [modalVisible, setModalVisible] = useState(false)
@@ -177,11 +185,13 @@ const RecordsPage = () => {
           },
           headerSearchBarOptions: {
             placement: 'stacked',
-            tintColor: Colors.primary700,
-            textColor: Colors.primary50,
-            hintTextColor: 'white',
+            tintColor:
+              colorScheme === 'dark' ? Colors.primary400 : Colors.primary700,
+            textColor: Colors.primary700,
+            hintTextColor: Colors.primary500,
             placeholder: i18n.t('records.searchBarPlaceholder'),
-            barTintColor: Colors.primary700,
+            barTintColor:
+              colorScheme === 'dark' ? Colors.primary300 : Colors.primary200,
             onChangeText: (event) => {
               const text = event.nativeEvent.text
               setSearchBarQuery(text)

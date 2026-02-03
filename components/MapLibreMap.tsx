@@ -155,7 +155,7 @@ const MapLibreMap = () => {
         color: Colors.purple300,
       },
     ],
-    [i18n]
+    [i18n],
   )
 
   const router = useRouter()
@@ -210,7 +210,7 @@ const MapLibreMap = () => {
   const allTags = tagsArr?.flat() || []
   const uniqueTags = allTags
     .filter(
-      (tag, index, self) => index === self.findIndex((t) => t.id === tag.id)
+      (tag, index, self) => index === self.findIndex((t) => t.id === tag.id),
     )
     .sort((a, b) => a.tagName.localeCompare(b.tagName))
 
@@ -259,7 +259,7 @@ const MapLibreMap = () => {
     setSelectedTags((prev) =>
       prev.includes(tagId)
         ? prev.filter((id) => id !== tagId)
-        : [...prev, tagId]
+        : [...prev, tagId],
     )
   }, [])
 
@@ -271,8 +271,8 @@ const MapLibreMap = () => {
     if (selectedTags.length === 0) return markerPositions
     return markerPositions.filter(({ person }) =>
       person.personsToTags?.some((tag) =>
-        selectedTags.includes(tag.tag.tagName)
-      )
+        selectedTags.includes(tag.tag.tagName),
+      ),
     )
   }, [selectedTags, markerPositions])
 
@@ -307,7 +307,7 @@ const MapLibreMap = () => {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error)
       }
     },
-    [queryClient]
+    [queryClient],
   )
 
   // for android purpose only
@@ -432,7 +432,7 @@ const MapLibreMap = () => {
             person.followUp && person.followUp.length > 0
               ? [...person.followUp].sort(
                   (a, b) =>
-                    new Date(b.date).getTime() - new Date(a.date).getTime()
+                    new Date(b.date).getTime() - new Date(a.date).getTime(),
                 )
               : []
           // console.log('sortedFollowUps --->>', sortedFollowUps)
@@ -467,8 +467,8 @@ const MapLibreMap = () => {
                         person.category === 'CA'
                           ? Colors.emerald400
                           : person.category === 'RV'
-                          ? Colors.emerald600
-                          : Colors.emerald900,
+                            ? Colors.emerald600
+                            : Colors.emerald900,
                     },
                   ]}
                 >
@@ -491,7 +491,7 @@ const MapLibreMap = () => {
                           {
                             backgroundColor: `${
                               statusOptions.find(
-                                (option) => option.type === person.status
+                                (option) => option.type === person.status,
                               )?.color
                             }`,
                           },
@@ -500,7 +500,7 @@ const MapLibreMap = () => {
                         <Text style={styles.contactableText}>
                           {
                             statusOptions.find(
-                              (option) => option.type === person.status
+                              (option) => option.type === person.status,
                             )?.label
                           }
                         </Text>
@@ -588,7 +588,7 @@ const MapLibreMap = () => {
                         onPress={() => {
                           openMapsForNavigation(
                             person.latitude!,
-                            person.longitude!
+                            person.longitude!,
                           )
                         }}
                       >
@@ -671,7 +671,10 @@ const MapLibreMap = () => {
                       >
                         {i18n.t('statusOptions.labelInitialVisit')}{' '}
                         {person.initialVisit
-                          ? format(new Date(person.initialVisit), 'dd MMM yyyy')
+                          ? format(
+                              new Date(person.initialVisit),
+                              'dd MMM yyyy (EEE)',
+                            )
                           : person.date}
                       </Text>
                     )}
@@ -716,7 +719,10 @@ const MapLibreMap = () => {
                                   marginBottom: 3,
                                 }}
                               >
-                                {format(new Date(followUp.date), 'dd MMM yyyy')}
+                                {format(
+                                  new Date(followUp.date),
+                                  'dd MMM yyyy (EEE)',
+                                )}
                               </Text>
                               <Text style={styles.remarksText}>
                                 {followUp.notes}

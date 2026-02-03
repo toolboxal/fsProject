@@ -97,7 +97,7 @@ const DetailsModal = ({ modalVisible, setModalVisible }: props) => {
   // console.log('followUpsArray --> ', followUpsArr)
 
   const sortedFollowUps = followUpsArr?.sort(
-    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
   )
 
   const statusOptions: {
@@ -157,7 +157,7 @@ const DetailsModal = ({ modalVisible, setModalVisible }: props) => {
           onPress: () => console.log('Cancel Pressed'),
           style: 'cancel',
         },
-      ]
+      ],
     )
   }
 
@@ -420,8 +420,8 @@ const DetailsModal = ({ modalVisible, setModalVisible }: props) => {
                           category === 'RV'
                             ? Colors.emerald600
                             : category === 'BS'
-                            ? Colors.emerald900
-                            : Colors.emerald400
+                              ? Colors.emerald900
+                              : Colors.emerald400
                         }`,
                       },
                     ]}
@@ -533,7 +533,7 @@ const DetailsModal = ({ modalVisible, setModalVisible }: props) => {
                 <Text style={styles.dateText}>
                   {i18n.t('detailsModal.labelInitialVisit')}{' '}
                   {initialVisit
-                    ? format(new Date(initialVisit), 'dd MMM yyyy')
+                    ? format(new Date(initialVisit), 'dd MMM yyyy (EEE)')
                     : date}
                 </Text>
                 {publications && (
@@ -568,7 +568,7 @@ const DetailsModal = ({ modalVisible, setModalVisible }: props) => {
                             marginBottom: 3,
                           }}
                         >
-                          {format(new Date(followUp.date), 'dd MMM yyyy')}
+                          {format(new Date(followUp.date), 'dd MMM yyyy (EEE)')}
                         </Text>
                         <Text style={styles.remarksText}>{followUp.notes}</Text>
                       </Pressable>
@@ -700,7 +700,7 @@ const DetailsModal = ({ modalVisible, setModalVisible }: props) => {
                             handleFollowUpDelete(followUpIdToEdit)
                           } else {
                             toast.error(
-                              'Error: No follow-up selected for deletion'
+                              'Error: No follow-up selected for deletion',
                             )
                           }
                         }}
