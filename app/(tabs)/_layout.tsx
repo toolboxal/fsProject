@@ -35,7 +35,6 @@ const TabsLayout = () => {
           position: 'absolute',
           paddingTop: 5,
         },
-        animation: 'fade',
       }}
     >
       <Tabs.Screen

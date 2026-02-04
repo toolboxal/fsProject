@@ -58,7 +58,7 @@ const fetchCalendarEvents = async () => {
   const calendars = await Calendar.getCalendarsAsync(Calendar.EntityTypes.EVENT)
   // console.log('all calendars ----> ', calendars)
   const fsPalCalendar = calendars.find(
-    (calendar) => calendar.title === 'FsPalCalendar'
+    (calendar) => calendar.title === 'FsPalCalendar',
   )
   // console.log('fsPalCalendar ----> ', fsPalCalendar)
   if (!fsPalCalendar) {
@@ -77,7 +77,7 @@ const fetchCalendarEvents = async () => {
   const calendarEvents = await Calendar.getEventsAsync(
     [storage.getString('calendar.id')!],
     startDate,
-    endDate
+    endDate,
   )
   // console.log('events --->', calendarEvents)
   return calendarEvents
@@ -87,7 +87,7 @@ async function createCalendarEvent() {
   const id = storage.getString('calendar.id')
   const event = await Calendar.createEventInCalendarAsync(
     { calendarId: id },
-    { startNewActivityTask: false }
+    { startNewActivityTask: false },
   )
   // console.log('storage id -------> ', id)
 }
@@ -253,7 +253,7 @@ const schedulePage = () => {
                       id: event.id,
                       instanceStartDate: event.startDate,
                     },
-                    { startNewActivityTask: false }
+                    { startNewActivityTask: false },
                   )
 
                   refetch()
@@ -307,7 +307,7 @@ const schedulePage = () => {
                           id: event.id,
                           instanceStartDate: event.startDate,
                         },
-                        { startNewActivityTask: false }
+                        { startNewActivityTask: false },
                       )
 
                       refetch()

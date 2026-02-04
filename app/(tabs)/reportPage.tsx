@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import {
   StyleSheet,
   View,
@@ -26,6 +26,7 @@ import convertFloatToTime from '@/utils/convertFloatToTime'
 import { useTranslations } from '../_layout'
 import { enUS, es, ja, zhCN, ptBR, fr, ko } from 'date-fns/locale'
 import useMyStore from '@/store/store'
+import Ionicons from '@expo/vector-icons/Ionicons'
 
 const localeMap: Record<string, Locale> = {
   en: enUS,
@@ -44,31 +45,35 @@ const fsTypeList = [
   { type: 'inf', label: 'informal', color: Colors.lemon500 },
 ]
 
+const currentSvcYr = () => {
+  const now = new Date()
+  if (isBefore(now, new Date(now.getFullYear(), 8, 1))) {
+    return now.getFullYear()
+  } else {
+    return now.getFullYear() + 1
+  }
+}
+
 const reportPage = () => {
   const { bottom, top } = useSafeAreaInsets()
   const [modalVisible, setModalVisible] = useState(false)
   const router = useRouter()
   const i18n = useTranslations()
   const lang = useMyStore((state) => state.language)
+  const [hideStats, setHideStats] = useState(false)
 
   useEffect(() => {
     cleanupOldReports()
   }, [])
   console.log('report page')
 
-  const currentSvcYr = () => {
-    const now = new Date()
-    if (isBefore(now, new Date(now.getFullYear(), 8, 1))) {
-      return now.getFullYear()
-    } else {
-      return now.getFullYear() + 1
-    }
-  }
-
-  const svcYrs = {
-    currentYr: currentSvcYr(),
-    previousYr: currentSvcYr() - 1,
-  }
+  const svcYrs = useMemo(
+    () => ({
+      currentYr: currentSvcYr(),
+      previousYr: currentSvcYr() - 1,
+    }),
+    [],
+  )
 
   const [selectedYr, setSelectedYr] = useState(svcYrs.currentYr)
   console.log(selectedYr)
@@ -81,33 +86,44 @@ const reportPage = () => {
     },
   })
 
-  const filteredData =
-    data?.filter((report) => {
-      return (
-        isAfter(report.date, new Date(selectedYr - 1, 8, 1)) &&
-        isBefore(report.date, new Date(selectedYr, 8, 1))
-      )
-    }) || []
+  const filteredData = useMemo(() => {
+    return (
+      data?.filter((report) => {
+        return (
+          isAfter(report.date, new Date(selectedYr - 1, 8, 1)) &&
+          isBefore(report.date, new Date(selectedYr, 8, 1))
+        )
+      }) || []
+    )
+  }, [data, selectedYr])
 
   // Calculate totals
-  const totals = filteredData?.reduce(
-    (acc, curr) => ({
-      bs: acc.bs + (curr.bs || 0),
-      hrs: acc.hrs + (curr.hrs || 0),
-      hhHrs: acc.hhHrs + (curr.type === 'hh' ? curr.hrs || 0 : 0),
-      cartHrs: acc.cartHrs + (curr.type === 'cart' ? curr.hrs || 0 : 0),
-      publHrs: acc.publHrs + (curr.type === 'publ' ? curr.hrs || 0 : 0),
-      infHrs: acc.infHrs + (curr.type === 'inf' ? curr.hrs || 0 : 0),
-    }),
-    { bs: 0, hrs: 0, hhHrs: 0, cartHrs: 0, publHrs: 0, infHrs: 0 }
-  ) || { bs: 0, hrs: 0, hhHrs: 0, cartHrs: 0, publHrs: 0, infHrs: 0 }
+  const totals = useMemo(
+    () =>
+      filteredData?.reduce(
+        (acc, curr) => ({
+          bs: acc.bs + (curr.bs || 0),
+          hrs: acc.hrs + (curr.hrs || 0),
+          hhHrs: acc.hhHrs + (curr.type === 'hh' ? curr.hrs || 0 : 0),
+          cartHrs: acc.cartHrs + (curr.type === 'cart' ? curr.hrs || 0 : 0),
+          publHrs: acc.publHrs + (curr.type === 'publ' ? curr.hrs || 0 : 0),
+          infHrs: acc.infHrs + (curr.type === 'inf' ? curr.hrs || 0 : 0),
+        }),
+        { bs: 0, hrs: 0, hhHrs: 0, cartHrs: 0, publHrs: 0, infHrs: 0 },
+      ) || { bs: 0, hrs: 0, hhHrs: 0, cartHrs: 0, publHrs: 0, infHrs: 0 },
+    [filteredData],
+  )
 
-  const creditTotals = filteredData?.reduce(
-    (acc, curr) => ({
-      credit: acc.credit + (curr.credit || 0),
-    }),
-    { credit: 0 }
-  ) || { credit: 0 }
+  const creditTotals = useMemo(
+    () =>
+      filteredData?.reduce(
+        (acc, curr) => ({
+          credit: acc.credit + (curr.credit || 0),
+        }),
+        { credit: 0 },
+      ) || { credit: 0 },
+    [filteredData],
+  )
 
   return (
     <SafeAreaView style={[styles.container]} edges={['bottom']}>
@@ -174,16 +190,63 @@ const reportPage = () => {
       >
         <View style={styles.stickyHeader}>
           <View style={styles.totalRow}>
-            <View style={styles.totalValues}>
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}
+            >
               <Text style={styles.totalYrHeader}>
                 {i18n.t('reports.stickyHeader1') + selectedYr}
               </Text>
-              <Text style={styles.totalLabel}>
-                {i18n.t('reports.stickyHeader2')}
-              </Text>
-              <Text style={styles.totalText}>
-                {convertFloatToTime(totals.hrs)}
-              </Text>
+              <Pressable onPress={() => setHideStats(!hideStats)}>
+                <Ionicons
+                  name={hideStats ? 'eye-off' : 'eye'}
+                  size={23}
+                  color={Colors.emerald900}
+                  style={{ marginRight: 5 }}
+                />
+              </Pressable>
+            </View>
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                marginVertical: 5,
+                paddingHorizontal: 5,
+              }}
+            >
+              {/* Total FS hrs */}
+              <View style={styles.totalValues}>
+                <Text style={styles.totalLabel}>
+                  {i18n.t('reports.stickyHeader2')}
+                </Text>
+                <Text style={styles.totalText}>
+                  {hideStats ? '*****' : convertFloatToTime(totals.hrs)}
+                </Text>
+              </View>
+              {/* Total Credit hrs */}
+              <View style={styles.totalValues}>
+                <Text
+                  style={[
+                    styles.totalLabel,
+                    { color: Colors.purple800, textAlign: 'right' },
+                  ]}
+                >
+                  {i18n.t('reports.stickyHeader3')}
+                </Text>
+                <Text
+                  style={[
+                    styles.totalText,
+                    { color: Colors.purple800, textAlign: 'right' },
+                  ]}
+                >
+                  {hideStats
+                    ? '*****'
+                    : convertFloatToTime(creditTotals.credit)}
+                </Text>
+              </View>
             </View>
             {/* FS hrs breakdown table */}
             <View
@@ -281,7 +344,7 @@ const reportPage = () => {
                     textAlign: 'center',
                   }}
                 >
-                  {convertFloatToTime(totals.hhHrs)}
+                  {hideStats ? '**' : convertFloatToTime(totals.hhHrs)}
                 </Text>
                 <Text
                   style={{
@@ -291,7 +354,7 @@ const reportPage = () => {
                     textAlign: 'center',
                   }}
                 >
-                  {convertFloatToTime(totals.cartHrs)}
+                  {hideStats ? '**' : convertFloatToTime(totals.cartHrs)}
                 </Text>
                 <Text
                   style={{
@@ -301,7 +364,7 @@ const reportPage = () => {
                     textAlign: 'center',
                   }}
                 >
-                  {convertFloatToTime(totals.publHrs)}
+                  {hideStats ? '**' : convertFloatToTime(totals.publHrs)}
                 </Text>
                 <Text
                   style={{
@@ -311,7 +374,7 @@ const reportPage = () => {
                     textAlign: 'center',
                   }}
                 >
-                  {convertFloatToTime(totals.infHrs)}
+                  {hideStats ? '**' : convertFloatToTime(totals.infHrs)}
                 </Text>
               </View>
             </View>
@@ -319,29 +382,37 @@ const reportPage = () => {
             <View
               style={{
                 flexDirection: 'row',
-                alignItems: 'center',
+                alignItems: 'flex-start',
                 justifyContent: 'space-between',
                 marginTop: 3,
+                paddingHorizontal: 5,
               }}
             >
               <View>
-                <Text style={[styles.totalLabel, { color: Colors.purple800 }]}>
-                  {i18n.t('reports.stickyHeader3')}
-                </Text>
                 <Text
-                  style={[styles.remainingHrs, { color: Colors.purple800 }]}
+                  style={[styles.totalLabel, { fontFamily: 'IBMSerif-Bold' }]}
                 >
+                  {i18n.t('reports.stickyHeader5')}
+                </Text>
+                <Text style={[styles.remainingHrs, { fontSize: 23 }]}>
                   {/* {600 - totals.hrs <= 0
                   ? '0h 0m'
                   : convertFloatToTime(600 - totals.hrs)} */}
-                  {convertFloatToTime(creditTotals.credit)}
+                  {hideStats
+                    ? '*****'
+                    : convertFloatToTime(creditTotals.credit + totals.hrs)}
                 </Text>
               </View>
               <View>
                 <Text style={[styles.totalLabel, { textAlign: 'right' }]}>
                   {i18n.t('reports.stickyHeader4')}
                 </Text>
-                <Text style={styles.remainingHrs}>
+                <Text
+                  style={[
+                    styles.remainingHrs,
+                    { textAlign: 'right', fontSize: 16 },
+                  ]}
+                >
                   {selectedYr === svcYrs.previousYr
                     ? `0${i18n.t('reports.stickyDays')}`
                     : formatDistanceStrict(
@@ -350,7 +421,7 @@ const reportPage = () => {
                         {
                           unit: 'day',
                           locale: localeMap[lang] || enUS,
-                        }
+                        },
                       )}
                 </Text>
               </View>
@@ -481,7 +552,6 @@ const styles = StyleSheet.create({
   },
   totalValues: {
     flexDirection: 'column',
-    flex: 1,
     // backgroundColor: Colors.primary400,
     gap: 1,
   },
@@ -497,7 +567,7 @@ const styles = StyleSheet.create({
   },
   totalText: {
     fontFamily: 'IBMSerif-Bold',
-    fontSize: 28,
+    fontSize: 18,
     color: Colors.emerald900,
   },
   remainingHrs: {

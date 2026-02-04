@@ -58,6 +58,8 @@ const theme = {
   },
 }
 
+const queryClient = new QueryClient()
+
 const RootLayout = () => {
   const [appIsReady, setAppIsReady] = useState(false)
 
@@ -69,9 +71,6 @@ const RootLayout = () => {
 
   i18n.enableFallback = true
   i18n.locale = lang
-
-  const queryClient = new QueryClient()
-
   useEffect(() => {
     async function prepare() {
       try {

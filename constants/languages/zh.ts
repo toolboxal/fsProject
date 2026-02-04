@@ -126,6 +126,7 @@ const zh = {
     stickyHeader2: 'FS总小时数：',
     stickyHeader3: '总学分：',
     stickyHeader4: '距新服务年还有：',
+    stickyHeader5: 'FS总小时数+总学分：',
     stickyDays: '天',
     dropDownTitle: '服务年',
     dropDownCurrent: '当前',

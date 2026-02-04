@@ -355,7 +355,7 @@ const ModalForm = ({ modalVisible, setModalVisible, svcYrs }: ModalProps) => {
                     </View>
                   </View>
                 ) : (
-                  <View style={{ flexDirection: 'row', gap: 10 }}>
+                  <View style={{ flexDirection: 'row', gap: 11 }}>
                     <View style={styles.inputContainers}>
                       <Text style={styles.label}>
                         {i18n.t('reportsModal.hoursLabel')}
