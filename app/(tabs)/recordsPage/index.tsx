@@ -268,16 +268,36 @@ const RecordsPage = () => {
             onRefresh={onRefresh}
             ListHeaderComponent={
               tags?.length === 0 ? (
-                <Text
-                  style={{
-                    color: Colors.primary600,
-                    fontFamily: 'IBM-Regular',
-                    fontSize: 14,
-                    padding: 10,
-                  }}
-                >
-                  {i18n.t('records.emptyTagsText')}
-                </Text>
+                <View>
+                  <View
+                    style={{
+                      backgroundColor:
+                        diffInDays > 60 ? Colors.rose700 : Colors.primary600,
+                      paddingHorizontal: 5,
+                      paddingVertical: 3,
+                    }}
+                  >
+                    <Text
+                      style={{
+                        fontFamily: 'IBM-Regular',
+                        fontSize: 12,
+                        color: Colors.white,
+                      }}
+                    >
+                      {backupMsg}
+                    </Text>
+                  </View>
+                  <Text
+                    style={{
+                      color: Colors.primary600,
+                      fontFamily: 'IBM-Regular',
+                      fontSize: 12,
+                      padding: 5,
+                    }}
+                  >
+                    {i18n.t('records.emptyTagsText')}
+                  </Text>
+                </View>
               ) : (
                 <View>
                   <View

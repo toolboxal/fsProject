@@ -8,6 +8,7 @@ import FontAwesome from '@expo/vector-icons/FontAwesome'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 import { useTranslations } from '../_layout'
 
+
 const TabsLayout = () => {
   const { bottom } = useSafeAreaInsets()
   const i18n = useTranslations()
