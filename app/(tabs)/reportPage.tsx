@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import {
   StyleSheet,
   View,
@@ -57,6 +57,7 @@ const currentSvcYr = () => {
 const reportPage = () => {
   const { bottom, top } = useSafeAreaInsets()
   const [modalVisible, setModalVisible] = useState(false)
+  const scrollViewRef = useRef<ScrollView>(null)
   const router = useRouter()
   const i18n = useTranslations()
   const lang = useMyStore((state) => state.language)
@@ -165,6 +166,10 @@ const reportPage = () => {
         }}
       />
       <ScrollView
+        ref={scrollViewRef}
+        onContentSizeChange={() =>
+          scrollViewRef.current?.scrollToEnd({ animated: true })
+        }
         style={{
           flex: 1,
         }}

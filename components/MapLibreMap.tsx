@@ -458,7 +458,7 @@ const MapLibreMap = () => {
               >
                 <Pressable
                   onPress={() => {
-                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Rigid)
                   }}
                   style={[
                     styles.personMarker,

@@ -8,7 +8,6 @@ import FontAwesome from '@expo/vector-icons/FontAwesome'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 import { useTranslations } from '../_layout'
 
-
 const TabsLayout = () => {
   const { bottom } = useSafeAreaInsets()
   const i18n = useTranslations()
@@ -17,7 +16,7 @@ const TabsLayout = () => {
     <Tabs
       screenListeners={{
         tabPress: () => {
-          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Rigid)
         },
       }}
       screenOptions={{
