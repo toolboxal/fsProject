@@ -55,7 +55,7 @@ const RecordsPage = () => {
   const diffInDays = lastBackupTimestamp
     ? differenceInDays(new Date(), new Date(lastBackupTimestamp))
     : 0
-  console.log('differenceInDays', diffInDays)
+  // console.log('differenceInDays', diffInDays)
   const backupMsg =
     lastBackupTimestamp && diffInDays >= 1
       ? `Your last attempted backup was ${diffInDays} ${diffInDays === 1 ? 'day' : 'days'} ago.\nBackup to ${Platform.OS === 'ios' ? 'iCloud' : 'Google Drive'} ☁️ at least once a month.`
@@ -171,10 +171,10 @@ const RecordsPage = () => {
     return typeof item === 'string' ? 'sectionHeader' : 'row'
   }, [])
 
-  console.log('recordsPage render')
+  // console.log('recordsPage render')
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={['right', 'left']}>
+    <SafeAreaView style={styles.safeArea} edges={['right', 'left', 'top']}>
       <StatusBar style="dark" />
       <Stack.Screen
         options={{
@@ -195,7 +195,7 @@ const RecordsPage = () => {
             onChangeText: (event) => {
               const text = event.nativeEvent.text
               setSearchBarQuery(text)
-              console.log(text)
+              // console.log(text)
             },
             onCancelButtonPress: () => {
               setSearchBarQuery('')
@@ -259,7 +259,7 @@ const RecordsPage = () => {
         >
           <FlashList
             contentInsetAdjustmentBehavior="automatic"
-            contentContainerStyle={{ paddingBottom: 120 }}
+            contentContainerStyle={{ paddingBottom: 80 }}
             data={flatMapped}
             renderItem={renderItem}
             stickyHeaderIndices={stickyHeaderIndices}
@@ -372,8 +372,8 @@ const RecordsPage = () => {
       />
       <Pressable
         style={{
-          position: 'fixed',
-          bottom: Platform.OS === 'android' ? 75 : bottom + 85,
+          position: 'absolute',
+          bottom: Platform.OS === 'android' ? 75 : bottom + 75,
           backgroundColor: Colors.emerald900,
           borderRadius: 100,
           borderWidth: 2,

@@ -40,6 +40,7 @@ import MapAnnotateModal from './MapAnnotateModal'
 import Foundation from '@expo/vector-icons/Foundation'
 import { X } from 'lucide-react-native'
 import { eq } from 'drizzle-orm'
+import { BlurView } from 'expo-blur'
 
 // Pure utility functions - moved outside component for better performance
 const openMapsForNavigation = async (latitude: number, longitude: number) => {

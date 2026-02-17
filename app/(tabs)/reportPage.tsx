@@ -475,8 +475,8 @@ const reportPage = () => {
       />
       <Pressable
         style={{
-          position: 'fixed',
-          bottom: Platform.OS === 'android' ? 75 : bottom + 51,
+          position: 'absolute',
+          bottom: Platform.OS === 'android' ? 75 : bottom + 75,
           backgroundColor: Colors.emerald900,
           borderRadius: 100,
           borderWidth: 2,
