@@ -771,7 +771,7 @@ const MapLibreMap = () => {
         <View
           style={[
             styles.tagsContainer,
-            { bottom: Platform.OS === 'android' ? 75 : bottom + 70 },
+            { bottom: Platform.OS === 'android' ? 90 : bottom + 70 },
           ]}
         >
           <FlatList
@@ -800,7 +800,7 @@ const MapLibreMap = () => {
       <View
         style={{
           position: 'absolute',
-          bottom: Platform.OS === 'ios' ? bottom + 145 : bottom + 165,
+          bottom: Platform.OS === 'ios' ? bottom + 145 : bottom + 110,
           right: 15,
           gap: 12,
         }}
@@ -840,7 +840,7 @@ const MapLibreMap = () => {
       <Pressable
         style={{
           position: 'absolute',
-          top: top + 3,
+          top: Platform.OS === 'ios' ? top + 3 : top + 40,
           right: 14,
           // backgroundColor: Colors.sky300,
           padding: 2,
@@ -864,7 +864,7 @@ const MapLibreMap = () => {
         <View
           style={{
             position: 'absolute',
-            top: top + 45,
+            top: Platform.OS === 'ios' ? top + 45 : top + 80,
             right: 18,
             backgroundColor: Colors.primary900,
             padding: 12,
@@ -949,7 +949,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.primary900,
     borderRadius: 10,
     padding: 8,
-    marginBottom: 10,
+    marginBottom: Platform.OS === 'android' ? 5 : 10,
     minWidth: 110,
     position: 'relative',
     height: 40,
@@ -961,7 +961,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.primary900,
     borderRadius: 10,
     padding: 8,
-    marginBottom: 10,
+    marginBottom: Platform.OS === 'android' ? 0 : 10,
     minWidth: 150,
     height: 'auto',
     position: 'relative',

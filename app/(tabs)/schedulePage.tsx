@@ -340,7 +340,7 @@ const schedulePage = () => {
       <Pressable
         style={{
           position: 'fixed',
-          bottom: Platform.OS === 'android' ? 75 : bottom + 51,
+          bottom: Platform.OS === 'android' ? 48 : bottom + 51,
           backgroundColor: Colors.emerald900,
           borderRadius: 100,
           borderWidth: 2,

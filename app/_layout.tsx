@@ -1,6 +1,7 @@
 import { useRouter, Stack } from 'expo-router'
 import { useCallback, useEffect, useState } from 'react'
-import { View, Pressable } from 'react-native'
+import { View, Pressable, Platform } from 'react-native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import Text from '@/components/Text'
 import TextInput from '@/components/TextInput'
 
@@ -66,6 +67,7 @@ const RootLayout = () => {
   const setAddress = useMyStore((state) => state.setAddress)
   const setGeoCoords = useMyStore((state) => state.setGeoCoords)
   const lang = useMyStore((state) => state.language)
+  const { bottom } = useSafeAreaInsets()
 
   const router = useRouter()
 
@@ -144,7 +146,14 @@ const RootLayout = () => {
         <GestureHandlerRootView>
           <ActionSheetProvider>
             <PaperProvider theme={theme}>
-              <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
+              <View 
+                style={{ 
+                  flex: 1, 
+                  backgroundColor: Colors.primary50,
+                  paddingBottom: Platform.OS === 'android' ? bottom : 0 
+                }} 
+                onLayout={onLayoutRootView}
+              >
                 <Stack screenOptions={{ headerShown: false }}>
                   <Stack.Screen name="(tabs)" />
                   <Stack.Screen

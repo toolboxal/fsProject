@@ -52,6 +52,7 @@ const DetailsModal = ({ modalVisible, setModalVisible }: props) => {
   const [editMode, setEditMode] = useState(false)
   const [followUpIdToEdit, setFollowUpIdToEdit] = useState<number>()
   const [pageView, setPageView] = useState<'profile' | 'followUp'>('profile')
+  const [showDatePicker, setShowDatePicker] = useState(false)
   const {
     name,
     block,
@@ -581,9 +582,13 @@ const DetailsModal = ({ modalVisible, setModalVisible }: props) => {
         )}
         {pageView === 'followUp' && (
           <KeyboardAvoidingView
-            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            keyboardVerticalOffset={Platform.OS === 'ios' ? 10 : 20}
-            style={{ flex: 1, width: '100%', justifyContent: 'flex-end' }}
+            behavior={Platform.OS === 'ios' ? 'padding' : 'padding'}
+            keyboardVerticalOffset={Platform.OS === 'ios' ? 10 : 130}
+            style={{
+              flex: 1,
+              width: '100%',
+              justifyContent: Platform.OS === 'ios' ? 'flex-end' : 'center',
+            }}
             enabled
           >
             <Pressable
@@ -674,20 +679,50 @@ const DetailsModal = ({ modalVisible, setModalVisible }: props) => {
                     }}
                   >
                     <View style={styles.dateContainer}>
-                      {/* <Pressable onPress={(e) => e.stopPropagation()}> */}
-                      <DateTimePicker
-                        mode="date"
-                        display="default"
-                        value={followUpDate}
-                        // is24Hour={false}
-                        onChange={(event, selectedDate) =>
-                          setFollowUpDate(selectedDate || new Date())
-                        }
-                        accentColor={Colors.emerald500}
-                        textColor={Colors.white}
-                        themeVariant="dark"
-                      />
-                      {/* </Pressable> */}
+                      {Platform.OS === 'android' ? (
+                        <Pressable
+                          onPress={() => setShowDatePicker(true)}
+                          style={{
+                            padding: 10,
+                            backgroundColor: Colors.primary700,
+                            borderRadius: 5,
+                            borderWidth: 1,
+                            borderColor: Colors.primary400,
+                          }}
+                        >
+                          <Text
+                            style={{
+                              color: Colors.white,
+                              fontFamily: 'IBM-Regular',
+                            }}
+                          >
+                            {format(followUpDate, 'dd MMM yyyy')}
+                          </Text>
+                        </Pressable>
+                      ) : (
+                        <DateTimePicker
+                          mode="date"
+                          display="default"
+                          value={followUpDate}
+                          onChange={(event, selectedDate) =>
+                            setFollowUpDate(selectedDate || new Date())
+                          }
+                          accentColor={Colors.emerald500}
+                          textColor={Colors.white}
+                          themeVariant="dark"
+                        />
+                      )}
+                      {Platform.OS === 'android' && showDatePicker && (
+                        <DateTimePicker
+                          mode="date"
+                          display="default"
+                          value={followUpDate}
+                          onChange={(event, selectedDate) => {
+                            setShowDatePicker(false)
+                            if (selectedDate) setFollowUpDate(selectedDate)
+                          }}
+                        />
+                      )}
                     </View>
                     {editMode && (
                       <Pressable

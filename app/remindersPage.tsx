@@ -4,6 +4,7 @@ import {
   ScrollView,
   StyleSheet,
   TouchableWithoutFeedback,
+  Platform,
   View,
   TextInput as RNTextInput,
 } from 'react-native'
@@ -96,6 +97,7 @@ const remindersPage = () => {
       borderWidth: 1,
       borderColor: Colors.primary400,
       padding: 10,
+      paddingTop: Platform.OS === 'android' ? 0 : 10,
       borderRadius: 12,
       backgroundColor: Colors.white,
       position: 'relative',
@@ -158,7 +160,7 @@ const remindersPage = () => {
           case cancelButtonIndex:
             console.log('canceled')
         }
-      }
+      },
     )
   }
 
@@ -197,7 +199,7 @@ const remindersPage = () => {
       </View>,
       {
         duration: 3000,
-      }
+      },
     )
   }
 
@@ -317,7 +319,7 @@ const remindersPage = () => {
                   <Text style={styles.reminderItemDate}>
                     {format(
                       new Date(reminder.created_at),
-                      'dd MMM yyyy | HH:mm'
+                      'dd MMM yyyy | HH:mm',
                     )}
                   </Text>
                   <Text style={styles.reminderItemTxt}>

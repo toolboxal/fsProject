@@ -28,6 +28,7 @@ import { enUS, es, ja, zhCN, ptBR, fr, ko } from 'date-fns/locale'
 import useMyStore from '@/store/store'
 import { ArrowRight } from 'lucide-react-native'
 import * as DropdownMenu from 'zeego/dropdown-menu'
+import { useActionSheet } from '@expo/react-native-action-sheet'
 
 type TFormData = Omit<TReport, 'id' | 'created_at' | 'date'>
 
@@ -63,6 +64,8 @@ const ModalForm = ({ modalVisible, setModalVisible, svcYrs }: ModalProps) => {
   const [fsType, setFsType] = useState<TFormData['type']>('hh')
 
   const i18n = useTranslations()
+  const { showActionSheetWithOptions } = useActionSheet()
+  const [showTypePicker, setShowTypePicker] = useState(false)
   const lang = useMyStore((state) => state.language)
 
   const { control, handleSubmit, reset, watch } = useForm({
@@ -160,8 +163,9 @@ const ModalForm = ({ modalVisible, setModalVisible, svcYrs }: ModalProps) => {
           }}
         >
           <KeyboardAvoidingView
-            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            behavior={Platform.OS === 'ios' ? 'padding' : 'padding'}
             style={styles.keyboardView}
+            keyboardVerticalOffset={Platform.OS === 'ios' ? 10 : 20}
           >
             <Pressable
               style={styles.modalContent}
@@ -355,13 +359,14 @@ const ModalForm = ({ modalVisible, setModalVisible, svcYrs }: ModalProps) => {
                     </View>
                   </View>
                 ) : (
-                  <View style={{ flexDirection: 'row', gap: 11 }}>
-                    <View style={styles.inputContainers}>
-                      <Text style={styles.label}>
-                        {i18n.t('reportsModal.hoursLabel')}
-                      </Text>
-                      <View style={styles.inputBox}>
-                        <Controller
+                  <>
+                    <View style={{ flexDirection: 'row', gap: 11 }}>
+                      <View style={styles.inputContainers}>
+                        <Text style={styles.label}>
+                          {i18n.t('reportsModal.hoursLabel')}
+                        </Text>
+                        <View style={styles.inputBox}>
+                          <Controller
                           control={control}
                           name="hrs"
                           render={({ field: { value, onChange, onBlur } }) => (
@@ -439,59 +444,112 @@ const ModalForm = ({ modalVisible, setModalVisible, svcYrs }: ModalProps) => {
                           },
                         ]}
                       >
-                        <DropdownMenu.Root>
-                          <DropdownMenu.Trigger>
+                        {Platform.OS === 'android' ? (
+                          <Pressable
+                            onPress={() => {
+                              Keyboard.dismiss()
+                              setShowTypePicker(true)
+                            }}
+                          >
                             <View style={styles.triggerContainer}>
                               <Text style={styles.triggerTxt}>{fsType}</Text>
                             </View>
-                          </DropdownMenu.Trigger>
-                          <DropdownMenu.Content>
-                            {fsTypeList.map((type) => (
-                              <DropdownMenu.Item
-                                key={type.type}
-                                onSelect={() =>
-                                  setFsType(type.type as TFormData['type'])
-                                }
-                              >
-                                <DropdownMenu.ItemTitle>
-                                  {type.label}
-                                </DropdownMenu.ItemTitle>
-                              </DropdownMenu.Item>
-                            ))}
-                          </DropdownMenu.Content>
-                        </DropdownMenu.Root>
+                          </Pressable>
+                        ) : (
+                          <DropdownMenu.Root>
+                            <DropdownMenu.Trigger>
+                              <View style={styles.triggerContainer}>
+                                <Text style={styles.triggerTxt}>{fsType}</Text>
+                              </View>
+                            </DropdownMenu.Trigger>
+                            <DropdownMenu.Content>
+                              {fsTypeList.map((type) => (
+                                <DropdownMenu.Item
+                                  key={type.type}
+                                  onSelect={() =>
+                                    setFsType(type.type as TFormData['type'])
+                                  }
+                                >
+                                  <DropdownMenu.ItemTitle>
+                                    {type.label}
+                                  </DropdownMenu.ItemTitle>
+                                </DropdownMenu.Item>
+                              ))}
+                            </DropdownMenu.Content>
+                          </DropdownMenu.Root>
+                        )}
                       </View>
                     </View>
                   </View>
-                )}
+                </>
+              )}
 
+                  <Pressable
+                    style={({ pressed }) => {
+                      return [
+                        styles.submitBtn,
+                        {
+                          backgroundColor: pressed
+                            ? Colors.primary700
+                            : Colors.primary800,
+                        },
+                      ]
+                    }}
+                    onPressOut={handleSubmit(submitPressed)}
+                  >
+                    <ArrowRight size={20} color="white" strokeWidth={3} />
+                  </Pressable>
+                </View>
+                {toggleCredit ? (
+                  <Text style={styles.watchedTxt}>{watchedCreditOutput}</Text>
+                ) : (
+                  <Text style={styles.watchedTxt}>{watchedFSHrOutput}</Text>
+                )}
+              </Pressable>
+            </KeyboardAvoidingView>
+          {/* Custom Picker Overlay for Android */}
+          {Platform.OS === 'android' && showTypePicker && (
+            <View style={styles.customPickerOverlay}>
+              <Pressable
+                style={StyleSheet.absoluteFill}
+                onPress={() => setShowTypePicker(false)}
+              />
+              <View style={styles.customPickerContainer}>
+                <Text style={styles.customPickerTitle}>Select Type</Text>
+                {fsTypeList.map((item) => (
+                  <Pressable
+                    key={item.type}
+                    style={[
+                      styles.customPickerItem,
+                      { backgroundColor: item.color + '20' },
+                    ]}
+                    onPress={() => {
+                      setFsType(item.type as TFormData['type'])
+                      setShowTypePicker(false)
+                    }}
+                  >
+                    <View
+                      style={[
+                        styles.colorIndicator,
+                        { backgroundColor: item.color },
+                      ]}
+                    />
+                    <Text style={styles.customPickerItemText}>
+                      {item.label}
+                    </Text>
+                  </Pressable>
+                ))}
                 <Pressable
-                  style={({ pressed }) => {
-                    return [
-                      styles.submitBtn,
-                      {
-                        backgroundColor: pressed
-                          ? Colors.primary700
-                          : Colors.primary800,
-                      },
-                    ]
-                  }}
-                  onPressOut={handleSubmit(submitPressed)}
+                  style={styles.customPickerCloseBtn}
+                  onPress={() => setShowTypePicker(false)}
                 >
-                  {/* <EvilIcons name="arrow-up" size={22} color="white" /> */}
-                  <ArrowRight size={20} color="white" strokeWidth={3} />
-                  {/* <Text style={styles.submitBtnTxt}>
-                    {i18n.t('reportsModal.submitBtn')}
-                  </Text> */}
+                  <Text style={styles.customPickerCloseBtnText}>
+                    {i18n.t('detailsModal.cancel')}
+                  </Text>
                 </Pressable>
               </View>
-              {toggleCredit ? (
-                <Text style={styles.watchedTxt}>{watchedCreditOutput}</Text>
-              ) : (
-                <Text style={styles.watchedTxt}>{watchedFSHrOutput}</Text>
-              )}
-            </Pressable>
-          </KeyboardAvoidingView>
+            </View>
+          )}
         </Pressable>
       </TouchableWithoutFeedback>
     </Modal>
@@ -633,6 +691,55 @@ const styles = StyleSheet.create({
     fontFamily: 'IBM-Medium',
     fontSize: 16,
     color: Colors.black,
+  },
+  customPickerOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1000,
+  },
+  customPickerContainer: {
+    width: '80%',
+    backgroundColor: 'white',
+    borderRadius: 15,
+    padding: 20,
+    elevation: 10,
+  },
+  customPickerTitle: {
+    fontFamily: 'IBM-Bold',
+    fontSize: 18,
+    marginBottom: 15,
+    textAlign: 'center',
+    color: Colors.primary900,
+  },
+  customPickerItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 8,
+  },
+  colorIndicator: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    marginRight: 10,
+  },
+  customPickerItemText: {
+    fontFamily: 'IBM-Medium',
+    fontSize: 16,
+    color: Colors.primary950,
+  },
+  customPickerCloseBtn: {
+    marginTop: 10,
+    padding: 12,
+    alignItems: 'center',
+  },
+  customPickerCloseBtnText: {
+    fontFamily: 'IBM-Bold',
+    fontSize: 16,
+    color: Colors.rose600,
   },
 })
 

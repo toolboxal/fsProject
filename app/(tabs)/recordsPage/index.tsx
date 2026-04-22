@@ -174,7 +174,12 @@ const RecordsPage = () => {
   // console.log('recordsPage render')
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={['right', 'left', 'top']}>
+    <SafeAreaView
+      style={styles.safeArea}
+      edges={
+        Platform.OS === 'ios' ? ['right', 'left', 'top'] : ['right', 'left']
+      }
+    >
       <StatusBar style="dark" />
       <Stack.Screen
         options={{
@@ -192,6 +197,7 @@ const RecordsPage = () => {
             placeholder: i18n.t('records.searchBarPlaceholder'),
             barTintColor:
               colorScheme === 'dark' ? Colors.primary300 : Colors.primary200,
+            headerIconColor: Colors.emerald900,
             onChangeText: (event) => {
               const text = event.nativeEvent.text
               setSearchBarQuery(text)
@@ -258,7 +264,9 @@ const RecordsPage = () => {
           }}
         >
           <FlashList
-            contentInsetAdjustmentBehavior="automatic"
+            contentInsetAdjustmentBehavior={
+              Platform.OS === 'android' ? 'never' : 'automatic'
+            }
             contentContainerStyle={{ paddingBottom: 80 }}
             data={flatMapped}
             renderItem={renderItem}
@@ -373,7 +381,7 @@ const RecordsPage = () => {
       <Pressable
         style={{
           position: 'absolute',
-          bottom: Platform.OS === 'android' ? 75 : bottom + 75,
+          bottom: Platform.OS === 'android' ? 95 : bottom + 75,
           backgroundColor: Colors.emerald900,
           borderRadius: 100,
           borderWidth: 2,

@@ -101,12 +101,12 @@ const FormTagModal = ({
     <Modal animationType="fade" transparent={true} visible={openTagModal}>
       <View style={styles.fullPage}>
         <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'padding'}
           style={{
             width: '100%',
-            marginTop: Platform.OS === 'ios' ? 0 : 200,
+            alignItems: 'center',
           }}
-          keyboardVerticalOffset={Platform.OS === 'ios' ? 10 : 0}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 10 : 60}
         >
           <View style={styles.cardContainer}>
             <View
