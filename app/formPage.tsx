@@ -4,25 +4,29 @@ import useMyStore from '@/store/store'
 import getCurrentLocation from '@/utils/getCurrentLoc'
 import * as Location from 'expo-location'
 
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import { KeyboardAvoidingView, Platform, StatusBar } from 'react-native'
+import { useLocalSearchParams } from 'expo-router'
 
 const FormPage = () => {
   const setGeoCoords = useMyStore((state) => state.setGeoCoords)
   const setAddress = useMyStore((state) => state.setAddress)
-  const pressedCoords = useMyStore((state) => state.pressedCoords)
-  const setPressedCoords = useMyStore((state) => state.setPressedCoords)
+  const { lat, lng } = useLocalSearchParams<{ lat?: string; lng?: string }>()
+
+  const paramCoords = useMemo(() => {
+    if (!lat || !lng) return null
+    const latitude = Number(lat)
+    const longitude = Number(lng)
+    if (isNaN(latitude) || isNaN(longitude)) return null
+    return { latitude, longitude }
+  }, [lat, lng])
 
   useEffect(() => {
     const getGeo = async () => {
-      if (pressedCoords.latitude !== 0 && pressedCoords.longitude !== 0) {
-        setGeoCoords(pressedCoords)
-        const getAddress = await Location.reverseGeocodeAsync({
-          latitude: pressedCoords.latitude,
-          longitude: pressedCoords.longitude,
-        })
+      if (paramCoords) {
+        setGeoCoords(paramCoords)
+        const getAddress = await Location.reverseGeocodeAsync(paramCoords)
         setAddress(getAddress[0])
-        setPressedCoords({ latitude: 0, longitude: 0 })
       } else {
         const { latitude, longitude, getAddress } = await getCurrentLocation()
         setGeoCoords({ latitude, longitude })
@@ -30,7 +34,7 @@ const FormPage = () => {
       }
     }
     getGeo()
-  }, [])
+  }, [paramCoords, setGeoCoords, setAddress])
 
   return (
     <KeyboardAvoidingView
@@ -42,7 +46,10 @@ const FormPage = () => {
     >
       <StatusBar barStyle={'dark-content'} />
 
-      <Form />
+      <Form
+        initialLat={paramCoords?.latitude}
+        initialLng={paramCoords?.longitude}
+      />
     </KeyboardAvoidingView>
   )
 }

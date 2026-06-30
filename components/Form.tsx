@@ -38,7 +38,12 @@ type TFormData = Omit<
   'id' | 'category' | 'latitude' | 'longitude' | 'status' | 'initialVisit'
 >
 
-const Form = () => {
+type FormProps = {
+  initialLat?: number
+  initialLng?: number
+}
+
+const Form = ({ initialLat, initialLng }: FormProps) => {
   const queryClient = useQueryClient()
   const [showDatePicker, setShowDatePicker] = useState(false)
   const [initialVisit, setInitialVisit] = useState(new Date())
@@ -51,19 +56,13 @@ const Form = () => {
   )
   const [contactValue, setContactValue] = useState<string>('')
   const geoCoords = useMyStore((state) => state.geoCoords)
-  const pressedCoords = useMyStore((state) => state.pressedCoords)
-  const setPressedCoords = useMyStore((state) => state.setPressedCoords)
   const address = useMyStore((state) => state.address)
   const lang = useMyStore((state) => state.language)
   const { regionCode } = getLocales()[0]
   let { latitude, longitude } = geoCoords
 
-  const [updatedLat, setUpdatedLat] = useState(
-    pressedCoords.latitude || latitude,
-  )
-  const [updatedLng, setUpdatedLng] = useState(
-    pressedCoords.longitude || longitude,
-  )
+  const [updatedLat, setUpdatedLat] = useState(initialLat ?? latitude)
+  const [updatedLng, setUpdatedLng] = useState(initialLng ?? longitude)
 
   const { todayDate } = getTimeDate()
 
@@ -207,7 +206,6 @@ const Form = () => {
         ? `Record ${name} has been created 👍`
         : i18n.t('form.toastSuccess'),
     )
-    setPressedCoords({ latitude: 0, longitude: 0 })
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
     router.back()
   }

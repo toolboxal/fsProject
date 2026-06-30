@@ -340,19 +340,28 @@ const MapLibreMap = () => {
             const pressedLat = coordinates[1]
             const pressedLong = coordinates[0]
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Rigid)
-            setPressedCoords({ latitude: pressedLat, longitude: pressedLong })
             Alert.alert('create a record or marker', '', [
               {
                 text: 'record',
                 onPress: () =>
                   router.navigate({
                     pathname: '/formPage',
+                    params: {
+                      lat: String(pressedLat),
+                      lng: String(pressedLong),
+                    },
                   }),
                 style: 'default',
               },
               {
                 text: 'marker',
-                onPress: () => setShowAnnotateModal(true),
+                onPress: () => {
+                  setPressedCoords({
+                    latitude: pressedLat,
+                    longitude: pressedLong,
+                  })
+                  setShowAnnotateModal(true)
+                },
                 style: 'destructive',
               },
             ])
