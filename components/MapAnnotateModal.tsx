@@ -13,7 +13,6 @@ import {
 import Text from '@/components/Text'
 import TextInput from '@/components/TextInput'
 import { db } from '@/drizzle/db'
-import useMyStore from '@/store/store'
 import { markerAnnotation } from '@/drizzle/schema'
 import { useQueryClient } from '@tanstack/react-query'
 import * as Haptics from 'expo-haptics'
@@ -22,13 +21,14 @@ import Foundation from '@expo/vector-icons/Foundation'
 type Props = {
   showAnnotateModal: boolean
   setShowAnnotateModal: React.Dispatch<React.SetStateAction<boolean>>
+  coords: { latitude: number; longitude: number } | null
 }
 
 const MapAnnotateModal = ({
   showAnnotateModal,
   setShowAnnotateModal,
+  coords,
 }: Props) => {
-  const pressedCoords = useMyStore((state) => state.pressedCoords)
   const queryClient = useQueryClient()
   const {
     control,
@@ -57,9 +57,11 @@ const MapAnnotateModal = ({
       })
       return
     }
+    if (!coords) return
+
     await db.insert(markerAnnotation).values({
-      latitude: pressedCoords.latitude,
-      longitude: pressedCoords.longitude,
+      latitude: coords.latitude,
+      longitude: coords.longitude,
       annotation: annotate,
     })
     queryClient.invalidateQueries({ queryKey: ['markerAnnotation'] })

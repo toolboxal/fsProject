@@ -120,13 +120,19 @@ const openWhatsApp = async (phoneNumber: string) => {
 const MapLibreMap = () => {
   const { top, bottom } = useSafeAreaInsets()
   const [showAnnotateModal, setShowAnnotateModal] = useState(false)
+  const [annotateCoords, setAnnotateCoords] = useState<{
+    latitude: number
+    longitude: number
+  } | null>(null)
+  const [cameraCenter, setCameraCenter] = useState<{
+    latitude: number
+    longitude: number
+  } | null>(null)
   const [selectedTags, setSelectedTags] = useState<string[]>([])
   const setAddress = useMyStore((state) => state.setAddress)
   const setGeoCoords = useMyStore((state) => state.setGeoCoords)
-  const setPressedCoords = useMyStore((state) => state.setPressedCoords)
   const geoCoords = useMyStore((state) => state.geoCoords)
   const { latitude, longitude } = geoCoords
-  const pressedCoords = useMyStore((state) => state.pressedCoords)
   const i18n = useTranslations()
   const queryClient = useQueryClient()
   const isFocused = useIsFocused()
@@ -281,10 +287,10 @@ const MapLibreMap = () => {
 
   const handleRefreshNavigation = useCallback(async () => {
     const { latitude, longitude, getAddress } = await getCurrentLocation()
-    setPressedCoords({ latitude, longitude })
+    setCameraCenter({ latitude, longitude })
     setGeoCoords({ latitude, longitude })
     setAddress(getAddress[0])
-  }, [setPressedCoords, setGeoCoords, setAddress])
+  }, [setGeoCoords, setAddress])
 
   useEffect(() => {
     if (isFocused) {
@@ -356,7 +362,7 @@ const MapLibreMap = () => {
               {
                 text: 'marker',
                 onPress: () => {
-                  setPressedCoords({
+                  setAnnotateCoords({
                     latitude: pressedLat,
                     longitude: pressedLong,
                   })
@@ -371,6 +377,7 @@ const MapLibreMap = () => {
         <MapAnnotateModal
           showAnnotateModal={showAnnotateModal}
           setShowAnnotateModal={setShowAnnotateModal}
+          coords={annotateCoords}
         />
         <Camera
           ref={cameraRef}
@@ -378,8 +385,8 @@ const MapLibreMap = () => {
           minZoomLevel={1}
           maxZoomLevel={20}
           centerCoordinate={[
-            pressedCoords.longitude || longitude,
-            pressedCoords.latitude || latitude,
+            cameraCenter?.longitude ?? longitude,
+            cameraCenter?.latitude ?? latitude,
           ]}
         />
         {/* Current Location Point */}

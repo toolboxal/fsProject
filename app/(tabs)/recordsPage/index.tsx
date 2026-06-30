@@ -17,7 +17,6 @@ import { FlashList } from '@shopify/flash-list'
 import SingleRecord from '@/components/SingleRecord'
 
 import * as Haptics from 'expo-haptics'
-import useMyStore from '@/store/store'
 import { storage } from '@/store/storage'
 import { differenceInDays } from 'date-fns'
 import { Ionicons } from '@expo/vector-icons'
@@ -41,7 +40,7 @@ const filterOptions = [
 const RecordsPage = () => {
   const colorScheme = Appearance.getColorScheme()
   const [refreshing, setRefreshing] = useState(false)
-  // const selectedPerson = useMyStore((state) => state.selectedPerson)
+  const [selectedPersonId, setSelectedPersonId] = useState<number | null>(null)
   const [modalVisible, setModalVisible] = useState(false)
   const [searchBarQuery, setSearchBarQuery] = useState('')
   const [selectedTags, setSelectedTags] = useState<number[]>([])
@@ -154,6 +153,11 @@ const RecordsPage = () => {
   // --------end of data formatting----------
 
   // Move useCallback hooks outside conditional rendering to comply with Rules of Hooks
+  const handleSelectPerson = useCallback((id: number) => {
+    setSelectedPersonId(id)
+    setModalVisible(true)
+  }, [])
+
   const renderItem = useCallback(
     ({ item }: { item: string | TPersonWithTags }) => {
       if (typeof item === 'string') {
@@ -161,10 +165,10 @@ const RecordsPage = () => {
         return <Text style={styles.header}>{item}</Text>
       } else {
         // Render item
-        return <SingleRecord item={item} setModalVisible={setModalVisible} />
+        return <SingleRecord item={item} onSelect={handleSelectPerson} />
       }
     },
-    [setModalVisible],
+    [handleSelectPerson],
   )
 
   const getItemType = useCallback((item: string | TPersonWithTags) => {
@@ -377,6 +381,7 @@ const RecordsPage = () => {
       <DetailsModal
         modalVisible={modalVisible}
         setModalVisible={setModalVisible}
+        personId={selectedPersonId}
       />
       <Pressable
         style={{

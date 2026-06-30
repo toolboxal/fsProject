@@ -1,5 +1,4 @@
 import { Colors } from '@/constants/Colors'
-import useMyStore from '@/store/store'
 import {
   StyleSheet,
   View,
@@ -11,6 +10,7 @@ import {
   ScrollView,
   FlatList,
   KeyboardAvoidingView,
+  ActivityIndicator,
 } from 'react-native'
 import Text from '@/components/Text'
 
@@ -43,22 +43,38 @@ import shareAsNonFSPal from '@/utils/shareAsNonFSPal'
 type props = {
   modalVisible: boolean
   setModalVisible: React.Dispatch<React.SetStateAction<boolean>>
+  personId: number | null
 }
 
-const DetailsModal = ({ modalVisible, setModalVisible }: props) => {
+const DetailsModal = ({ modalVisible, setModalVisible, personId }: props) => {
   const router = useRouter()
-  const selectedPerson = useMyStore((state) => state.selectedPerson)
   const [followUpDate, setFollowUpDate] = useState<Date>(new Date())
   const [editMode, setEditMode] = useState(false)
   const [followUpIdToEdit, setFollowUpIdToEdit] = useState<number>()
   const [pageView, setPageView] = useState<'profile' | 'followUp'>('profile')
   const [showDatePicker, setShowDatePicker] = useState(false)
+
+  const i18n = useTranslations()
+
+  const queryClient = useQueryClient()
+
+  const id = personId ?? 0
+
+  const { data: person, isLoading: isPersonLoading } = useQuery({
+    queryKey: ['person', personId],
+    queryFn: async () => {
+      return await db.query.Person.findFirst({
+        where: eq(Person.id, personId!),
+      })
+    },
+    enabled: personId != null && personId > 0 && modalVisible,
+  })
+
   const {
     name,
     block,
     unit,
     remarks,
-    id,
     category,
     status,
     contact,
@@ -68,11 +84,21 @@ const DetailsModal = ({ modalVisible, setModalVisible }: props) => {
     latitude,
     longitude,
     publications,
-  } = selectedPerson
-
-  const i18n = useTranslations()
-
-  const queryClient = useQueryClient()
+  } = person ?? {
+    name: '',
+    block: '',
+    unit: '',
+    remarks: '',
+    category: '',
+    status: 'frequent' as TPerson['status'],
+    contact: '',
+    date: '',
+    initialVisit: null,
+    street: '',
+    latitude: 0,
+    longitude: 0,
+    publications: '',
+  }
 
   const { data: tagsArr } = useQuery({
     queryKey: ['tags', id],
@@ -83,10 +109,8 @@ const DetailsModal = ({ modalVisible, setModalVisible }: props) => {
         .innerJoin(tags, eq(personsToTags.tagId, tags.id))
         .where(eq(personsToTags.personId, id))
     },
+    enabled: id > 0 && modalVisible,
   })
-
-  // console.log('tags array -->', tagsArr)
-
   const { data: followUpsArr } = useQuery({
     queryKey: ['followUps', id],
     queryFn: async () => {
@@ -94,6 +118,7 @@ const DetailsModal = ({ modalVisible, setModalVisible }: props) => {
         where: eq(followUp.personId, id),
       })
     },
+    enabled: id > 0 && modalVisible,
   })
   // console.log('followUpsArray --> ', followUpsArr)
 
@@ -273,7 +298,7 @@ const DetailsModal = ({ modalVisible, setModalVisible }: props) => {
       }
       reset()
       queryClient.invalidateQueries({
-        queryKey: ['followUps', selectedPerson.id],
+        queryKey: ['followUps', id],
       })
       queryClient.invalidateQueries({
         queryKey: ['persons'],
@@ -313,7 +338,7 @@ const DetailsModal = ({ modalVisible, setModalVisible }: props) => {
       toast.success(i18n.t('detailsModal.toastDeleteSuccess'))
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
       queryClient.invalidateQueries({
-        queryKey: ['followUps', selectedPerson.id],
+        queryKey: ['followUps', id],
       })
       setPageView('profile')
     } catch (error) {
@@ -337,6 +362,12 @@ const DetailsModal = ({ modalVisible, setModalVisible }: props) => {
           onPress={() => setModalVisible((prev) => !prev)}
         />
 
+        {isPersonLoading ? (
+          <View style={[styles.cardContainer, styles.loadingContainer]}>
+            <ActivityIndicator size="large" color={Colors.emerald500} />
+          </View>
+        ) : !person ? null : (
+          <>
         {pageView === 'profile' && (
           <View style={styles.cardContainer}>
             <View style={styles.topBar}>
@@ -764,6 +795,8 @@ const DetailsModal = ({ modalVisible, setModalVisible }: props) => {
             </Pressable>
           </KeyboardAvoidingView>
         )}
+          </>
+        )}
       </View>
     </Modal>
   )
@@ -790,6 +823,10 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.primary950,
     height: '55%',
     overflow: 'hidden',
+  },
+  loadingContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   cardContainer2: {
     width: '96%',

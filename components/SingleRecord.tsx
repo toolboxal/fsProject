@@ -1,5 +1,4 @@
 import { Colors } from '@/constants/Colors'
-import useMyStore from '@/store/store'
 
 import {
   TouchableOpacity,
@@ -16,16 +15,15 @@ import { useTranslations } from '@/app/_layout'
 
 type TProps = {
   item: TPerson
-  setModalVisible: React.Dispatch<React.SetStateAction<boolean>>
+  onSelect: (id: number) => void
 }
 
 const i18n = useTranslations()
 
 const SingleRecord = (prop: TProps) => {
   const queryClient = useQueryClient()
-  const setSelectedPerson = useMyStore((state) => state.setSelectedPerson)
 
-  const { item, setModalVisible } = prop
+  const { item, onSelect } = prop
   const { name, block, unit, remarks, id, category, status } = item
   let formattedRemarks = ''
   if (remarks === null) {
@@ -62,9 +60,7 @@ const SingleRecord = (prop: TProps) => {
       style={styles.container}
       onPress={() => {
         // Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
-        setSelectedPerson(item)
-        // handleOpenBtmSheet('expand')
-        setModalVisible((prev) => !prev)
+        onSelect(id)
         queryClient.invalidateQueries({
           queryKey: ['tags', id],
         })
