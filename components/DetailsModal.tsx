@@ -349,7 +349,10 @@ const DetailsModal = ({ modalVisible, setModalVisible }: props) => {
                   style={styles.menuBtn}
                   onPress={() => {
                     setModalVisible(false)
-                    router.push('/editPage')
+                    router.push({
+                      pathname: '/editPage',
+                      params: { id: String(id) },
+                    })
                   }}
                 >
                   <Text style={styles.menuTxt}>

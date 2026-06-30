@@ -13,14 +13,13 @@ import {
 } from 'react-native'
 import Text from '@/components/Text'
 import * as Location from 'expo-location'
-import useMyStore from '@/store/store'
 import { useForm, Controller } from 'react-hook-form'
 import TextInputComponent from '@/components/TextInputComponent'
 import { useState, useEffect } from 'react'
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6'
 // import AntDesign from '@expo/vector-icons/AntDesign'
 import Entypo from '@expo/vector-icons/Entypo'
-import { router } from 'expo-router'
+import { router, useLocalSearchParams } from 'expo-router'
 
 import { toast } from 'sonner-native'
 import * as Haptics from 'expo-haptics'
@@ -49,40 +48,41 @@ type TFormData = Omit<
   | 'initialVisit'
 >
 
-const EditPage = () => {
+const parseInitialVisit = (initialVisit: TPerson['initialVisit']) => {
+  if (!initialVisit) return new Date()
+
+  const date =
+    initialVisit instanceof Date ? initialVisit : new Date(initialVisit)
+
+  return date.getTime() > 0 && !isNaN(date.getTime()) ? date : new Date()
+}
+
+type EditPageFormProps = {
+  person: TPerson
+}
+
+const EditPageForm = ({ person }: EditPageFormProps) => {
   const queryClient = useQueryClient()
 
-  const selectedPerson = useMyStore((state) => state.selectedPerson)
-  const [category, setCategory] = useState(selectedPerson.category!)
+  const [category, setCategory] = useState(person.category!)
   const [status, setStatus] = useState<TPerson['status']>(
-    selectedPerson.status || 'frequent',
+    person.status || 'frequent',
   )
 
   const [showDatePicker, setShowDatePicker] = useState(false)
-  const [initialVisit, setInitialVisit] = useState(() => {
-    // Handle null, undefined, or invalid dates
-    if (!selectedPerson.initialVisit) return new Date()
-
-    const date =
-      selectedPerson.initialVisit instanceof Date
-        ? selectedPerson.initialVisit
-        : new Date(selectedPerson.initialVisit)
-
-    // Check if date is valid and not Unix epoch (1970)
-    return date.getTime() > 0 && !isNaN(date.getTime()) ? date : new Date()
-  })
+  const [initialVisit, setInitialVisit] = useState(() =>
+    parseInitialVisit(person.initialVisit),
+  )
 
   const [openTagModal, setOpenTagModal] = useState(false)
 
-  const [updatedLat, setUpdatedLat] = useState(selectedPerson.latitude)
-  const [updatedLng, setUpdatedLng] = useState(selectedPerson.longitude)
+  const [updatedLat, setUpdatedLat] = useState(person.latitude)
+  const [updatedLng, setUpdatedLng] = useState(person.longitude)
   const [selectedCountry, setSelectedCountry] = useState<undefined | ICountry>(
     undefined,
   )
   const [contactValue, setContactValue] = useState<string>(
-    selectedPerson.contact
-      ? selectedPerson.contact.replace(/^\+\d+\s/, '')
-      : '',
+    person.contact ? person.contact.replace(/^\+\d+\s/, '') : '',
   )
   const [countryCallingCode, setCountryCallingCode] = useState<
     string | undefined
@@ -94,21 +94,18 @@ const EditPage = () => {
 
   useEffect(() => {
     setContactValue(
-      selectedPerson.contact
-        ? selectedPerson.contact.replace(/^\+\d+\s/, '')
-        : '',
+      person.contact ? person.contact.replace(/^\+\d+\s/, '') : '',
     )
-    const phoneNumber = parsePhoneNumberFromString(selectedPerson.contact || '')
+    const phoneNumber = parsePhoneNumberFromString(person.contact || '')
     setCountryCallingCode(phoneNumber?.country)
-    console.log('countryCallingCode', countryCallingCode)
-  }, [selectedPerson.contact])
+  }, [person.contact])
 
   const { data: personsTag } = useQuery({
-    queryKey: ['tags', selectedPerson.id],
+    queryKey: ['tags', person.id],
     queryFn: async () => {
       return await db.query.personsToTags.findMany({
         where: (personsToTags, { eq }) =>
-          eq(personsToTags.personId, selectedPerson.id),
+          eq(personsToTags.personId, person.id),
         columns: {
           tagId: true,
         },
@@ -181,14 +178,14 @@ const EditPage = () => {
     formState: { errors },
   } = useForm({
     defaultValues: {
-      block: selectedPerson.block || '',
-      unit: selectedPerson.unit || '',
-      street: selectedPerson.street || '',
-      name: selectedPerson.name || '',
-      contact: selectedPerson.contact || '',
-      date: selectedPerson.date || '',
-      remarks: selectedPerson.remarks || '',
-      publications: selectedPerson.publications || '',
+      block: person.block || '',
+      unit: person.unit || '',
+      street: person.street || '',
+      name: person.name || '',
+      contact: person.contact || '',
+      date: person.date || '',
+      remarks: person.remarks || '',
+      publications: person.publications || '',
     },
   })
 
@@ -225,18 +222,18 @@ const EditPage = () => {
         publications: publications,
         status: status,
       })
-      .where(eq(Person.id, selectedPerson.id))
+      .where(eq(Person.id, person.id))
 
     // Update associations for selected tags
     if (selectedTags.length > 0) {
       // First, delete existing associations for this person
       await db
         .delete(personsToTags)
-        .where(eq(personsToTags.personId, selectedPerson.id))
+        .where(eq(personsToTags.personId, person.id))
 
       // Then, insert new associations based on selectedTags
       const tagAssociations = selectedTags.map((tagId) => ({
-        personId: selectedPerson.id,
+        personId: person.id,
         tagId: tagId,
       }))
       await db.insert(personsToTags).values(tagAssociations)
@@ -244,11 +241,12 @@ const EditPage = () => {
       // If no tags are selected, delete all associations for this person
       await db
         .delete(personsToTags)
-        .where(eq(personsToTags.personId, selectedPerson.id))
+        .where(eq(personsToTags.personId, person.id))
     }
 
     queryClient.invalidateQueries({ queryKey: ['persons'] })
-    queryClient.invalidateQueries({ queryKey: ['tags', selectedPerson.id] })
+    queryClient.invalidateQueries({ queryKey: ['person', person.id] })
+    queryClient.invalidateQueries({ queryKey: ['tags', person.id] })
     console.log('edit done')
     reset()
     toast.success(i18n.t('editForm.toastSuccess'))
@@ -319,7 +317,7 @@ const EditPage = () => {
 </html>
   `
 
-  // console.log('edit Page', selectedPerson)
+  // console.log('edit Page', person)
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -757,6 +755,48 @@ const EditPage = () => {
     </SafeAreaView>
   )
 }
+
+const EditPage = () => {
+  const { id } = useLocalSearchParams<{ id: string }>()
+  const personId = Number(id)
+
+  const { data: person, isLoading } = useQuery({
+    queryKey: ['person', personId],
+    queryFn: async () => {
+      return await db.query.Person.findFirst({
+        where: eq(Person.id, personId),
+      })
+    },
+    enabled: !isNaN(personId) && personId > 0,
+  })
+
+  if (isLoading) {
+    return (
+      <SafeAreaView style={{ flex: 1, backgroundColor: Colors.primary50 }}>
+        <ActivityIndicator
+          size="large"
+          color={Colors.emerald500}
+          style={{ flex: 1 }}
+        />
+      </SafeAreaView>
+    )
+  }
+
+  if (!person) {
+    return (
+      <SafeAreaView style={{ flex: 1, backgroundColor: Colors.primary50 }}>
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <Text style={{ fontFamily: 'IBM-Regular', color: Colors.primary900 }}>
+            Record not found
+          </Text>
+        </View>
+      </SafeAreaView>
+    )
+  }
+
+  return <EditPageForm key={person.id} person={person} />
+}
+
 export default EditPage
 
 const styles = StyleSheet.create({
