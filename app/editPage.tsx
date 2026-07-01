@@ -104,8 +104,7 @@ const EditPageForm = ({ person }: EditPageFormProps) => {
     queryKey: ['tags', person.id],
     queryFn: async () => {
       return await db.query.personsToTags.findMany({
-        where: (personsToTags, { eq }) =>
-          eq(personsToTags.personId, person.id),
+        where: (personsToTags, { eq }) => eq(personsToTags.personId, person.id),
         columns: {
           tagId: true,
         },
@@ -785,7 +784,9 @@ const EditPage = () => {
   if (!person) {
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: Colors.primary50 }}>
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <View
+          style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
+        >
           <Text style={{ fontFamily: 'IBM-Regular', color: Colors.primary900 }}>
             Record not found
           </Text>

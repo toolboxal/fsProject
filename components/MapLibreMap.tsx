@@ -5,7 +5,6 @@ import {
   Pressable,
   Platform,
   Alert,
-  ScrollView,
 } from 'react-native'
 import Text from '@/components/Text'
 import * as Linking from 'expo-linking'
@@ -28,19 +27,20 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Colors } from '@/constants/Colors'
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react'
-import { Feather, FontAwesome5, Ionicons } from '@expo/vector-icons'
+import { Ionicons } from '@expo/vector-icons'
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6'
 import * as Haptics from 'expo-haptics'
-import { format } from 'date-fns'
 import { useRouter } from 'expo-router'
 import getCurrentLocation from '@/utils/getCurrentLoc'
 import { useTranslations } from '@/app/_layout'
 import { useIsFocused } from '@react-navigation/native'
 import MapAnnotateModal from './MapAnnotateModal'
+import DetailsModal from './DetailsModal'
+import PersonMapCallout from './PersonMapCallout'
 import Foundation from '@expo/vector-icons/Foundation'
 import { X } from 'lucide-react-native'
 import { eq } from 'drizzle-orm'
-import { BlurView } from 'expo-blur'
+import { confirmDeletePerson, promptSharePerson } from '@/utils/personActions'
 
 // Pure utility functions - moved outside component for better performance
 const openMapsForNavigation = async (latitude: number, longitude: number) => {
@@ -117,6 +117,42 @@ const openWhatsApp = async (phoneNumber: string) => {
   }
 }
 
+const MAP_STYLE = {
+  version: 8,
+  sources: {
+    osm: {
+      type: 'raster',
+      tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
+      tileSize: 256,
+      attribution: '&copy; OpenStreetMap contributors',
+    },
+  },
+  layers: [
+    {
+      id: 'osm-layer',
+      source: 'osm',
+      type: 'raster',
+    },
+  ],
+}
+
+const sortFollowUpsByDateDesc = (
+  followUps: TPersonWithTagsAndFollowUps['followUp'],
+) => {
+  if (!followUps?.length) return []
+  return [...followUps].sort(
+    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+  )
+}
+
+type PositionedMarker = {
+  person: TPersonWithTagsAndFollowUps
+  offset: [number, number]
+  sortedFollowUps: NonNullable<TPersonWithTagsAndFollowUps['followUp']>
+}
+
+type PersonStatus = NonNullable<TPerson['status']>
+
 const MapLibreMap = () => {
   const { top, bottom } = useSafeAreaInsets()
   const [showAnnotateModal, setShowAnnotateModal] = useState(false)
@@ -131,60 +167,101 @@ const MapLibreMap = () => {
   const [selectedTags, setSelectedTags] = useState<string[]>([])
   const setAddress = useMyStore((state) => state.setAddress)
   const setGeoCoords = useMyStore((state) => state.setGeoCoords)
-  const geoCoords = useMyStore((state) => state.geoCoords)
-  const { latitude, longitude } = geoCoords
+  const latitude = useMyStore((state) => state.geoCoords.latitude)
+  const longitude = useMyStore((state) => state.geoCoords.longitude)
   const i18n = useTranslations()
   const queryClient = useQueryClient()
   const isFocused = useIsFocused()
   const cameraRef = useRef<CameraRef>(null)
   const [showInfoPanel, setShowInfoPanel] = useState(false)
+  const [detailsVisible, setDetailsVisible] = useState(false)
+  const [detailsPersonId, setDetailsPersonId] = useState<number | null>(null)
+  const [detailsInitialView, setDetailsInitialView] = useState<
+    'profile' | 'followUp'
+  >('profile')
+  const [selectedCalloutPersonId, setSelectedCalloutPersonId] = useState<
+    number | null
+  >(null)
 
-  // Memoize statusOptions to prevent recreation on every render
-  const statusOptions: {
-    type: TPerson['status']
-    color: string
-    label: string
-  }[] = useMemo(
-    () => [
-      {
-        type: 'irregular',
-        label: i18n.t('statusOptions.labelIrregular'),
-        color: Colors.sky200,
-      },
-      {
-        type: 'frequent',
-        label: i18n.t('statusOptions.labelFrequent'),
-        color: Colors.purple100,
-      },
-      {
-        type: 'committed',
-        label: i18n.t('statusOptions.labelCommitted'),
-        color: Colors.purple300,
-      },
-    ],
+  const statusLookup = useMemo(
+    () =>
+      ({
+        irregular: {
+          label: i18n.t('statusOptions.labelIrregular'),
+          color: Colors.sky200,
+        },
+        frequent: {
+          label: i18n.t('statusOptions.labelFrequent'),
+          color: Colors.purple100,
+        },
+        committed: {
+          label: i18n.t('statusOptions.labelCommitted'),
+          color: Colors.purple300,
+        },
+      }) satisfies Record<PersonStatus, { label: string; color: string }>,
     [i18n],
   )
 
   const router = useRouter()
-  // MapLibre needs a style object for the map
-  const mapStyle = {
-    version: 8,
-    sources: {
-      osm: {
-        type: 'raster',
-        tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
-        tileSize: 256,
-        attribution: '&copy; OpenStreetMap contributors',
-      },
+
+  const openDetailsFollowUp = useCallback((personId: number) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+    setDetailsPersonId(personId)
+    setDetailsInitialView('followUp')
+    setDetailsVisible(true)
+  }, [])
+
+  const handleCalloutEdit = useCallback(
+    (personId: number) => {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+      router.push({
+        pathname: '/editPage',
+        params: { id: String(personId) },
+      })
     },
-    layers: [
-      {
-        id: 'osm-layer',
-        source: 'osm',
-        type: 'raster',
-      },
-    ],
-  }
+    [router],
+  )
+
+  const handleCalloutShare = useCallback((personId: number) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+    promptSharePerson(personId)
+  }, [])
+
+  const handleCalloutDelete = useCallback(
+    (personId: number) => {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+      confirmDeletePerson(personId, queryClient, {
+        title: i18n.t('detailsModal.deleteAlertTitle'),
+        description: i18n.t('detailsModal.deleteAlertDesc'),
+        confirm: i18n.t('detailsModal.confirm'),
+        cancel: i18n.t('detailsModal.cancel'),
+        successToast: i18n.t('detailsModal.deleteToast'),
+      })
+    },
+    [queryClient, i18n],
+  )
+
+  const handleDetailsModalVisibleChange = useCallback(
+    (value: React.SetStateAction<boolean>) => {
+      setDetailsVisible((prev) => {
+        const next = typeof value === 'function' ? value(prev) : value
+        if (!next) {
+          setDetailsPersonId(null)
+          setDetailsInitialView('profile')
+        }
+        return next
+      })
+    },
+    [],
+  )
+
+  const handleMarkerSelected = useCallback((personId: number) => {
+    setSelectedCalloutPersonId(personId)
+  }, [])
+
+  const handleMarkerDeselected = useCallback((personId: number) => {
+    setSelectedCalloutPersonId((prev) => (prev === personId ? null : prev))
+  }, [])
 
   const { data: markerAnnotationData } = useQuery<TMarkerAnnotation[]>({
     queryKey: ['markerAnnotation'],
@@ -192,7 +269,7 @@ const MapLibreMap = () => {
   })
 
   const { data } = useQuery<TPersonWithTagsAndFollowUps[]>({
-    queryKey: ['persons'],
+    queryKey: ['persons', 'map'],
     queryFn: async () =>
       db.query.Person.findMany({
         with: {
@@ -204,61 +281,24 @@ const MapLibreMap = () => {
           followUp: true,
         },
       }),
-    refetchOnMount: 'always',
+    refetchOnMount: true,
     refetchOnWindowFocus: true,
-    staleTime: 0, // Consider data stale immediately to ensure fresh data
+    staleTime: 30_000,
   })
 
-  const tagsArr = data
-    ?.map((person) => person.personsToTags?.map((pt) => pt.tag) || [])
-    .filter((tags) => tags.length > 0)
-
-  // Flatten the array of tag arrays and remove duplicates based on tag ID
-  const allTags = tagsArr?.flat() || []
-  const uniqueTags = allTags
-    .filter(
-      (tag, index, self) => index === self.findIndex((t) => t.id === tag.id),
-    )
-    .sort((a, b) => a.tagName.localeCompare(b.tagName))
-
-  // Function to group markers by location and apply circular offset
-  const getMarkerPositions = useCallback(() => {
+  const uniqueTags = useMemo(() => {
     if (!data) return []
 
-    // Group markers by their exact coordinates
-    const groupedMarkers: { [key: string]: TPersonWithTagsAndFollowUps[] } = {}
-    data.forEach((person) => {
-      if (person.latitude && person.longitude) {
-        const key = `${person.latitude},${person.longitude}`
-        if (!groupedMarkers[key]) {
-          groupedMarkers[key] = []
-        }
-        groupedMarkers[key].push(person)
-      }
-    })
+    const tagsArr = data
+      .map((person) => person.personsToTags?.map((pt) => pt.tag) || [])
+      .filter((tags) => tags.length > 0)
 
-    // For each group, apply an offset if there are multiple markers
-    const positionedMarkers: {
-      person: TPersonWithTagsAndFollowUps
-      offset: [number, number]
-    }[] = []
-    Object.values(groupedMarkers).forEach((group) => {
-      if (group.length === 1) {
-        // No offset for single markers
-        positionedMarkers.push({ person: group[0], offset: [0, 0] })
-      } else {
-        // Arrange in a circle for multiple markers
-        const radius = 0.00015 // Adjust this value to control the spread
-        group.forEach((person, index) => {
-          const angle = (2 * Math.PI * index) / group.length
-          const offsetX = radius * Math.cos(angle)
-          const offsetY = radius * Math.sin(angle)
-          positionedMarkers.push({ person, offset: [offsetX, offsetY] })
-        })
-      }
-    })
-
-    return positionedMarkers
+    const allTags = tagsArr.flat()
+    return allTags
+      .filter(
+        (tag, index, self) => index === self.findIndex((t) => t.id === tag.id),
+      )
+      .sort((a, b) => a.tagName.localeCompare(b.tagName))
   }, [data])
 
   const toggleTagSelection = useCallback((tagId: string) => {
@@ -270,9 +310,43 @@ const MapLibreMap = () => {
     )
   }, [])
 
-  const markerPositions = useMemo(() => {
-    return getMarkerPositions()
-  }, [getMarkerPositions])
+  const markerPositions = useMemo((): PositionedMarker[] => {
+    if (!data) return []
+
+    const groupedMarkers: { [key: string]: TPersonWithTagsAndFollowUps[] } = {}
+    data.forEach((person) => {
+      if (person.latitude && person.longitude) {
+        const key = `${person.latitude},${person.longitude}`
+        if (!groupedMarkers[key]) {
+          groupedMarkers[key] = []
+        }
+        groupedMarkers[key].push(person)
+      }
+    })
+
+    const positionedMarkers: PositionedMarker[] = []
+    Object.values(groupedMarkers).forEach((group) => {
+      if (group.length === 1) {
+        positionedMarkers.push({
+          person: group[0],
+          offset: [0, 0],
+          sortedFollowUps: sortFollowUpsByDateDesc(group[0].followUp),
+        })
+      } else {
+        const radius = 0.00015
+        group.forEach((person, index) => {
+          const angle = (2 * Math.PI * index) / group.length
+          positionedMarkers.push({
+            person,
+            offset: [radius * Math.cos(angle), radius * Math.sin(angle)],
+            sortedFollowUps: sortFollowUpsByDateDesc(person.followUp),
+          })
+        })
+      }
+    })
+
+    return positionedMarkers
+  }, [data])
 
   const filteredMarkers = useMemo(() => {
     if (selectedTags.length === 0) return markerPositions
@@ -294,10 +368,7 @@ const MapLibreMap = () => {
 
   useEffect(() => {
     if (isFocused) {
-      // console.log('Maps tab focused, refreshing data')
-      // Use refetchQueries to force immediate refetch instead of just invalidating
-      queryClient.refetchQueries({ queryKey: ['persons'] })
-      queryClient.refetchQueries({ queryKey: ['followUps'] })
+      queryClient.invalidateQueries({ queryKey: ['persons', 'map'] })
     }
   }, [isFocused, queryClient])
 
@@ -335,7 +406,7 @@ const MapLibreMap = () => {
     <View style={styles.container}>
       <MapView
         style={styles.map}
-        mapStyle={mapStyle}
+        mapStyle={MAP_STYLE}
         logoEnabled={false}
         attributionEnabled={true}
         rotateEnabled={false}
@@ -374,11 +445,6 @@ const MapLibreMap = () => {
           }
         }}
       >
-        <MapAnnotateModal
-          showAnnotateModal={showAnnotateModal}
-          setShowAnnotateModal={setShowAnnotateModal}
-          coords={annotateCoords}
-        />
         <Camera
           ref={cameraRef}
           zoomLevel={17}
@@ -443,39 +509,29 @@ const MapLibreMap = () => {
           </PointAnnotation>
         ))}
 
-        {filteredMarkers.map(({ person, offset }, index) => {
-          // Sort follow-ups by date if they exist
-          const sortedFollowUps =
-            person.followUp && person.followUp.length > 0
-              ? [...person.followUp].sort(
-                  (a, b) =>
-                    new Date(b.date).getTime() - new Date(a.date).getTime(),
-                )
-              : []
-          // console.log('sortedFollowUps --->>', sortedFollowUps)
-
-          // Create unique key with tag IDs so React re-renders when tags change
-          const tagIds =
-            person.personsToTags
-              ?.map((pt) => pt.tag.id)
-              .sort()
-              .join('-') || 'notags'
+        {filteredMarkers.map(({ person, offset, sortedFollowUps }) => {
+          const personStatus =
+            person.status != null ? statusLookup[person.status] : undefined
+          const isCalloutActive = selectedCalloutPersonId === person.id
 
           return (
             person.latitude &&
             person.longitude && (
               <PointAnnotation
-                key={`person-${person.id}-${tagIds}-${index}`}
-                id={`person-${person.id}-${tagIds}-${index}`}
+                key={`person-${person.id}`}
+                id={`person-${person.id}`}
                 coordinate={[
                   person.longitude + offset[0],
                   person.latitude + offset[1],
                 ]}
                 title={person.name || 'Unnamed Person'}
+                onSelected={() => handleMarkerSelected(person.id)}
+                onDeselected={() => handleMarkerDeselected(person.id)}
               >
                 <Pressable
                   onPress={() => {
                     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Rigid)
+                    handleMarkerSelected(person.id)
                   }}
                   style={[
                     styles.personMarker,
@@ -492,271 +548,33 @@ const MapLibreMap = () => {
                   <Text style={styles.personMarkerText}>{person.category}</Text>
                 </Pressable>
                 <Callout title={person.name || 'Unnamed Person'}>
-                  <View
-                    style={[
-                      styles.calloutContainer,
-                      Platform.OS === 'ios' ? { maxHeight: 320 } : { flex: 1 },
-                    ]}
-                  >
-                    <View style={styles.topBar}>
-                      <Text style={styles.name}>
-                        {person.name || 'Unnamed Person'}
-                      </Text>
-                      <View
-                        style={[
-                          styles.contactableBox,
-                          {
-                            backgroundColor: `${
-                              statusOptions.find(
-                                (option) => option.type === person.status,
-                              )?.color
-                            }`,
-                          },
-                        ]}
-                      >
-                        <Text style={styles.contactableText}>
-                          {
-                            statusOptions.find(
-                              (option) => option.type === person.status,
-                            )?.label
-                          }
-                        </Text>
-                      </View>
-                    </View>
-                    <View
-                      style={{
-                        flexDirection: 'row',
-                        gap: 5,
-                        alignItems: 'center',
-                        marginVertical: 5,
-                      }}
-                    >
-                      <FlatList
-                        style={{ marginVertical: 2 }}
-                        horizontal
-                        showsHorizontalScrollIndicator={false}
-                        data={person.personsToTags}
-                        renderItem={({ item }) => (
-                          <View
-                            key={item.tag.id}
-                            style={[
-                              styles.contactableBox,
-                              {
-                                borderColor: Colors.lemon300,
-                                borderWidth: 1,
-                                marginRight: 5,
-                              },
-                            ]}
-                          >
-                            <Text
-                              style={{
-                                fontFamily: 'IBM-Medium',
-                                fontSize: 12,
-                                color: Colors.lemon300,
-                              }}
-                            >
-                              {item.tag.tagName}
-                            </Text>
-                          </View>
-                        )}
-                      />
-                      {/* {person.personsToTags?.map((tag) => (
-                        <View
-                          key={tag.tag.id}
-                          style={[
-                            styles.contactableBox,
-                            {
-                              borderColor: Colors.lemon300,
-                              borderWidth: 1,
-                            },
-                          ]}
-                        >
-                          <Text
-                            style={{
-                              fontFamily: 'IBM-Medium',
-                              fontSize: 12,
-                              color: Colors.lemon300,
-                            }}
-                          >
-                            {tag.tag.tagName}
-                          </Text>
-                        </View>
-                      ))} */}
-                    </View>
-                    <View style={styles.horizontalLine} />
-
-                    <Text style={styles.address}>
-                      {person.block ? 'Apt.' + person.block : ''}{' '}
-                      {person.unit ? '#' + person.unit : ''} {person.street}
-                    </Text>
-                    {Platform.OS === 'ios' && (
-                      <Pressable
-                        style={{
-                          flexDirection: 'row',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          padding: 5,
-                          borderRadius: 30,
-                          width: 100,
-                          gap: 5,
-                          marginVertical: 3,
-                          backgroundColor: Colors.primary500,
-                        }}
-                        onPress={() => {
-                          openMapsForNavigation(
-                            person.latitude!,
-                            person.longitude!,
-                          )
-                        }}
-                      >
-                        <FontAwesome5
-                          name="car-alt"
-                          size={18}
-                          color={Colors.primary50}
-                        />
-                        <Text
-                          style={{
-                            fontFamily: 'IBM-Medium',
-                            fontSize: 14,
-                            color: Colors.primary50,
-                          }}
-                        >
-                          {i18n.t('statusOptions.labelNavigate')}
-                        </Text>
-                      </Pressable>
-                    )}
-                    {person.contact && (
-                      <View
-                        style={{
-                          flexDirection: 'row',
-                          alignItems: 'flex-end',
-                          gap: 10,
-                          //   backgroundColor: 'pink',
-                        }}
-                      >
-                        <Text
-                          style={{
-                            fontFamily: 'IBM-Medium',
-                            fontSize: 14,
-                            color: Colors.primary50,
-                          }}
-                        >
-                          Contact
-                        </Text>
-                        <Text
-                          style={{
-                            fontFamily: 'IBM-Medium',
-                            fontSize: 14,
-                            color: Colors.primary50,
-                          }}
-                        >
-                          {person.contact}
-                        </Text>
-                        {Platform.OS === 'ios' && (
-                          <Pressable
-                            onPress={() => handleCalling(person.contact ?? '')}
-                          >
-                            <Feather
-                              name="phone-call"
-                              size={18}
-                              color="white"
-                            />
-                          </Pressable>
-                        )}
-                        {Platform.OS === 'ios' && (
-                          <Pressable
-                            onPress={() => openWhatsApp(person.contact ?? '')}
-                          >
-                            <FontAwesome6
-                              name="whatsapp"
-                              size={20}
-                              color={Colors.emerald300}
-                            />
-                          </Pressable>
-                        )}
-                      </View>
-                    )}
-
-                    {person.date && (
-                      <Text
-                        style={{
-                          fontFamily: 'IBM-Medium',
-                          fontSize: 14,
-                          color: Colors.primary50,
-                          marginVertical: 3,
-                        }}
-                      >
-                        {i18n.t('statusOptions.labelInitialVisit')}{' '}
-                        {person.initialVisit
-                          ? format(
-                              new Date(person.initialVisit),
-                              'dd MMM yyyy (EEE)',
-                            )
-                          : person.date}
-                      </Text>
-                    )}
-                    {person.publications && (
-                      <Text
-                        style={{
-                          fontFamily: 'IBM-Bold',
-                          fontSize: 14,
-                          color: Colors.lemon200,
-                        }}
-                      >
-                        {person.publications}
-                      </Text>
-                    )}
-                    <ScrollView
-                      style={{ flex: 1 }}
-                      nestedScrollEnabled={true}
-                      showsVerticalScrollIndicator={true}
-                    >
-                      {person.remarks && (
-                        <View style={styles.remarksBox}>
-                          <Text style={styles.remarksText}>
-                            {person.remarks}
-                          </Text>
-                        </View>
-                      )}
-                      {sortedFollowUps.length > 0 && (
-                        <View>
-                          <Text style={styles.labelText}>
-                            {i18n.t('statusOptions.labelFollowUps')}
-                          </Text>
-                          {sortedFollowUps?.map((followUp) => (
-                            <View
-                              key={followUp.id}
-                              style={[styles.remarksBox, { marginBottom: 0 }]}
-                            >
-                              <Text
-                                style={{
-                                  color: Colors.primary400,
-                                  fontFamily: 'IBM-Regular',
-                                  fontSize: 13,
-                                  marginBottom: 3,
-                                }}
-                              >
-                                {format(
-                                  new Date(followUp.date),
-                                  'dd MMM yyyy (EEE)',
-                                )}
-                              </Text>
-                              <Text style={styles.remarksText}>
-                                {followUp.notes}
-                              </Text>
-                            </View>
-                          ))}
-                        </View>
-                      )}
-                    </ScrollView>
-                    <View style={styles.calloutTail} />
-                  </View>
+                  {isCalloutActive ? (
+                    <PersonMapCallout
+                      person={person}
+                      sortedFollowUps={sortedFollowUps}
+                      personStatus={personStatus}
+                      onEdit={handleCalloutEdit}
+                      onShare={handleCalloutShare}
+                      onFollowUp={openDetailsFollowUp}
+                      onDelete={handleCalloutDelete}
+                      onNavigate={openMapsForNavigation}
+                      onCall={handleCalling}
+                      onWhatsApp={openWhatsApp}
+                    />
+                  ) : (
+                    <View />
+                  )}
                 </Callout>
               </PointAnnotation>
             )
           )
         })}
       </MapView>
+      <MapAnnotateModal
+        showAnnotateModal={showAnnotateModal}
+        setShowAnnotateModal={setShowAnnotateModal}
+        coords={annotateCoords}
+      />
       {Platform.OS === 'android' &&
         markerAnnotationData &&
         markerAnnotationData.length > 0 && (
@@ -899,6 +717,13 @@ const MapLibreMap = () => {
           </Text>
         </View>
       )}
+      <DetailsModal
+        modalVisible={detailsVisible}
+        setModalVisible={handleDetailsModalVisibleChange}
+        personId={detailsPersonId}
+        initialPageView={detailsInitialView}
+        closeAfterFollowUpSubmit
+      />
     </View>
   )
 }
@@ -1000,16 +825,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     alignSelf: 'flex-end',
   },
-  calloutContainer: {
-    backgroundColor: Colors.primary900,
-    borderRadius: 15,
-    padding: 8,
-    marginBottom: 10,
-    minWidth: 300,
-    position: 'relative',
-    // maxHeight: 320,
-    flex: 1,
-  },
   calloutText: {
     fontSize: 12,
     fontFamily: 'IBM-Medium',
@@ -1063,64 +878,6 @@ const styles = StyleSheet.create({
     fontFamily: 'IBM-Bold',
     fontSize: 14,
     color: Colors.white,
-  },
-  topBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'flex-start',
-    gap: 8,
-  },
-  name: {
-    fontFamily: 'IBM-Bold',
-    fontSize: 15,
-    color: Colors.emerald300,
-    paddingLeft: 3,
-  },
-  contactableBox: {
-    padding: 3,
-    borderRadius: 3,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  contactableText: {
-    fontFamily: 'IBM-Medium',
-    fontSize: 12,
-    color: Colors.primary900,
-  },
-  horizontalLine: {
-    marginVertical: 5,
-    height: 1,
-    backgroundColor: Colors.primary300,
-  },
-  address: {
-    fontFamily: 'IBM-SemiBoldItalic',
-    fontSize: 14,
-    color: Colors.emerald300,
-  },
-  whatsAppImage: {
-    width: 35,
-    height: 35,
-    aspectRatio: 'auto',
-    backgroundColor: 'green',
-  },
-  remarksBox: {
-    padding: 5,
-    paddingBottom: 15,
-    backgroundColor: Colors.primary800,
-    borderRadius: 5,
-    marginVertical: 10,
-  },
-  remarksText: {
-    fontFamily: 'IBM-Italic',
-    fontSize: 13,
-    color: Colors.primary50,
-  },
-  labelText: {
-    fontFamily: 'IBM-MediumItalic',
-    fontSize: 14,
-    color: Colors.primary300,
-    paddingLeft: 6,
   },
   addBtn: {
     width: 50,
