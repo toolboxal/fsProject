@@ -28,9 +28,18 @@ import { enUS, es, ja, zhCN, ptBR, fr, ko } from 'date-fns/locale'
 import useMyStore from '@/store/store'
 import { ArrowRight } from 'lucide-react-native'
 import * as DropdownMenu from 'zeego/dropdown-menu'
-import { useActionSheet } from '@expo/react-native-action-sheet'
+import DurationPicker from './DurationPicker'
+import CountPicker from './CountPicker'
+import convertFloatToTime from '@/utils/convertFloatToTime'
 
-type TFormData = Omit<TReport, 'id' | 'created_at' | 'date'>
+const DEFAULT_HOURS = 1
+const DEFAULT_MINUTES = 0
+const DEFAULT_BS = 0
+
+const decimalFromDuration = (hours: number, minutes: number) =>
+  hours + minutes / 60
+
+type TFormData = Pick<TReport, 'comment' | 'type'>
 
 type ModalProps = {
   modalVisible: boolean
@@ -64,49 +73,61 @@ const ModalForm = ({ modalVisible, setModalVisible, svcYrs }: ModalProps) => {
   const [fsType, setFsType] = useState<TFormData['type']>('hh')
 
   const i18n = useTranslations()
-  const { showActionSheetWithOptions } = useActionSheet()
   const [showTypePicker, setShowTypePicker] = useState(false)
+  const [fsHours, setFsHours] = useState(DEFAULT_HOURS)
+  const [fsMinutes, setFsMinutes] = useState(DEFAULT_MINUTES)
+  const [creditHours, setCreditHours] = useState(DEFAULT_HOURS)
+  const [creditMinutes, setCreditMinutes] = useState(DEFAULT_MINUTES)
+  const [bsCount, setBsCount] = useState(DEFAULT_BS)
   const lang = useMyStore((state) => state.language)
 
-  const { control, handleSubmit, reset, watch } = useForm({
+  const resetDurationPickers = () => {
+    setFsHours(DEFAULT_HOURS)
+    setFsMinutes(DEFAULT_MINUTES)
+    setCreditHours(DEFAULT_HOURS)
+    setCreditMinutes(DEFAULT_MINUTES)
+    setBsCount(DEFAULT_BS)
+  }
+
+  const { control, handleSubmit, reset } = useForm({
     defaultValues: {
       date: '',
-      hrs: 0,
-      credit: 0,
       comment: '',
-      bs: 0,
       type: 'hh' as 'hh' | 'publ' | 'inf' | 'cart',
     },
   })
 
   useEffect(() => {
+    if (modalVisible) {
+      reset()
+      resetDurationPickers()
+      setDatePick(today)
+      setFsType('hh')
+    }
+  }, [modalVisible])
+
+  useEffect(() => {
     reset()
+    resetDurationPickers()
   }, [toggleCredit])
-
-  function convertFloatToTime(floatTime: number): string {
-    const hours = Math.floor(floatTime)
-    const minutes = Math.round((floatTime - hours) * 60)
-    return `${hours}hr ${minutes}mins`
-  }
-
-  const watchedFSHr = watch('hrs')
-  const watchedFSHrOutput = convertFloatToTime(watchedFSHr)
-  const watchedCredit = watch('credit')
-  const watchedCreditOutput = convertFloatToTime(watchedCredit)
 
   const submitPressed = async (data: TFormData) => {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
 
+    const decimalHrs = decimalFromDuration(fsHours, fsMinutes)
+    const decimalCredit = decimalFromDuration(creditHours, creditMinutes)
+
     await db.insert(Report).values({
       date: datePick,
-      hrs: data.hrs,
-      bs: data.bs,
-      credit: data.credit,
+      hrs: toggleCredit ? 0 : decimalHrs,
+      bs: bsCount,
+      credit: toggleCredit ? decimalCredit : 0,
       comment: data.comment,
-      type: data.hrs && data.hrs > 0 ? fsType : null,
+      type: !toggleCredit && decimalHrs > 0 ? fsType : null,
       created_at: datePick,
     })
     reset()
+    resetDurationPickers()
     setModalVisible((prev) => !prev)
     await queryClient.invalidateQueries({ queryKey: ['reports'] })
 
@@ -174,8 +195,14 @@ const ModalForm = ({ modalVisible, setModalVisible, svcYrs }: ModalProps) => {
               <View style={styles.dateContainer}>
                 <Text style={styles.dateTxt}>
                   {isToday(datePick)
-                    ? i18n.t('reportsModal.today')
-                    : format(datePick, 'dd MMM yyyy', {
+                    ? `${i18n.t('reportsModal.today')} - ${format(
+                        datePick,
+                        'EEE',
+                        {
+                          locale: localeMap[lang] || enUS,
+                        },
+                      )}`
+                    : format(datePick, 'd MMM yyyy EEE', {
                         locale: localeMap[lang] || enUS,
                       })}
                 </Text>
@@ -206,8 +233,8 @@ const ModalForm = ({ modalVisible, setModalVisible, svcYrs }: ModalProps) => {
                   value={datePick}
                   locale={lang || 'en'}
                   mode="date"
-                  display="inline"
-                  accentColor={Colors.emerald800}
+                  display="spinner"
+                  accentColor={Colors.emerald600}
                   themeVariant="light"
                   minimumDate={new Date(svcYrs.previousYr, 8, 1)}
                   maximumDate={today}
@@ -215,10 +242,8 @@ const ModalForm = ({ modalVisible, setModalVisible, svcYrs }: ModalProps) => {
                     setDatePick(date || new Date())
                   }}
                   style={{
-                    transform: [{ scale: 0.85 }],
-                    paddingBottom: 5,
-                    margin: -20,
-                    marginTop: -30,
+                    marginVertical: -30,
+                    transform: [{ scale: 0.8 }],
                   }}
                 />
               )}
@@ -237,14 +262,17 @@ const ModalForm = ({ modalVisible, setModalVisible, svcYrs }: ModalProps) => {
                 />
               )}
               <View
-                style={{ flexDirection: 'row', gap: 10, marginVertical: 5 }}
+                style={{
+                  flexDirection: 'row',
+                  marginVertical: 5,
+                }}
               >
                 <Pressable
                   style={[
                     styles.toggleBtn,
                     {
                       backgroundColor: toggleCredit
-                        ? Colors.primary50
+                        ? Colors.primary200
                         : Colors.emerald800,
                     },
                   ]}
@@ -270,7 +298,7 @@ const ModalForm = ({ modalVisible, setModalVisible, svcYrs }: ModalProps) => {
                     {
                       backgroundColor: toggleCredit
                         ? Colors.emerald800
-                        : Colors.primary50,
+                        : Colors.primary200,
                     },
                   ]}
                   onPress={() => {
@@ -292,152 +320,104 @@ const ModalForm = ({ modalVisible, setModalVisible, svcYrs }: ModalProps) => {
               </View>
               <View style={styles.rowContainer}>
                 {toggleCredit ? (
-                  <View style={{ flexDirection: 'row', gap: 20 }}>
+                  <View style={{ flex: 1, gap: 10 }}>
                     <View style={styles.inputContainers}>
                       <Text style={styles.label}>
                         {i18n.t('reportsModal.inputLabelCredit')}
                       </Text>
-                      <View style={styles.inputBox}>
-                        <Controller
-                          control={control}
-                          name="credit"
-                          render={({ field: { value, onChange, onBlur } }) => (
-                            <TextInput
-                              value={value === 0 ? '' : value.toString()}
-                              onChangeText={(text) => {
-                                const numValue = parseFloat(text)
-                                if (text.includes(',')) {
-                                  return
-                                }
-                                // if (numValue >= 24) {
-                                //   onChange(String(24))
-                                // } else {
-                                //   onChange(text)
-                                // }
-                                onChange(text)
-                              }}
-                              onBlur={onBlur}
-                              selectionColor={Colors.primary700}
-                              placeholder=""
-                              placeholderTextColor={Colors.primary300}
-                              autoFocus
-                              style={styles.hrsInput}
-                              keyboardType="numeric"
-                              maxLength={5}
-                            />
-                          )}
-                        />
-                      </View>
+                      <DurationPicker
+                        hours={creditHours}
+                        minutes={creditMinutes}
+                        onHoursChange={setCreditHours}
+                        onMinutesChange={setCreditMinutes}
+                      />
                     </View>
-                    <View style={styles.inputContainers}>
-                      <Text style={styles.label}>
-                        {i18n.t('reportsModal.inputLabelComment')}
-                      </Text>
-                      <View style={[styles.inputBox, { width: 135 }]}>
-                        <Controller
-                          control={control}
-                          name="comment"
-                          render={({ field: { value, onChange, onBlur } }) => (
-                            <TextInput
-                              value={value}
-                              onChangeText={onChange}
-                              onBlur={onBlur}
-                              selectionColor={Colors.primary700}
-                              placeholder=""
-                              placeholderTextColor={Colors.primary300}
-                              autoFocus
-                              style={{
-                                fontFamily: 'IBM-Medium',
-                                fontSize: 20,
-                              }}
-                              keyboardType="default"
-                              maxLength={20}
-                            />
-                          )}
-                        />
+
+                    <View
+                      style={{ flexDirection: 'row', gap: 10, marginTop: -10 }}
+                    >
+                      <View style={[styles.inputContainers, { flex: 1 }]}>
+                        <Text style={styles.label}>
+                          {i18n.t('reportsModal.inputLabelComment')}
+                        </Text>
+                        <View style={[styles.inputBox, { width: '100%' }]}>
+                          <Controller
+                            control={control}
+                            name="comment"
+                            render={({
+                              field: { value, onChange, onBlur },
+                            }) => (
+                              <TextInput
+                                value={value}
+                                onChangeText={onChange}
+                                onBlur={onBlur}
+                                selectionColor={Colors.primary700}
+                                placeholder=""
+                                placeholderTextColor={Colors.primary300}
+                                style={{
+                                  fontFamily: 'IBM-Medium',
+                                  fontSize: 20,
+                                }}
+                                keyboardType="default"
+                                maxLength={20}
+                              />
+                            )}
+                          />
+                        </View>
                       </View>
+                      <Pressable
+                        style={({ pressed }) => {
+                          return [
+                            styles.submitBtn,
+                            {
+                              backgroundColor: pressed
+                                ? Colors.primary700
+                                : Colors.primary800,
+                            },
+                          ]
+                        }}
+                        onPressOut={handleSubmit(submitPressed)}
+                      >
+                        {/* <Text style={styles.submitBtnTxt}>Submit</Text> */}
+                        <ArrowRight size={20} color="white" strokeWidth={3} />
+                      </Pressable>
                     </View>
                   </View>
                 ) : (
-                  <>
-                    <View style={{ flexDirection: 'row', gap: 11 }}>
-                      <View style={styles.inputContainers}>
+                  <View style={{ flex: 1, gap: 10 }}>
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        // gap: 12,
+                        // alignItems: 'flex-end',
+                      }}
+                    >
+                      <View style={[styles.inputContainers, { flex: 1 }]}>
                         <Text style={styles.label}>
                           {i18n.t('reportsModal.hoursLabel')}
                         </Text>
-                        <View style={styles.inputBox}>
-                          <Controller
-                            control={control}
-                            name="hrs"
-                            render={({
-                              field: { value, onChange, onBlur },
-                            }) => (
-                              <TextInput
-                                value={value === 0 ? '' : value.toString()}
-                                onChangeText={(text) => {
-                                  const numValue = parseFloat(text)
-                                  if (text.includes(',')) {
-                                    return
-                                  }
-                                  // if (numValue >= 24) {
-                                  //   onChange(String(24))
-                                  // } else {
-                                  //   onChange(text)
-                                  // }
-                                  onChange(text)
-                                }}
-                                onBlur={onBlur}
-                                selectionColor={Colors.primary700}
-                                placeholder=""
-                                placeholderTextColor={Colors.primary300}
-                                autoFocus
-                                style={styles.hrsInput}
-                                keyboardType="numeric"
-                                maxLength={5}
-                              />
-                            )}
-                          />
-                        </View>
+                        <DurationPicker
+                          hours={fsHours}
+                          minutes={fsMinutes}
+                          onHoursChange={setFsHours}
+                          onMinutesChange={setFsMinutes}
+                        />
                       </View>
-                      <View style={[styles.inputContainers]}>
+                      <View style={styles.inputContainers}>
                         <Text style={styles.label}>
                           {i18n.t('reportsModal.bsLabel')}
                         </Text>
-                        <View style={styles.inputBox}>
-                          <Controller
-                            control={control}
-                            name="bs"
-                            render={({
-                              field: { value, onChange, onBlur },
-                            }) => (
-                              <TextInput
-                                value={value === 0 ? '' : value.toString()}
-                                onChangeText={(text) => {
-                                  // Only allow integer values
-                                  const numValue = parseInt(text)
-                                  if (!isNaN(numValue)) {
-                                    onChange(String(numValue))
-                                  } else if (text === '') {
-                                    onChange('')
-                                  }
-                                }}
-                                onBlur={onBlur}
-                                selectionColor={Colors.primary700}
-                                placeholder=""
-                                placeholderTextColor={Colors.primary300}
-                                style={styles.hrsInput}
-                                keyboardType="numeric"
-                                maxLength={2}
-                              />
-                            )}
-                          />
-                        </View>
+                        <CountPicker value={bsCount} onChange={setBsCount} />
                       </View>
-                      <View style={[styles.inputContainers]}>
-                        <Text style={styles.label}>
-                          {/* {i18n.t('reportsModal.bsLabel')} */}
-                          type
-                        </Text>
+                    </View>
+                    <View style={{ flexDirection: 'row', gap: 10 }}>
+                      <View
+                        style={[
+                          styles.inputContainers,
+                          { flex: 1, marginTop: -10 },
+                        ]}
+                      >
+                        <Text style={styles.label}>type</Text>
                         <View
                           style={[
                             styles.trigger,
@@ -486,31 +466,37 @@ const ModalForm = ({ modalVisible, setModalVisible, svcYrs }: ModalProps) => {
                           )}
                         </View>
                       </View>
+                      <Pressable
+                        style={({ pressed }) => {
+                          return [
+                            styles.submitBtn,
+                            {
+                              backgroundColor: pressed
+                                ? Colors.primary700
+                                : Colors.primary800,
+                            },
+                          ]
+                        }}
+                        onPressOut={handleSubmit(submitPressed)}
+                      >
+                        {/* <Text style={styles.submitBtnTxt}>Submit</Text> */}
+                        <ArrowRight size={20} color="white" strokeWidth={3} />
+                      </Pressable>
                     </View>
-                  </>
+                  </View>
                 )}
-
-                <Pressable
-                  style={({ pressed }) => {
-                    return [
-                      styles.submitBtn,
-                      {
-                        backgroundColor: pressed
-                          ? Colors.primary700
-                          : Colors.primary800,
-                      },
-                    ]
-                  }}
-                  onPressOut={handleSubmit(submitPressed)}
-                >
-                  <ArrowRight size={20} color="white" strokeWidth={3} />
-                </Pressable>
               </View>
-              {toggleCredit ? (
-                <Text style={styles.watchedTxt}>{watchedCreditOutput}</Text>
+              {/* {toggleCredit ? (
+                <Text style={styles.watchedTxt}>
+                  {convertFloatToTime(
+                    decimalFromDuration(creditHours, creditMinutes),
+                  )}
+                </Text>
               ) : (
-                <Text style={styles.watchedTxt}>{watchedFSHrOutput}</Text>
-              )}
+                <Text style={styles.watchedTxt}>
+                  {convertFloatToTime(decimalFromDuration(fsHours, fsMinutes))}
+                </Text>
+              )} */}
             </Pressable>
           </KeyboardAvoidingView>
           {/* Custom Picker Overlay for Android */}
@@ -618,9 +604,10 @@ const styles = StyleSheet.create({
   },
   rowContainer: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-end',
     justifyContent: 'space-between',
     marginBottom: 5,
+    gap: 8,
   },
   inputContainers: {
     flexDirection: 'column',
@@ -666,8 +653,8 @@ const styles = StyleSheet.create({
   toggleBtn: {
     padding: 5,
     paddingHorizontal: 10,
-    borderRadius: 30,
-    borderWidth: 1,
+    // borderRadius: 5,
+    // borderWidth: 1,
     borderColor: Colors.primary400,
   },
   toggleBtnTxt: {

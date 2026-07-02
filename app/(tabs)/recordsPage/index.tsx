@@ -59,8 +59,8 @@ const RecordsPage = () => {
     lastBackupTimestamp && diffInDays >= 1
       ? `Your last attempted backup was ${diffInDays} ${diffInDays === 1 ? 'day' : 'days'} ago.\nBackup to ${Platform.OS === 'ios' ? 'iCloud' : 'Google Drive'} ☁️ at least once a month.`
       : lastBackupTimestamp && diffInDays === 0
-        ? `Thank you for backing up your data. 💪`
-        : `A reminder to backup your file and save to ${Platform.OS === 'ios' ? 'iCloud' : 'Google Drive'} ☁️.\nGo to Options -> create backup`
+        ? `Thank you for backing up your data. 🙏`
+        : `⚠️ Frequently create backups to ${Platform.OS === 'ios' ? 'iCloud' : 'Google Drive'} to prevent data loss.\nGo to Options -> create backup`
 
   useEffect(() => {
     // storage.delete('last_backup_timestamp')
