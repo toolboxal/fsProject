@@ -62,7 +62,10 @@ const fsTypeList = [
   { type: 'cart', label: 'cart', color: Colors.rose400 },
   { type: 'publ', label: 'public', color: Colors.sky500 },
   { type: 'inf', label: 'informal', color: Colors.lemon500 },
-]
+] as const
+
+const getFsTypeLabel = (type: TFormData['type']) =>
+  fsTypeList.find((t) => t.type === type)?.label ?? type
 
 const ModalForm = ({ modalVisible, setModalVisible, svcYrs }: ModalProps) => {
   const queryClient = useQueryClient()
@@ -436,7 +439,9 @@ const ModalForm = ({ modalVisible, setModalVisible, svcYrs }: ModalProps) => {
                               }}
                             >
                               <View style={styles.triggerContainer}>
-                                <Text style={styles.triggerTxt}>{fsType}</Text>
+                                <Text style={styles.triggerTxt}>
+                                  {getFsTypeLabel(fsType)}
+                                </Text>
                               </View>
                             </Pressable>
                           ) : (
@@ -444,7 +449,7 @@ const ModalForm = ({ modalVisible, setModalVisible, svcYrs }: ModalProps) => {
                               <DropdownMenu.Trigger>
                                 <View style={styles.triggerContainer}>
                                   <Text style={styles.triggerTxt}>
-                                    {fsType}
+                                    {getFsTypeLabel(fsType)}
                                   </Text>
                                 </View>
                               </DropdownMenu.Trigger>

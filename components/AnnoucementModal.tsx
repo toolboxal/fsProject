@@ -69,10 +69,10 @@ const AnnoucementModal = ({ visible, onClose }: AnnoucementModalProps) => {
                   },
                 ]}
               >
-                version 1.6.1
+                version 1.7.0
               </Text>
               <Text style={[styles.headerTxt, { color: Colors.primary600 }]}>
-                Backup banner in records page
+                Adjust records directly from the map
               </Text>
               {/* <Image
                 source={require('@/assets/images/announce1.jpeg')}
@@ -86,14 +86,15 @@ const AnnoucementModal = ({ visible, onClose }: AnnoucementModalProps) => {
               /> */}
 
               <Text style={styles.currentUserTxt}>
-                {`Backup banner to show the last attempted backup to your own ${Platform.OS === 'ios' ? 'iCloud' : 'Google Drive'}.`}
+                You can now add follow-ups, edit, share and delete records
+                without leaving the map.
               </Text>
-              <Text
+              {/* <Text
                 style={[styles.currentUserTxt, { fontFamily: 'IBM-Italic' }]}
               >
                 * Your records and reports stay on your phone, not a server, so
                 keep them safe by backing up your data regularly.
-              </Text>
+              </Text> */}
             </View>
           </KeyboardAvoidingView>
         </Pressable>
@@ -134,7 +135,7 @@ const styles = StyleSheet.create({
     fontFamily: 'IBM-Bold',
     fontSize: 20,
     color: Colors.primary800,
-    marginBottom: 12,
+    marginBottom: 10,
   },
   subHeaderTxt: {
     fontFamily: 'IBM-SemiBold',

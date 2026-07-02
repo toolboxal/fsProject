@@ -8,7 +8,7 @@ import { storage } from '@/store/storage'
 import MapLibreMap from '@/components/MapLibreMap'
 
 const MapsPage = () => {
-  const [showAnnouncement, setShowAnnouncement] = useState(false)
+  const [showAnnouncement, setShowAnnouncement] = useState(true)
 
   useEffect(() => {
     // Check if this version's announcement has been shown

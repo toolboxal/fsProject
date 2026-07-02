@@ -35,7 +35,7 @@ import { useState, useEffect, useRef } from 'react'
 import DateTimePicker from '@react-native-community/datetimepicker'
 import { TextInput } from 'react-native-gesture-handler'
 import { Controller, useForm } from 'react-hook-form'
-import { format } from 'date-fns'
+import { format, isValid } from 'date-fns'
 import { useRouter } from 'expo-router'
 import { confirmDeletePerson, promptSharePerson } from '@/utils/personActions'
 import useMyStore from '@/store/store'
@@ -178,6 +178,7 @@ const DetailsModal = ({
     if (initialPageView === 'followUp') {
       setEditMode(false)
       setFollowUpIdToEdit(undefined)
+      setFollowUpDate(new Date())
       reset()
     }
   }, [modalVisible, initialPageView, reset])
@@ -387,6 +388,7 @@ const DetailsModal = ({
                       style={styles.menuBtn}
                       onPress={() => {
                         reset()
+                        setFollowUpDate(new Date())
                         setPageView('followUp')
                         setEditMode(false)
                       }}
@@ -603,7 +605,13 @@ const DetailsModal = ({
                               setEditMode(true)
                               setFollowUpIdToEdit(followUp.id)
                               setValue('notes', followUp.notes)
-                              setFollowUpDate(followUp.date)
+                              const parsedDate = new Date(followUp.date)
+                              setFollowUpDate(
+                                isValid(parsedDate) &&
+                                  parsedDate.getTime() > 0
+                                  ? parsedDate
+                                  : new Date(),
+                              )
                               setPageView('followUp')
                             }}
                           >
@@ -615,10 +623,13 @@ const DetailsModal = ({
                                 marginBottom: 3,
                               }}
                             >
-                              {format(
-                                new Date(followUp.date),
-                                'dd MMM yyyy (EEE)',
-                              )}
+                              {isValid(new Date(followUp.date)) &&
+                              new Date(followUp.date).getTime() > 0
+                                ? format(
+                                    new Date(followUp.date),
+                                    'dd MMM yyyy (EEE)',
+                                  )
+                                : '--'}
                             </Text>
                             <Text style={styles.remarksText}>
                               {followUp.notes}
