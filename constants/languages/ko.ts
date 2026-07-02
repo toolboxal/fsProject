@@ -107,6 +107,8 @@ const ko = {
     actionShare: '공유',
     actionEdit: '수정',
     actionFollowUp: '후속 조치',
+    actionLocate: '위치 찾기',
+    locateNoCoords: '이 기록에 저장된 지도 위치가 없습니다',
     deleteAlertTitle: '기록이 삭제됩니다',
     deleteAlertDesc: '계속 진행하시겠습니까?',
     cancel: '취소',

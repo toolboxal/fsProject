@@ -104,6 +104,8 @@ const en = {
     actionShare: 'Share',
     actionEdit: 'Edit',
     actionFollowUp: 'FollowUp',
+    actionLocate: 'Locate',
+    locateNoCoords: 'No map location saved for this record',
     deleteAlertTitle: 'Record will be deleted',
     deleteAlertDesc: 'Ok to proceed?',
     cancel: 'Cancel',

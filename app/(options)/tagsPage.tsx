@@ -1,10 +1,4 @@
-import {
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  View,
-  Alert,
-} from 'react-native'
+import { Pressable, ScrollView, StyleSheet, View, Alert } from 'react-native'
 import Text from '@/components/Text'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { db } from '@/drizzle/db'
@@ -34,7 +28,7 @@ const tagsPage = () => {
       if (tagUsage.length > 0) {
         Alert.alert(
           i18n.t('tagsPage.alertHeader'),
-          i18n.t('tagsPage.alertDesc')
+          i18n.t('tagsPage.alertDesc'),
         )
         return
       }
@@ -49,7 +43,7 @@ const tagsPage = () => {
       console.error('Error deleting tag with ID:', id, 'Error:', error)
       Alert.alert(
         'Error',
-        'Failed to delete the tag due to an unexpected error.'
+        'Failed to delete the tag due to an unexpected error.',
       )
     }
   }

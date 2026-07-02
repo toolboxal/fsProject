@@ -36,12 +36,12 @@ export async function migrateDateField() {
 
           successCount++
           console.log(
-            `✓ Migrated person ${person.id}: "${person.date}" -> ${new Date(timestamp).toISOString()}`
+            `✓ Migrated person ${person.id}: "${person.date}" -> ${new Date(timestamp).toISOString()}`,
           )
         } else {
           errorCount++
           console.warn(
-            `✗ Could not parse date for person ${person.id}: "${person.date}"`
+            `✗ Could not parse date for person ${person.id}: "${person.date}"`,
           )
         }
       } catch (error) {
@@ -51,7 +51,7 @@ export async function migrateDateField() {
     }
 
     console.log(
-      `Migration complete: ${successCount} successful, ${errorCount} errors`
+      `Migration complete: ${successCount} successful, ${errorCount} errors`,
     )
 
     return { successCount, errorCount, total: personsToMigrate.length }

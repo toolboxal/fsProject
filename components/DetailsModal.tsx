@@ -14,7 +14,7 @@ import {
 } from 'react-native'
 import Text from '@/components/Text'
 
-import { XCircle, CirclePlus, MoveLeft } from 'lucide-react-native'
+import { MoveLeft } from 'lucide-react-native'
 import {
   Person,
   personsToTags,
@@ -38,6 +38,7 @@ import { Controller, useForm } from 'react-hook-form'
 import { format } from 'date-fns'
 import { useRouter } from 'expo-router'
 import { confirmDeletePerson, promptSharePerson } from '@/utils/personActions'
+import useMyStore from '@/store/store'
 
 type props = {
   modalVisible: boolean
@@ -55,6 +56,7 @@ const DetailsModal = ({
   closeAfterFollowUpSubmit = false,
 }: props) => {
   const router = useRouter()
+  const setMapFocusRequest = useMyStore((state) => state.setMapFocusRequest)
   const [followUpDate, setFollowUpDate] = useState<Date>(new Date())
   const [editMode, setEditMode] = useState(false)
   const [followUpIdToEdit, setFollowUpIdToEdit] = useState<number>()
@@ -326,6 +328,17 @@ const DetailsModal = ({
     promptSharePerson(targetPersonId)
   }
 
+  const handleLocate = () => {
+    if (!latitude || !longitude) {
+      toast.error(i18n.t('detailsModal.locateNoCoords'))
+      return
+    }
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+    setMapFocusRequest({ personId: id })
+    setModalVisible(false)
+    router.push('/')
+  }
+
   const handleFollowUpDelete = async (id: number) => {
     try {
       await db.delete(followUp).where(eq(followUp.id, id))
@@ -373,6 +386,23 @@ const DetailsModal = ({
                     <Pressable
                       style={styles.menuBtn}
                       onPress={() => {
+                        reset()
+                        setPageView('followUp')
+                        setEditMode(false)
+                      }}
+                    >
+                      <Text style={styles.menuTxt}>
+                        {i18n.t('detailsModal.actionFollowUp')}
+                      </Text>
+                    </Pressable>
+                    <Pressable style={styles.menuBtn} onPress={handleLocate}>
+                      <Text style={styles.menuTxt}>
+                        {i18n.t('detailsModal.actionLocate')}
+                      </Text>
+                    </Pressable>
+                    <Pressable
+                      style={styles.menuBtn}
+                      onPress={() => {
                         setModalVisible(false)
                         router.push({
                           pathname: '/editPage',
@@ -397,42 +427,12 @@ const DetailsModal = ({
                       style={styles.menuBtn}
                       onPress={() => handleDeleteAlert(id)}
                     >
-                      <Text style={styles.menuTxt}>
+                      <Text style={[styles.menuTxt, { color: Colors.rose400 }]}>
                         {' '}
                         {i18n.t('detailsModal.actionDelete')}
                       </Text>
                     </Pressable>
-                    <Pressable
-                      style={styles.menuBtn}
-                      onPress={() => {
-                        reset()
-                        setPageView('followUp')
-                        setEditMode(false)
-                      }}
-                    >
-                      <CirclePlus
-                        color={Colors.primary50}
-                        size={18}
-                        strokeWidth={1.5}
-                      />
-                      <Text style={styles.menuTxt}>
-                        {' '}
-                        {i18n.t('detailsModal.actionFollowUp')}
-                      </Text>
-                    </Pressable>
                   </ScrollView>
-                  <Pressable
-                    onPress={() => {
-                      setModalVisible(false)
-                    }}
-                    style={{ marginLeft: 5 }}
-                  >
-                    <XCircle
-                      color={Colors.primary50}
-                      size={26}
-                      strokeWidth={2}
-                    />
-                  </Pressable>
                 </View>
                 <ScrollView
                   style={styles.scrollContainer}
@@ -882,7 +882,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     gap: 2,
-    paddingHorizontal: 13,
+    paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 5,
     backgroundColor: Colors.primary800,

@@ -103,6 +103,8 @@ const zh = {
     actionShare: '分享',
     actionEdit: '编辑',
     actionFollowUp: '跟进',
+    actionLocate: '定位',
+    locateNoCoords: '此记录没有保存地图位置',
     deleteAlertTitle: '记录将被删除',
     deleteAlertDesc: '确定继续吗？',
     cancel: '取消',

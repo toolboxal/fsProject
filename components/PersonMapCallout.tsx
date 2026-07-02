@@ -57,6 +57,14 @@ const PersonMapCallout = ({
       <View style={styles.calloutActionRow}>
         <Pressable
           style={styles.calloutActionBtn}
+          onPress={() => onFollowUp(person.id)}
+        >
+          <Text style={styles.calloutActionTxt}>
+            {i18n.t('detailsModal.actionFollowUp')}
+          </Text>
+        </Pressable>
+        <Pressable
+          style={styles.calloutActionBtn}
           onPress={() => onEdit(person.id)}
         >
           <Text style={styles.calloutActionTxt}>
@@ -73,17 +81,9 @@ const PersonMapCallout = ({
         </Pressable>
         <Pressable
           style={styles.calloutActionBtn}
-          onPress={() => onFollowUp(person.id)}
-        >
-          <Text style={styles.calloutActionTxt}>
-            {i18n.t('detailsModal.actionFollowUp')}
-          </Text>
-        </Pressable>
-        <Pressable
-          style={styles.calloutActionBtn}
           onPress={() => onDelete(person.id)}
         >
-          <Text style={styles.calloutActionTxt}>
+          <Text style={[styles.calloutActionTxt, { color: Colors.rose400 }]}>
             {i18n.t('detailsModal.actionDelete')}
           </Text>
         </Pressable>

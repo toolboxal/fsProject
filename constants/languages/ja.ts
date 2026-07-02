@@ -106,6 +106,8 @@ const ja = {
     actionShare: '共有',
     actionEdit: '編集',
     actionFollowUp: 'フォローアップ',
+    actionLocate: '地図で表示',
+    locateNoCoords: 'この記録には地図の位置情報がありません',
     deleteAlertTitle: '記録が削除されます',
     deleteAlertDesc: '続行してもよろしいですか？',
     cancel: 'キャンセル',

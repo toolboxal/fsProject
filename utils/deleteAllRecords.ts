@@ -12,7 +12,7 @@ const deleteAllRecords = async () => {
     // Delete all records from the personsToTags join table
     await db.delete(personsToTags).execute()
     console.log(
-      'Successfully deleted all records from Person, followUp, tags, and personsToTags tables.'
+      'Successfully deleted all records from Person, followUp, tags, and personsToTags tables.',
     )
   } catch (error) {
     console.error('deleteAllRecords error', error)

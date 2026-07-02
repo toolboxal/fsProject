@@ -85,7 +85,7 @@ const ReportTable = ({ data }: TProps) => {
           <View
             style={{
               backgroundColor: fsTypeList.find(
-                (item) => item.type === info.getValue()
+                (item) => item.type === info.getValue(),
               )?.color,
               width: 8,
               height: 8,
@@ -188,7 +188,7 @@ const ReportTable = ({ data }: TProps) => {
           case cancelButtonIndex:
             console.log('canceled')
         }
-      }
+      },
     )
   }
 
@@ -227,7 +227,7 @@ const ReportTable = ({ data }: TProps) => {
       </View>,
       {
         duration: 3000,
-      }
+      },
     )
   }
 
@@ -259,7 +259,7 @@ const ReportTable = ({ data }: TProps) => {
                   >
                     {flexRender(
                       header.column.columnDef.header,
-                      header.getContext()
+                      header.getContext(),
                     )}
                   </View>
                 ))}
@@ -303,7 +303,7 @@ const ReportTable = ({ data }: TProps) => {
                     >
                       {flexRender(
                         cell.column.columnDef.cell,
-                        cell.getContext()
+                        cell.getContext(),
                       )}
                     </View>
                   ))}
@@ -454,7 +454,7 @@ const ReportTable = ({ data }: TProps) => {
                     {convertFloatToTime(
                       monthGroup.subRows
                         .filter((row) => row.original.type === 'hh')
-                        .reduce((sum, row) => sum + (row.original.hrs || 0), 0)
+                        .reduce((sum, row) => sum + (row.original.hrs || 0), 0),
                     )}
                   </Text>
                 </View>
@@ -469,7 +469,7 @@ const ReportTable = ({ data }: TProps) => {
                     {convertFloatToTime(
                       monthGroup.subRows
                         .filter((row) => row.original.type === 'cart')
-                        .reduce((sum, row) => sum + (row.original.hrs || 0), 0)
+                        .reduce((sum, row) => sum + (row.original.hrs || 0), 0),
                     )}
                   </Text>
                 </View>
@@ -484,7 +484,7 @@ const ReportTable = ({ data }: TProps) => {
                     {convertFloatToTime(
                       monthGroup.subRows
                         .filter((row) => row.original.type === 'publ')
-                        .reduce((sum, row) => sum + (row.original.hrs || 0), 0)
+                        .reduce((sum, row) => sum + (row.original.hrs || 0), 0),
                     )}
                   </Text>
                 </View>
@@ -499,7 +499,7 @@ const ReportTable = ({ data }: TProps) => {
                     {convertFloatToTime(
                       monthGroup.subRows
                         .filter((row) => row.original.type === 'inf')
-                        .reduce((sum, row) => sum + (row.original.hrs || 0), 0)
+                        .reduce((sum, row) => sum + (row.original.hrs || 0), 0),
                     )}
                   </Text>
                 </View>

@@ -22,8 +22,11 @@ type Store = {
     latitude: number
     longitude: number
   }
+  mapFocusRequest: { personId: number } | null
   setAddress: (location: TAddress) => void
   setGeoCoords: (geo: { latitude: number; longitude: number }) => void
+  setMapFocusRequest: (request: { personId: number }) => void
+  clearMapFocusRequest: () => void
   language: string
   setLanguage: (lang: string) => void
 }
@@ -46,8 +49,11 @@ const initialAddress = {
 const useMyStore = create<Store>((set) => ({
   address: initialAddress,
   geoCoords: { latitude: 0, longitude: 0 },
+  mapFocusRequest: null,
   setAddress: (location) => set({ address: location }),
   setGeoCoords: (geo) => set({ geoCoords: geo }),
+  setMapFocusRequest: (request) => set({ mapFocusRequest: request }),
+  clearMapFocusRequest: () => set({ mapFocusRequest: null }),
   language: storage.getString('language') || 'en',
   setLanguage: (lang: string) => set({ language: lang }),
 }))

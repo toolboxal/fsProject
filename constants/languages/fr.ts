@@ -108,6 +108,8 @@ const fr = {
     actionShare: 'Partager',
     actionEdit: 'Modifier',
     actionFollowUp: 'Suivi',
+    actionLocate: 'Localiser',
+    locateNoCoords: 'Aucun emplacement enregistré pour cet enregistrement',
     deleteAlertTitle: "L'enregistrement sera supprimé",
     deleteAlertDesc: 'Ok pour continuer ?',
     cancel: 'Annuler',

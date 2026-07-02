@@ -41,6 +41,7 @@ import Foundation from '@expo/vector-icons/Foundation'
 import { X } from 'lucide-react-native'
 import { eq } from 'drizzle-orm'
 import { confirmDeletePerson, promptSharePerson } from '@/utils/personActions'
+import { toast } from 'sonner-native'
 
 // Pure utility functions - moved outside component for better performance
 const openMapsForNavigation = async (latitude: number, longitude: number) => {
@@ -167,6 +168,8 @@ const MapLibreMap = () => {
   const [selectedTags, setSelectedTags] = useState<string[]>([])
   const setAddress = useMyStore((state) => state.setAddress)
   const setGeoCoords = useMyStore((state) => state.setGeoCoords)
+  const mapFocusRequest = useMyStore((state) => state.mapFocusRequest)
+  const clearMapFocusRequest = useMyStore((state) => state.clearMapFocusRequest)
   const latitude = useMyStore((state) => state.geoCoords.latitude)
   const longitude = useMyStore((state) => state.geoCoords.longitude)
   const i18n = useTranslations()
@@ -371,6 +374,35 @@ const MapLibreMap = () => {
       queryClient.invalidateQueries({ queryKey: ['persons', 'map'] })
     }
   }, [isFocused, queryClient])
+
+  useEffect(() => {
+    if (!mapFocusRequest || !isFocused || !data) return
+
+    const { personId } = mapFocusRequest
+    const positioned = markerPositions.find((m) => m.person.id === personId)
+
+    if (!positioned) {
+      clearMapFocusRequest()
+      toast.error(i18n.t('detailsModal.locateNoCoords'))
+      return
+    }
+
+    const { person, offset } = positioned
+    setSelectedTags([])
+    setCameraCenter({
+      latitude: person.latitude! + offset[1],
+      longitude: person.longitude! + offset[0],
+    })
+    setSelectedCalloutPersonId(personId)
+    clearMapFocusRequest()
+  }, [
+    mapFocusRequest,
+    isFocused,
+    data,
+    markerPositions,
+    clearMapFocusRequest,
+    i18n,
+  ])
 
   const handleDeleteAnnotation = useCallback(
     async (id: number) => {

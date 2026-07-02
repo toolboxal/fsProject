@@ -110,6 +110,8 @@ const ptBR = {
     actionShare: 'Compartilhar',
     actionEdit: 'Editar',
     actionFollowUp: 'Acompanhamento',
+    actionLocate: 'Localizar',
+    locateNoCoords: 'Nenhuma localização salva para este registro',
     deleteAlertTitle: 'O registro será excluído',
     deleteAlertDesc: 'Ok para prosseguir?',
     cancel: 'Cancelar',

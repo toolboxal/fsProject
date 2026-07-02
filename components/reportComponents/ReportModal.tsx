@@ -367,146 +367,152 @@ const ModalForm = ({ modalVisible, setModalVisible, svcYrs }: ModalProps) => {
                         </Text>
                         <View style={styles.inputBox}>
                           <Controller
-                          control={control}
-                          name="hrs"
-                          render={({ field: { value, onChange, onBlur } }) => (
-                            <TextInput
-                              value={value === 0 ? '' : value.toString()}
-                              onChangeText={(text) => {
-                                const numValue = parseFloat(text)
-                                if (text.includes(',')) {
-                                  return
-                                }
-                                // if (numValue >= 24) {
-                                //   onChange(String(24))
-                                // } else {
-                                //   onChange(text)
-                                // }
-                                onChange(text)
-                              }}
-                              onBlur={onBlur}
-                              selectionColor={Colors.primary700}
-                              placeholder=""
-                              placeholderTextColor={Colors.primary300}
-                              autoFocus
-                              style={styles.hrsInput}
-                              keyboardType="numeric"
-                              maxLength={5}
-                            />
-                          )}
-                        />
+                            control={control}
+                            name="hrs"
+                            render={({
+                              field: { value, onChange, onBlur },
+                            }) => (
+                              <TextInput
+                                value={value === 0 ? '' : value.toString()}
+                                onChangeText={(text) => {
+                                  const numValue = parseFloat(text)
+                                  if (text.includes(',')) {
+                                    return
+                                  }
+                                  // if (numValue >= 24) {
+                                  //   onChange(String(24))
+                                  // } else {
+                                  //   onChange(text)
+                                  // }
+                                  onChange(text)
+                                }}
+                                onBlur={onBlur}
+                                selectionColor={Colors.primary700}
+                                placeholder=""
+                                placeholderTextColor={Colors.primary300}
+                                autoFocus
+                                style={styles.hrsInput}
+                                keyboardType="numeric"
+                                maxLength={5}
+                              />
+                            )}
+                          />
+                        </View>
                       </View>
-                    </View>
-                    <View style={[styles.inputContainers]}>
-                      <Text style={styles.label}>
-                        {i18n.t('reportsModal.bsLabel')}
-                      </Text>
-                      <View style={styles.inputBox}>
-                        <Controller
-                          control={control}
-                          name="bs"
-                          render={({ field: { value, onChange, onBlur } }) => (
-                            <TextInput
-                              value={value === 0 ? '' : value.toString()}
-                              onChangeText={(text) => {
-                                // Only allow integer values
-                                const numValue = parseInt(text)
-                                if (!isNaN(numValue)) {
-                                  onChange(String(numValue))
-                                } else if (text === '') {
-                                  onChange('')
-                                }
-                              }}
-                              onBlur={onBlur}
-                              selectionColor={Colors.primary700}
-                              placeholder=""
-                              placeholderTextColor={Colors.primary300}
-                              style={styles.hrsInput}
-                              keyboardType="numeric"
-                              maxLength={2}
-                            />
-                          )}
-                        />
+                      <View style={[styles.inputContainers]}>
+                        <Text style={styles.label}>
+                          {i18n.t('reportsModal.bsLabel')}
+                        </Text>
+                        <View style={styles.inputBox}>
+                          <Controller
+                            control={control}
+                            name="bs"
+                            render={({
+                              field: { value, onChange, onBlur },
+                            }) => (
+                              <TextInput
+                                value={value === 0 ? '' : value.toString()}
+                                onChangeText={(text) => {
+                                  // Only allow integer values
+                                  const numValue = parseInt(text)
+                                  if (!isNaN(numValue)) {
+                                    onChange(String(numValue))
+                                  } else if (text === '') {
+                                    onChange('')
+                                  }
+                                }}
+                                onBlur={onBlur}
+                                selectionColor={Colors.primary700}
+                                placeholder=""
+                                placeholderTextColor={Colors.primary300}
+                                style={styles.hrsInput}
+                                keyboardType="numeric"
+                                maxLength={2}
+                              />
+                            )}
+                          />
+                        </View>
                       </View>
-                    </View>
-                    <View style={[styles.inputContainers]}>
-                      <Text style={styles.label}>
-                        {/* {i18n.t('reportsModal.bsLabel')} */}
-                        type
-                      </Text>
-                      <View
-                        style={[
-                          styles.trigger,
-                          {
-                            backgroundColor: fsTypeList.find(
-                              (t) => t.type === fsType,
-                            )?.color,
-                          },
-                        ]}
-                      >
-                        {Platform.OS === 'android' ? (
-                          <Pressable
-                            onPress={() => {
-                              Keyboard.dismiss()
-                              setShowTypePicker(true)
-                            }}
-                          >
-                            <View style={styles.triggerContainer}>
-                              <Text style={styles.triggerTxt}>{fsType}</Text>
-                            </View>
-                          </Pressable>
-                        ) : (
-                          <DropdownMenu.Root>
-                            <DropdownMenu.Trigger>
+                      <View style={[styles.inputContainers]}>
+                        <Text style={styles.label}>
+                          {/* {i18n.t('reportsModal.bsLabel')} */}
+                          type
+                        </Text>
+                        <View
+                          style={[
+                            styles.trigger,
+                            {
+                              backgroundColor: fsTypeList.find(
+                                (t) => t.type === fsType,
+                              )?.color,
+                            },
+                          ]}
+                        >
+                          {Platform.OS === 'android' ? (
+                            <Pressable
+                              onPress={() => {
+                                Keyboard.dismiss()
+                                setShowTypePicker(true)
+                              }}
+                            >
                               <View style={styles.triggerContainer}>
                                 <Text style={styles.triggerTxt}>{fsType}</Text>
                               </View>
-                            </DropdownMenu.Trigger>
-                            <DropdownMenu.Content>
-                              {fsTypeList.map((type) => (
-                                <DropdownMenu.Item
-                                  key={type.type}
-                                  onSelect={() =>
-                                    setFsType(type.type as TFormData['type'])
-                                  }
-                                >
-                                  <DropdownMenu.ItemTitle>
-                                    {type.label}
-                                  </DropdownMenu.ItemTitle>
-                                </DropdownMenu.Item>
-                              ))}
-                            </DropdownMenu.Content>
-                          </DropdownMenu.Root>
-                        )}
+                            </Pressable>
+                          ) : (
+                            <DropdownMenu.Root>
+                              <DropdownMenu.Trigger>
+                                <View style={styles.triggerContainer}>
+                                  <Text style={styles.triggerTxt}>
+                                    {fsType}
+                                  </Text>
+                                </View>
+                              </DropdownMenu.Trigger>
+                              <DropdownMenu.Content>
+                                {fsTypeList.map((type) => (
+                                  <DropdownMenu.Item
+                                    key={type.type}
+                                    onSelect={() =>
+                                      setFsType(type.type as TFormData['type'])
+                                    }
+                                  >
+                                    <DropdownMenu.ItemTitle>
+                                      {type.label}
+                                    </DropdownMenu.ItemTitle>
+                                  </DropdownMenu.Item>
+                                ))}
+                              </DropdownMenu.Content>
+                            </DropdownMenu.Root>
+                          )}
+                        </View>
                       </View>
                     </View>
-                  </View>
-                </>
-              )}
-
-                  <Pressable
-                    style={({ pressed }) => {
-                      return [
-                        styles.submitBtn,
-                        {
-                          backgroundColor: pressed
-                            ? Colors.primary700
-                            : Colors.primary800,
-                        },
-                      ]
-                    }}
-                    onPressOut={handleSubmit(submitPressed)}
-                  >
-                    <ArrowRight size={20} color="white" strokeWidth={3} />
-                  </Pressable>
-                </View>
-                {toggleCredit ? (
-                  <Text style={styles.watchedTxt}>{watchedCreditOutput}</Text>
-                ) : (
-                  <Text style={styles.watchedTxt}>{watchedFSHrOutput}</Text>
+                  </>
                 )}
-              </Pressable>
-            </KeyboardAvoidingView>
+
+                <Pressable
+                  style={({ pressed }) => {
+                    return [
+                      styles.submitBtn,
+                      {
+                        backgroundColor: pressed
+                          ? Colors.primary700
+                          : Colors.primary800,
+                      },
+                    ]
+                  }}
+                  onPressOut={handleSubmit(submitPressed)}
+                >
+                  <ArrowRight size={20} color="white" strokeWidth={3} />
+                </Pressable>
+              </View>
+              {toggleCredit ? (
+                <Text style={styles.watchedTxt}>{watchedCreditOutput}</Text>
+              ) : (
+                <Text style={styles.watchedTxt}>{watchedFSHrOutput}</Text>
+              )}
+            </Pressable>
+          </KeyboardAvoidingView>
           {/* Custom Picker Overlay for Android */}
           {Platform.OS === 'android' && showTypePicker && (
             <View style={styles.customPickerOverlay}>

@@ -105,6 +105,8 @@ const es = {
     actionShare: 'Compartir',
     actionEdit: 'Editar',
     actionFollowUp: 'Seguimiento',
+    actionLocate: 'Ubicar',
+    locateNoCoords: 'No hay ubicación guardada para este registro',
     deleteAlertTitle: 'El registro será eliminado',
     deleteAlertDesc: '¿Está bien proceder?',
     cancel: 'Cancelar',

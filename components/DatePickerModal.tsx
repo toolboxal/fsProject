@@ -30,7 +30,7 @@ const DatePickerModal = ({
 
   const onDateChange = (
     event: DateTimePickerEvent,
-    selectedDate: Date | undefined
+    selectedDate: Date | undefined,
   ) => {
     if (selectedDate) {
       setInitialVisit(selectedDate)

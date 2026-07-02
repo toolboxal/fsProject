@@ -146,12 +146,12 @@ const RootLayout = () => {
         <GestureHandlerRootView>
           <ActionSheetProvider>
             <PaperProvider theme={theme}>
-              <View 
-                style={{ 
-                  flex: 1, 
+              <View
+                style={{
+                  flex: 1,
                   backgroundColor: Colors.primary50,
-                  paddingBottom: Platform.OS === 'android' ? bottom : 0 
-                }} 
+                  paddingBottom: Platform.OS === 'android' ? bottom : 0,
+                }}
                 onLayout={onLayoutRootView}
               >
                 <Stack screenOptions={{ headerShown: false }}>
