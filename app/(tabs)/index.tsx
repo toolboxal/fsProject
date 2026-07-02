@@ -8,11 +8,11 @@ import { storage } from '@/store/storage'
 import MapLibreMap from '@/components/MapLibreMap'
 
 const MapsPage = () => {
-  const [showAnnouncement, setShowAnnouncement] = useState(true)
+  const [showAnnouncement, setShowAnnouncement] = useState(false)
 
   useEffect(() => {
     // Check if this version's announcement has been shown
-    const currentVersion = '1.6.1' // Replace with your app's current version
+    const currentVersion = '1.7.0' // Replace with your app's current version
     const lastShownVersion = storage.getString('lastShownVersion')
 
     if (!lastShownVersion || lastShownVersion !== currentVersion) {
