@@ -152,6 +152,44 @@ type PositionedMarker = {
   sortedFollowUps: NonNullable<TPersonWithTagsAndFollowUps['followUp']>
 }
 
+const computePositionedMarkers = (
+  persons: TPersonWithTagsAndFollowUps[],
+): PositionedMarker[] => {
+  const groupedMarkers: { [key: string]: TPersonWithTagsAndFollowUps[] } = {}
+  persons.forEach((person) => {
+    if (person.latitude && person.longitude) {
+      const key = `${person.latitude},${person.longitude}`
+      if (!groupedMarkers[key]) {
+        groupedMarkers[key] = []
+      }
+      groupedMarkers[key].push(person)
+    }
+  })
+
+  const positionedMarkers: PositionedMarker[] = []
+  Object.values(groupedMarkers).forEach((group) => {
+    if (group.length === 1) {
+      positionedMarkers.push({
+        person: group[0],
+        offset: [0, 0],
+        sortedFollowUps: sortFollowUpsByDateDesc(group[0].followUp),
+      })
+    } else {
+      const radius = 0.00015
+      group.forEach((person, index) => {
+        const angle = (2 * Math.PI * index) / group.length
+        positionedMarkers.push({
+          person,
+          offset: [radius * Math.cos(angle), radius * Math.sin(angle)],
+          sortedFollowUps: sortFollowUpsByDateDesc(person.followUp),
+        })
+      })
+    }
+  })
+
+  return positionedMarkers
+}
+
 type PersonStatus = NonNullable<TPerson['status']>
 
 const MapLibreMap = () => {
@@ -182,9 +220,6 @@ const MapLibreMap = () => {
   const [detailsInitialView, setDetailsInitialView] = useState<
     'profile' | 'followUp'
   >('profile')
-  const [selectedCalloutPersonId, setSelectedCalloutPersonId] = useState<
-    number | null
-  >(null)
 
   const statusLookup = useMemo(
     () =>
@@ -258,14 +293,6 @@ const MapLibreMap = () => {
     [],
   )
 
-  const handleMarkerSelected = useCallback((personId: number) => {
-    setSelectedCalloutPersonId(personId)
-  }, [])
-
-  const handleMarkerDeselected = useCallback((personId: number) => {
-    setSelectedCalloutPersonId((prev) => (prev === personId ? null : prev))
-  }, [])
-
   const { data: markerAnnotationData } = useQuery<TMarkerAnnotation[]>({
     queryKey: ['markerAnnotation'],
     queryFn: async () => db.query.markerAnnotation.findMany(),
@@ -315,50 +342,29 @@ const MapLibreMap = () => {
 
   const markerPositions = useMemo((): PositionedMarker[] => {
     if (!data) return []
-
-    const groupedMarkers: { [key: string]: TPersonWithTagsAndFollowUps[] } = {}
-    data.forEach((person) => {
-      if (person.latitude && person.longitude) {
-        const key = `${person.latitude},${person.longitude}`
-        if (!groupedMarkers[key]) {
-          groupedMarkers[key] = []
-        }
-        groupedMarkers[key].push(person)
-      }
-    })
-
-    const positionedMarkers: PositionedMarker[] = []
-    Object.values(groupedMarkers).forEach((group) => {
-      if (group.length === 1) {
-        positionedMarkers.push({
-          person: group[0],
-          offset: [0, 0],
-          sortedFollowUps: sortFollowUpsByDateDesc(group[0].followUp),
-        })
-      } else {
-        const radius = 0.00015
-        group.forEach((person, index) => {
-          const angle = (2 * Math.PI * index) / group.length
-          positionedMarkers.push({
-            person,
-            offset: [radius * Math.cos(angle), radius * Math.sin(angle)],
-            sortedFollowUps: sortFollowUpsByDateDesc(person.followUp),
-          })
-        })
-      }
-    })
-
-    return positionedMarkers
+    return computePositionedMarkers(data)
   }, [data])
 
+  const markerFilterKey = useMemo(
+    () =>
+      selectedTags.length === 0 ? 'all' : [...selectedTags].sort().join('-'),
+    [selectedTags],
+  )
+
   const filteredMarkers = useMemo(() => {
-    if (selectedTags.length === 0) return markerPositions
-    return markerPositions.filter(({ person }) =>
-      person.personsToTags?.some((tag) =>
-        selectedTags.includes(tag.tag.tagName),
-      ),
-    )
-  }, [selectedTags, markerPositions])
+    if (!data) return []
+
+    const filteredPersons =
+      selectedTags.length === 0
+        ? data
+        : data.filter((person) =>
+            person.personsToTags?.some((pt) =>
+              selectedTags.includes(pt.tag.tagName),
+            ),
+          )
+
+    return computePositionedMarkers(filteredPersons)
+  }, [selectedTags, data])
 
   // console.log(filteredMarkers)
 
@@ -393,7 +399,6 @@ const MapLibreMap = () => {
       latitude: person.latitude! + offset[1],
       longitude: person.longitude! + offset[0],
     })
-    setSelectedCalloutPersonId(personId)
     clearMapFocusRequest()
   }, [
     mapFocusRequest,
@@ -544,26 +549,22 @@ const MapLibreMap = () => {
         {filteredMarkers.map(({ person, offset, sortedFollowUps }) => {
           const personStatus =
             person.status != null ? statusLookup[person.status] : undefined
-          const isCalloutActive = selectedCalloutPersonId === person.id
 
           return (
             person.latitude &&
             person.longitude && (
               <PointAnnotation
-                key={`person-${person.id}`}
-                id={`person-${person.id}`}
+                key={`person-${person.id}-${markerFilterKey}`}
+                id={`person-${person.id}-${markerFilterKey}`}
                 coordinate={[
                   person.longitude + offset[0],
                   person.latitude + offset[1],
                 ]}
                 title={person.name || 'Unnamed Person'}
-                onSelected={() => handleMarkerSelected(person.id)}
-                onDeselected={() => handleMarkerDeselected(person.id)}
               >
                 <Pressable
                   onPress={() => {
-                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Rigid)
-                    handleMarkerSelected(person.id)
+                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft)
                   }}
                   style={[
                     styles.personMarker,
@@ -580,22 +581,18 @@ const MapLibreMap = () => {
                   <Text style={styles.personMarkerText}>{person.category}</Text>
                 </Pressable>
                 <Callout title={person.name || 'Unnamed Person'}>
-                  {isCalloutActive ? (
-                    <PersonMapCallout
-                      person={person}
-                      sortedFollowUps={sortedFollowUps}
-                      personStatus={personStatus}
-                      onEdit={handleCalloutEdit}
-                      onShare={handleCalloutShare}
-                      onFollowUp={openDetailsFollowUp}
-                      onDelete={handleCalloutDelete}
-                      onNavigate={openMapsForNavigation}
-                      onCall={handleCalling}
-                      onWhatsApp={openWhatsApp}
-                    />
-                  ) : (
-                    <View />
-                  )}
+                  <PersonMapCallout
+                    person={person}
+                    sortedFollowUps={sortedFollowUps}
+                    personStatus={personStatus}
+                    onEdit={handleCalloutEdit}
+                    onShare={handleCalloutShare}
+                    onFollowUp={openDetailsFollowUp}
+                    onDelete={handleCalloutDelete}
+                    onNavigate={openMapsForNavigation}
+                    onCall={handleCalling}
+                    onWhatsApp={openWhatsApp}
+                  />
                 </Callout>
               </PointAnnotation>
             )
