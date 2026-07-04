@@ -26,11 +26,9 @@ import { I18n } from 'i18n-js'
 import { en, es, ja, zh, ptBR, fr, ko } from '../constants/localizations'
 import { PostHogProvider } from 'posthog-react-native'
 import { posthog } from '@/utils/posthog'
+import PostHogScreenTracker from '@/components/PostHogScreenTracker'
 
 const postHogApiKey = process.env.EXPO_PUBLIC_FSPAL_POSTHOG_API_KEY
-
-// Log the API key to debug
-console.log('PostHog API Key (process.env):', postHogApiKey)
 
 SplashScreen.preventAutoHideAsync()
 
@@ -137,10 +135,8 @@ const RootLayout = () => {
 
   return (
     <PostHogProvider
-      // apiKey={postHogApiKey}
-      options={{ disabled: !postHogApiKey }}
-      autocapture={true}
       client={posthog}
+      autocapture={{ captureScreens: false }}
     >
       <QueryClientProvider client={queryClient}>
         <GestureHandlerRootView>
@@ -154,6 +150,7 @@ const RootLayout = () => {
                 }}
                 onLayout={onLayoutRootView}
               >
+                <PostHogScreenTracker />
                 <Stack screenOptions={{ headerShown: false }}>
                   <Stack.Screen name="(tabs)" />
                   <Stack.Screen

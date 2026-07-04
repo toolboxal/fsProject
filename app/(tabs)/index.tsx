@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Platform, View } from 'react-native'
+import Constants from 'expo-constants'
 
 import { Colors } from '@/constants/Colors'
 import { StatusBar } from 'expo-status-bar'
@@ -7,23 +8,22 @@ import AnnoucementModal from '@/components/AnnoucementModal'
 import { storage } from '@/store/storage'
 import MapLibreMap from '@/components/MapLibreMap'
 
+const appVersion = Constants.expoConfig?.version ?? '0.0.0'
+
 const MapsPage = () => {
   const [showAnnouncement, setShowAnnouncement] = useState(false)
 
   useEffect(() => {
-    // Check if this version's announcement has been shown
-    const currentVersion = '1.7.0' // Replace with your app's current version
     const lastShownVersion = storage.getString('lastShownVersion')
 
-    if (!lastShownVersion || lastShownVersion !== currentVersion) {
+    if (!lastShownVersion || lastShownVersion !== appVersion) {
       setShowAnnouncement(true)
     }
   }, [])
 
   const handleCloseAnnouncement = () => {
     setShowAnnouncement(false)
-    // Store the current version as last shown
-    storage.set('lastShownVersion', '1.6.1') // Replace with your app's current version
+    storage.set('lastShownVersion', appVersion)
   }
 
   // console.log('index Page render')
