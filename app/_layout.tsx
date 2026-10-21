@@ -1,7 +1,8 @@
 import { useRouter, Stack } from 'expo-router'
 import { useCallback, useEffect, useState } from 'react'
-import { View, Pressable, Platform } from 'react-native'
+import { View, Pressable, Platform, Appearance } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { ThemeProvider, DefaultTheme } from '@react-navigation/native'
 import Text from '@/components/Text'
 import TextInput from '@/components/TextInput'
 
@@ -29,6 +30,8 @@ import { posthog } from '@/utils/posthog'
 import PostHogScreenTracker from '@/components/PostHogScreenTracker'
 
 const postHogApiKey = process.env.EXPO_PUBLIC_FSPAL_POSTHOG_API_KEY
+
+Appearance.setColorScheme('light')
 
 SplashScreen.preventAutoHideAsync()
 
@@ -142,6 +145,7 @@ const RootLayout = () => {
         <GestureHandlerRootView>
           <ActionSheetProvider>
             <PaperProvider theme={theme}>
+              <ThemeProvider value={DefaultTheme}>
               <View
                 style={{
                   flex: 1,
@@ -157,7 +161,6 @@ const RootLayout = () => {
                     name="formPage"
                     options={{
                       presentation: 'card',
-                      // gestureEnabled: false,
                       headerShown: true,
                       headerTitle: i18n.t('form.tabHeader'),
                       headerTitleStyle: {
@@ -165,22 +168,38 @@ const RootLayout = () => {
                         color: Colors.primary600,
                         fontSize: 22,
                       },
-                      headerBackTitle: i18n.t('form.tabHeaderLeft'),
-                      headerBackTitleStyle: {
-                        fontFamily: 'Roboto-Regular',
-                        fontSize: 18,
-                      },
                       headerStyle: {
                         backgroundColor: Colors.primary50,
                       },
                       headerTintColor: Colors.primary600,
+                      headerLeft: () => (
+                        <Pressable
+                          onPress={() => {
+                            if (router.canGoBack()) {
+                              router.back()
+                            } else {
+                              router.replace('/(tabs)')
+                            }
+                          }}
+                          hitSlop={16}
+                        >
+                          <Text
+                            style={{
+                              fontFamily: 'IBM-Regular',
+                              fontSize: 18,
+                              color: Colors.primary600,
+                            }}
+                          >
+                            {i18n.t('form.tabHeaderLeft')}
+                          </Text>
+                        </Pressable>
+                      ),
                     }}
                   />
                   <Stack.Screen
                     name="editPage"
                     options={{
                       presentation: 'card',
-                      // gestureEnabled: false,
                       headerShown: true,
                       headerTitle: i18n.t('editForm.tabHeader'),
                       headerTitleStyle: {
@@ -188,16 +207,32 @@ const RootLayout = () => {
                         color: Colors.primary600,
                         fontSize: 22,
                       },
-                      headerBackTitle: i18n.t('editForm.tabHeaderLeft'),
-                      headerBackTitleStyle: {
-                        fontFamily: 'Roboto-Regular',
-                        fontSize: 18,
-                      },
-
                       headerStyle: {
                         backgroundColor: Colors.primary50,
                       },
                       headerTintColor: Colors.primary600,
+                      headerLeft: () => (
+                        <Pressable
+                          onPress={() => {
+                            if (router.canGoBack()) {
+                              router.back()
+                            } else {
+                              router.replace('/(tabs)')
+                            }
+                          }}
+                          hitSlop={16}
+                        >
+                          <Text
+                            style={{
+                              fontFamily: 'IBM-Regular',
+                              fontSize: 18,
+                              color: Colors.primary600,
+                            }}
+                          >
+                            {i18n.t('editForm.tabHeaderLeft')}
+                          </Text>
+                        </Pressable>
+                      ),
                     }}
                   />
 
@@ -212,13 +247,22 @@ const RootLayout = () => {
                       headerShown: true,
                       headerTitle: 'notes',
                       gestureEnabled: false,
+                      headerStyle: {
+                        backgroundColor: Colors.primary50,
+                      },
+                      headerTintColor: Colors.primary600,
                       headerRight: () => (
                         <Pressable
                           onPress={() => {
                             router.dismiss()
                           }}
                         >
-                          <Text style={{ fontFamily: 'IBM-Regular' }}>
+                          <Text
+                            style={{
+                              fontFamily: 'IBM-Regular',
+                              color: Colors.primary600,
+                            }}
+                          >
                             {i18n.t('options.closeBtn')}
                           </Text>
                         </Pressable>
@@ -228,6 +272,7 @@ const RootLayout = () => {
                 </Stack>
                 <Toaster position="top-center" richColors />
               </View>
+              </ThemeProvider>
             </PaperProvider>
           </ActionSheetProvider>
         </GestureHandlerRootView>

@@ -7,7 +7,7 @@ import {
   Appearance,
 } from 'react-native'
 import Text from '@/components/Text'
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
+import { SafeAreaView } from 'react-native-safe-area-context'
 import { StatusBar } from 'expo-status-bar'
 import { router, Stack } from 'expo-router'
 import { Colors } from '@/constants/Colors'
@@ -19,7 +19,6 @@ import SingleRecord from '@/components/SingleRecord'
 import * as Haptics from 'expo-haptics'
 import { storage } from '@/store/storage'
 import { differenceInDays } from 'date-fns'
-import { Ionicons } from '@expo/vector-icons'
 import { useTranslations } from '../../_layout'
 
 import { db } from '@/drizzle/db'
@@ -47,8 +46,6 @@ const RecordsPage = () => {
 
   const queryClient = useQueryClient()
   const i18n = useTranslations()
-
-  const { top, bottom } = useSafeAreaInsets()
 
   const lastBackupTimestamp = storage.getString('last_backup_timestamp')
   const diffInDays = lastBackupTimestamp
@@ -180,6 +177,7 @@ const RecordsPage = () => {
   return (
     <SafeAreaView
       style={styles.safeArea}
+      collapsable={false}
       edges={
         Platform.OS === 'ios' ? ['right', 'left', 'top'] : ['right', 'left']
       }
@@ -219,11 +217,6 @@ const RecordsPage = () => {
                 router.navigate('/formPage')
               }}
             >
-              <Ionicons
-                name="create-outline"
-                size={20}
-                color={Colors.emerald900}
-              />
               <Text style={styles.btnTextLeft}>
                 {i18n.t('records.tabHeaderLeft')}
               </Text>
@@ -271,7 +264,9 @@ const RecordsPage = () => {
             contentInsetAdjustmentBehavior={
               Platform.OS === 'android' ? 'never' : 'automatic'
             }
-            contentContainerStyle={{ paddingBottom: 80 }}
+            contentContainerStyle={{
+              paddingBottom: Platform.OS === 'android' ? 80 : 24,
+            }}
             data={flatMapped}
             renderItem={renderItem}
             stickyHeaderIndices={stickyHeaderIndices}
@@ -386,7 +381,7 @@ const RecordsPage = () => {
       <Pressable
         style={{
           position: 'absolute',
-          bottom: Platform.OS === 'android' ? 95 : bottom + 75,
+          bottom: Platform.OS === 'android' ? 95 : 100,
           backgroundColor: Colors.emerald900,
           borderRadius: 100,
           borderWidth: 2,
@@ -464,22 +459,26 @@ const styles = StyleSheet.create({
     color: Colors.emerald800,
     fontFamily: 'IBM-Medium',
     fontSize: 18,
+    lineHeight: 20,
   },
   btnTextRight: {
     color: Colors.emerald800,
     fontFamily: 'IBM-Medium',
     fontSize: 18,
+    lineHeight: 20,
   },
   headerLeftBtn: {
     flexDirection: 'row',
     gap: 3,
     alignItems: 'center',
-    // marginLeft: 10,
-    // padding: 5,
+    paddingHorizontal: 0,
+    paddingVertical: 0,
+    marginVertical: -8,
   },
   headerRightBtn: {
-    // marginRight: 15,
-    // padding: 5,
+    paddingHorizontal: 0,
+    paddingVertical: 0,
+    marginVertical: -8,
   },
   tag: {
     borderRadius: 8,

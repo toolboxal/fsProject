@@ -13,7 +13,6 @@ const TabsLayout = () => {
   const { bottom } = useSafeAreaInsets()
   const i18n = useTranslations()
   const { width: innerWidth } = Dimensions.get('window')
-  console.log('tabslayout page')
   return (
     <Tabs
       screenListeners={{
@@ -100,6 +99,7 @@ const TabsLayout = () => {
         name="reportPage"
         options={{
           title: i18n.t('tabbar.reports'),
+          headerShown: false,
           tabBarIcon: ({ focused }) => (
             <FontAwesome
               name="list-alt"
@@ -114,6 +114,7 @@ const TabsLayout = () => {
         name="schedulePage"
         options={{
           title: i18n.t('tabbar.schedule'),
+          headerShown: false,
           tabBarIcon: ({ focused }) => (
             <MaterialIcons
               name="grid-on"

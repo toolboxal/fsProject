@@ -18,13 +18,22 @@ const OptionsLayout = () => {
             fontFamily: 'IBM-Medium',
             fontSize: 18,
           },
+          headerStyle: {
+            backgroundColor: Colors.primary50,
+          },
+          headerTintColor: Colors.primary600,
           headerRight: () => (
             <Pressable
               onPress={() => {
                 router.back()
               }}
             >
-              <Text style={{ fontFamily: 'IBM-Regular' }}>
+              <Text
+                style={{
+                  fontFamily: 'IBM-Regular',
+                  color: Colors.primary600,
+                }}
+              >
                 {i18n.t('options.closeBtn')}
               </Text>
             </Pressable>

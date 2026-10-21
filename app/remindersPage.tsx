@@ -19,7 +19,6 @@ import { db } from '@/drizzle/db'
 import { reminders } from '@/drizzle/schema'
 import { useQueryClient, useQuery } from '@tanstack/react-query'
 import * as Haptics from 'expo-haptics'
-import AntDesign from '@expo/vector-icons/AntDesign'
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -230,9 +229,6 @@ const remindersPage = () => {
               >
                 {showAddModal ? 'Cancel' : 'Add'}
               </Text>
-              {!showAddModal && (
-                <AntDesign name="plus" size={15} color={Colors.emerald800} />
-              )}
             </Pressable>
           ),
           headerRight: () => (
@@ -246,7 +242,12 @@ const remindersPage = () => {
                 justifyContent: 'center',
               }}
             >
-              <Text style={{ fontFamily: 'IBM-Regular' }}>
+              <Text
+                style={{
+                  fontFamily: 'IBM-Regular',
+                  color: Colors.primary600,
+                }}
+              >
                 {i18n.t('options.closeBtn')}
               </Text>
             </Pressable>
@@ -349,7 +350,9 @@ const remindersPage = () => {
 export default remindersPage
 const styles = StyleSheet.create({
   addBtn: {
-    padding: 7,
+    paddingHorizontal: 0,
+    paddingVertical: 0,
+    marginVertical: -8,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',

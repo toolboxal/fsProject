@@ -3,7 +3,11 @@ import { Picker } from '@react-native-picker/picker'
 import { Colors } from '@/constants/Colors'
 
 const HOUR_OPTIONS = Array.from({ length: 601 }, (_, i) => i)
-const MINUTE_OPTIONS = Array.from({ length: 60 }, (_, i) => i)
+const MINUTE_STEP = 5
+const MINUTE_OPTIONS = Array.from(
+  { length: 60 / MINUTE_STEP },
+  (_, i) => i * MINUTE_STEP,
+)
 
 type DurationPickerProps = {
   hours: number

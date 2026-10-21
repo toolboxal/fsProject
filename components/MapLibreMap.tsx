@@ -634,7 +634,7 @@ const MapLibreMap = () => {
         <View
           style={[
             styles.tagsContainer,
-            { bottom: Platform.OS === 'android' ? 90 : bottom + 70 },
+            { bottom: Platform.OS === 'android' ? 90 : bottom + 65 },
           ]}
         >
           <FlatList
@@ -663,7 +663,7 @@ const MapLibreMap = () => {
       <View
         style={{
           position: 'absolute',
-          bottom: Platform.OS === 'ios' ? bottom + 145 : bottom + 110,
+          bottom: Platform.OS === 'ios' ? bottom + 140 : bottom + 110,
           right: 15,
           gap: 12,
         }}
@@ -914,7 +914,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignContent: 'center',
     justifyContent: 'center',
-    backgroundColor: Colors.primary900, // Changed from semi-transparent to solid color
+    backgroundColor: Colors.primary900,
     padding: 10,
     borderRadius: 50,
     shadowColor: '#000',

@@ -6,7 +6,7 @@
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
-    "userInterfaceStyle": "automatic",
+    "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/images/splashscreen.png",
       "backgroundColor": "#34D399",
@@ -84,7 +84,9 @@
             "deploymentTarget": "26.0"
           }
         }
-      ]
+      ],
+      "./plugins/withMinIosDeploymentTarget.js",
+      "./plugins/withIosSceneDelegate.js"
     ],
     "experiments": {
       "typedRoutes": true

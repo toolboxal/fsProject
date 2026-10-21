@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef } from 'react'
+import { useState, useEffect, useMemo, useRef, useLayoutEffect } from 'react'
 import {
   StyleSheet,
   View,
@@ -8,7 +8,7 @@ import {
   RefreshControl,
 } from 'react-native'
 import Text from '@/components/Text'
-import { useRouter } from 'expo-router'
+import { useNavigation, useRouter } from 'expo-router'
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import * as Haptics from 'expo-haptics'
 import { FontAwesome6 } from '@expo/vector-icons'
@@ -18,12 +18,11 @@ import { db } from '@/drizzle/db'
 import { Report } from '@/drizzle/schema'
 import { useQuery } from '@tanstack/react-query'
 import ReportTable from '@/components/reportComponents/reportTable'
-import { Tabs } from 'expo-router'
 import SvcYrDropdown from '@/components/reportComponents/SvcYrDropdown'
 import { isAfter, isBefore, formatDistanceStrict, Locale } from 'date-fns'
 import { cleanupOldReports } from '@/utils/cleanupOldReports'
 import convertFloatToTime from '@/utils/convertFloatToTime'
-import { useTranslations } from '../_layout'
+import { useTranslations } from '@/app/_layout'
 import { enUS, es, ja, zhCN, ptBR, fr, ko } from 'date-fns/locale'
 import useMyStore from '@/store/store'
 import Ionicons from '@expo/vector-icons/Ionicons'
@@ -59,6 +58,7 @@ const reportPage = () => {
   const [modalVisible, setModalVisible] = useState(false)
   const scrollViewRef = useRef<ScrollView>(null)
   const router = useRouter()
+  const navigation = useNavigation()
   const i18n = useTranslations()
   const lang = useMyStore((state) => state.language)
   const [hideStats, setHideStats] = useState(false)
@@ -126,50 +126,57 @@ const reportPage = () => {
     [filteredData],
   )
 
+  const scrollBottomPadding = Platform.OS === 'android' ? bottom + 100 : 24
+  const fabBottom = Platform.OS === 'android' ? 95 : 100
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerTitle: '',
+      headerShadowVisible: false,
+      headerStyle: {
+        backgroundColor: Colors.primary50,
+        height: top + 45,
+      },
+      headerLeft: () => (
+        <Pressable
+          style={styles.headerLeftBtn}
+          onPress={() => {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+            setModalVisible((prev) => !prev)
+          }}
+        >
+          <Text style={styles.btnTextLeft}>
+            {i18n.t('reports.tabHeaderLeft')}
+          </Text>
+        </Pressable>
+      ),
+      headerRight: () => (
+        <Pressable
+          style={styles.headerRightBtn}
+          onPress={() => {
+            router.navigate('/(options)/optionsPage')
+          }}
+        >
+          <Text style={styles.btnTextRight}>
+            {i18n.t('reports.tabHeaderRight')}
+          </Text>
+        </Pressable>
+      ),
+    })
+  }, [navigation, top, i18n, router])
+
   return (
-    <SafeAreaView style={[styles.container]} edges={['bottom']}>
-      <Tabs.Screen
-        options={{
-          headerTitle: '',
-          headerShadowVisible: false,
-          headerStyle: {
-            backgroundColor: Colors.primary50,
-            height: top + 45,
-          },
-          headerLeft: () => (
-            <Pressable
-              style={styles.headerLeftBtn}
-              onPress={() => {
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
-                setModalVisible((prev) => !prev)
-              }}
-            >
-              <FontAwesome6 name="add" size={13} color={Colors.primary900} />
-              <Text style={styles.btnTextLeft}>
-                {i18n.t('reports.tabHeaderLeft')}
-              </Text>
-            </Pressable>
-          ),
-          headerRight: () => (
-            <Pressable
-              style={styles.headerRightBtn}
-              onPress={() => {
-                // Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
-                router.navigate('/(options)/optionsPage')
-              }}
-            >
-              <Text style={styles.btnTextRight}>
-                {i18n.t('reports.tabHeaderRight')}
-              </Text>
-            </Pressable>
-          ),
-        }}
-      />
+    <SafeAreaView
+      style={[styles.container]}
+      collapsable={false}
+      edges={Platform.OS === 'android' ? ['bottom'] : []}
+    >
       <ScrollView
         ref={scrollViewRef}
         onContentSizeChange={() =>
           scrollViewRef.current?.scrollToEnd({ animated: true })
         }
+        contentInsetAdjustmentBehavior="automatic"
         style={{
           flex: 1,
         }}
@@ -186,7 +193,7 @@ const reportPage = () => {
           />
         }
         contentContainerStyle={{
-          paddingBottom: Platform.OS === 'android' ? bottom + 100 : bottom + 75,
+          paddingBottom: scrollBottomPadding,
           paddingTop: 10,
           backgroundColor: Colors.primary50,
         }}
@@ -476,7 +483,7 @@ const reportPage = () => {
       <Pressable
         style={{
           position: 'absolute',
-          bottom: Platform.OS === 'android' ? 95 : bottom + 75,
+          bottom: fabBottom,
           backgroundColor: Colors.emerald900,
           borderRadius: 100,
           borderWidth: 2,
@@ -511,22 +518,26 @@ const styles = StyleSheet.create({
     color: Colors.emerald800,
     fontFamily: 'IBM-Medium',
     fontSize: 18,
+    lineHeight: 20,
   },
   btnTextRight: {
     color: Colors.emerald800,
     fontFamily: 'IBM-Medium',
     fontSize: 18,
+    lineHeight: 20,
   },
   headerLeftBtn: {
     flexDirection: 'row',
     gap: 3,
     alignItems: 'center',
-    marginLeft: 10,
-    padding: 5,
+    paddingHorizontal: 0,
+    paddingVertical: 0,
+    marginVertical: -8,
   },
   headerRightBtn: {
-    marginRight: 15,
-    padding: 5,
+    paddingHorizontal: 0,
+    paddingVertical: 0,
+    marginVertical: -8,
   },
   stickyHeader: {
     backgroundColor: Colors.primary50,

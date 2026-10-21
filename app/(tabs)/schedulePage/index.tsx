@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useState, useLayoutEffect } from 'react'
 import {
   StyleSheet,
   View,
@@ -10,7 +10,7 @@ import {
   RefreshControl,
 } from 'react-native'
 import Text from '@/components/Text'
-import { Tabs, useRouter } from 'expo-router'
+import { useNavigation, useRouter } from 'expo-router'
 import * as Calendar from 'expo-calendar'
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import * as Haptics from 'expo-haptics'
@@ -94,6 +94,7 @@ async function createCalendarEvent() {
 
 const schedulePage = () => {
   const router = useRouter()
+  const navigation = useNavigation()
   const { bottom, top } = useSafeAreaInsets()
   const [refreshing, setRefreshing] = useState(false)
   const i18n = useTranslations()
@@ -110,10 +111,10 @@ const schedulePage = () => {
     refetchInterval: 600000,
   })
 
-  const handleCreateCalendarEvent = async () => {
+  const handleCreateCalendarEvent = useCallback(async () => {
     await createCalendarEvent()
     refetch()
-  }
+  }, [refetch])
 
   console.log(events)
 
@@ -123,6 +124,46 @@ const schedulePage = () => {
     await refetch()
     setRefreshing(false)
   }, [refetch])
+
+  const scrollBottomPadding =
+    Platform.OS === 'android' ? bottom + 100 : 24
+  const fabBottom = Platform.OS === 'android' ? 95 : 100
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerTitle: '',
+      headerShadowVisible: false,
+      headerStyle: {
+        backgroundColor: Colors.primary50,
+        height: top + 45,
+      },
+      headerLeft: () => (
+        <Pressable
+          style={styles.headerLeftBtn}
+          onPress={() => {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+            handleCreateCalendarEvent()
+          }}
+        >
+          <Text style={styles.btnTextLeft}>
+            {i18n.t('schedule.tabHeaderLeft')}
+          </Text>
+        </Pressable>
+      ),
+      headerRight: () => (
+        <Pressable
+          style={styles.headerRightBtn}
+          onPress={() => {
+            router.navigate('/(options)/optionsPage')
+          }}
+        >
+          <Text style={styles.btnTextRight}>
+            {i18n.t('schedule.tabHeaderRight')}
+          </Text>
+        </Pressable>
+      ),
+    })
+  }, [navigation, top, i18n, router, handleCreateCalendarEvent])
 
   // Format events into sections
   const formatEvents = () => {
@@ -165,52 +206,19 @@ const schedulePage = () => {
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={['bottom']}>
-      <Tabs.Screen
-        options={{
-          headerTitle: '',
-          headerShadowVisible: false,
-          headerStyle: {
-            backgroundColor: Colors.primary50,
-            height: top + 45,
-          },
-          headerLeft: () => (
-            <Pressable
-              style={styles.headerLeftBtn}
-              onPress={() => {
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
-                handleCreateCalendarEvent()
-              }}
-            >
-              <FontAwesome6 name="add" size={13} color={Colors.primary900} />
-              <Text style={styles.btnTextLeft}>
-                {i18n.t('schedule.tabHeaderLeft')}
-              </Text>
-            </Pressable>
-          ),
-          headerRight: () => (
-            <Pressable
-              style={styles.headerRightBtn}
-              onPress={() => {
-                // Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
-                router.navigate('/(options)/optionsPage')
-              }}
-            >
-              <Text style={styles.btnTextRight}>
-                {i18n.t('schedule.tabHeaderRight')}
-              </Text>
-            </Pressable>
-          ),
-        }}
-      />
+    <SafeAreaView
+      style={styles.container}
+      collapsable={false}
+      edges={Platform.OS === 'android' ? ['bottom'] : []}
+    >
       <Text style={styles.eventReminder}>
         {i18n.t('schedule.eventReminder')}
       </Text>
       <ScrollView
         style={styles.eventList}
+        contentInsetAdjustmentBehavior="automatic"
         contentContainerStyle={{
-          paddingBottom: Platform.OS === 'android' ? bottom + 100 : bottom + 75,
-          // paddingTop: 1,
+          paddingBottom: scrollBottomPadding,
           backgroundColor: Colors.primary50,
         }}
         showsVerticalScrollIndicator={false}
@@ -340,7 +348,7 @@ const schedulePage = () => {
       <Pressable
         style={{
           position: 'fixed',
-          bottom: Platform.OS === 'android' ? 48 : bottom + 51,
+          bottom: fabBottom,
           backgroundColor: Colors.emerald900,
           borderRadius: 100,
           borderWidth: 2,
@@ -442,22 +450,26 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 3,
     alignItems: 'center',
-    marginLeft: 10,
-    padding: 5,
+    paddingHorizontal: 0,
+    paddingVertical: 0,
+    marginVertical: -8,
   },
   headerRightBtn: {
-    marginRight: 15,
-    padding: 5,
+    paddingHorizontal: 0,
+    paddingVertical: 0,
+    marginVertical: -8,
   },
   btnTextLeft: {
     color: Colors.emerald800,
     fontFamily: 'IBM-Medium',
     fontSize: 18,
+    lineHeight: 20,
   },
   btnTextRight: {
     color: Colors.emerald800,
     fontFamily: 'IBM-Medium',
     fontSize: 18,
+    lineHeight: 20,
   },
   fyiTxt: {
     marginTop: 20,
