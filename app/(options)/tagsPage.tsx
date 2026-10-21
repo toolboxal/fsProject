@@ -34,7 +34,6 @@ const tagsPage = () => {
       }
       // If not in use, proceed with deletion
       await db.delete(tags).where(eq(tags.id, id)).execute()
-      console.log('Successfully deleted tag with ID:', id)
 
       // Invalidate queries to refresh the UI
       queryClient.invalidateQueries({ queryKey: ['tags'] })

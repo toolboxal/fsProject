@@ -224,7 +224,6 @@ const DetailsModal = ({
   }
 
   const handleCalling = async (phoneNumber: string) => {
-    console.log('handle calling pressed')
     if (!phoneNumber) return
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
     try {

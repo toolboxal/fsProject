@@ -148,7 +148,6 @@ const Form = ({ initialLat, initialLng }: FormProps) => {
   ]
 
   const submitPressed = async (data: TFormData) => {
-    console.log('pressed')
     const nameCheck = data['name']
     if (nameCheck === '' || nameCheck === null) {
       setError('name', { type: 'min', message: 'cannot be empty' })
@@ -213,7 +212,6 @@ const Form = ({ initialLat, initialLng }: FormProps) => {
   const handleNewAddress = async () => {
     try {
       const [block, unit, street] = getValues(['block', 'unit', 'street'])
-      console.log(block, unit, street)
       const addressString = block ? `${block} ${street}` : `${unit} ${street}`
       const newGeoCode = await Location.geocodeAsync(addressString)
       const lat = newGeoCode[0].latitude

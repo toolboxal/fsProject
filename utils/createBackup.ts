@@ -93,8 +93,7 @@ const createBackup = async () => {
     const fileUri = file.uri
 
     if (await Sharing.isAvailableAsync()) {
-      const result = await Sharing.shareAsync(fileUri)
-      console.log('result', result)
+      await Sharing.shareAsync(fileUri)
 
       const timestamp = new Date().toISOString()
       storage.set('last_backup_timestamp', timestamp)

@@ -26,8 +26,6 @@ const DatePickerModal = ({
 }: Props) => {
   const colorScheme = useColorScheme()
 
-  console.log(initialVisit)
-
   const onDateChange = (
     event: DateTimePickerEvent,
     selectedDate: Date | undefined,

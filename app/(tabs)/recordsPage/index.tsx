@@ -265,7 +265,7 @@ const RecordsPage = () => {
               Platform.OS === 'android' ? 'never' : 'automatic'
             }
             contentContainerStyle={{
-              paddingBottom: Platform.OS === 'android' ? 80 : 24,
+              paddingBottom: Platform.OS === 'android' ? 100 : 80,
             }}
             data={flatMapped}
             renderItem={renderItem}

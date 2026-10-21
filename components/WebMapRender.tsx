@@ -102,7 +102,6 @@ const WebMapRender = () => {
      <p style='color:#fbffc1;font-size:15px;font-style:italic; display:block;padding:0;margin:0;line-height:1.2;font-weight:bold'>${publications}</p>
      <p style='color:#fff;font-size:15px; display:block;margin:0;background-color:#262626;'>${remarks}</p>
     `
-      console.log('inside markers')
       return { popUpContent, latitude, longitude, category }
     })
   }, [persons])
@@ -245,8 +244,6 @@ const WebMapRender = () => {
       webRef.current.injectJavaScript(injectedJavaScript)
     }
   }
-
-  console.log('webMap render')
 
   return (
     <View style={{ position: 'relative', flex: 1 }}>

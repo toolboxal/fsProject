@@ -9,6 +9,7 @@ import { storage } from '@/store/storage'
 import MapLibreMap from '@/components/MapLibreMap'
 
 const appVersion = Constants.expoConfig?.version ?? '0.0.0'
+const ANNOUNCEMENT_VERSION = '1.7.0'
 
 const MapsPage = () => {
   const [showAnnouncement, setShowAnnouncement] = useState(false)
@@ -16,7 +17,10 @@ const MapsPage = () => {
   useEffect(() => {
     const lastShownVersion = storage.getString('lastShownVersion')
 
-    if (!lastShownVersion || lastShownVersion !== appVersion) {
+    if (
+      appVersion === ANNOUNCEMENT_VERSION &&
+      lastShownVersion !== ANNOUNCEMENT_VERSION
+    ) {
       setShowAnnouncement(true)
     }
   }, [])

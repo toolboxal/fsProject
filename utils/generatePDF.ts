@@ -31,7 +31,6 @@ const generatePDF = async () => {
       })
       .join('')
 
-    console.log(tableRowsString)
     const tableHeader = `<tr>
     <th>Name</th>
     <th>Category</th>

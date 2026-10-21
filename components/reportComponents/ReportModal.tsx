@@ -142,7 +142,7 @@ const ModalForm = ({ modalVisible, setModalVisible, svcYrs }: ModalProps) => {
           alignItems: 'center',
           justifyContent: 'center',
           gap: 5,
-          backgroundColor: Colors.black,
+          backgroundColor: Colors.primary950,
           width: 240,
           paddingHorizontal: 8,
           paddingVertical: 10,
@@ -167,8 +167,6 @@ const ModalForm = ({ modalVisible, setModalVisible, svcYrs }: ModalProps) => {
       },
     )
   }
-
-  console.log('*********modal render*********')
 
   return (
     <Modal

@@ -29,8 +29,6 @@ import { PostHogProvider } from 'posthog-react-native'
 import { posthog } from '@/utils/posthog'
 import PostHogScreenTracker from '@/components/PostHogScreenTracker'
 
-const postHogApiKey = process.env.EXPO_PUBLIC_FSPAL_POSTHOG_API_KEY
-
 Appearance.setColorScheme('light')
 
 SplashScreen.preventAutoHideAsync()
@@ -119,12 +117,10 @@ const RootLayout = () => {
       getLocationPermission()
     }
 
-    console.log('PostHog API Key:', postHogApiKey)
-
     prepare()
   }, [])
 
-  useDrizzleStudio(expoDb)
+  useDrizzleStudio(__DEV__ ? expoDb : null)
 
   const onLayoutRootView = useCallback(() => {
     if (appIsReady) {
@@ -270,7 +266,14 @@ const RootLayout = () => {
                     }}
                   />
                 </Stack>
-                <Toaster position="top-center" richColors />
+                <Toaster
+                  position="top-center"
+                  toastOptions={{
+                    style: { backgroundColor: Colors.primary950 },
+                    titleStyle: { color: Colors.white },
+                    descriptionStyle: { color: Colors.white },
+                  }}
+                />
               </View>
               </ThemeProvider>
             </PaperProvider>

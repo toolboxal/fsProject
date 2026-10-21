@@ -108,12 +108,12 @@ const ReportTable = ({ data }: TProps) => {
       }),
       columnHelper.accessor('credit', {
         header: () => (
-          <Text style={[styles.headerTxt, { color: Colors.purple800 }]}>
+          <Text style={[styles.headerTxt, { color: Colors.purple700 }]}>
             {i18n.t('reports.tableHeadCredit')}
           </Text>
         ),
         cell: (info) => (
-          <Text style={[styles.cellTxt, { color: Colors.purple800 }]}>
+          <Text style={[styles.cellTxt, { color: Colors.purple700 }]}>
             {convertFloatToTime(info.getValue() || 0)}
           </Text>
         ),
@@ -123,7 +123,7 @@ const ReportTable = ({ data }: TProps) => {
           <Text
             style={[
               styles.headerTxt,
-              { fontSize: 10, color: Colors.purple800 },
+              { fontSize: 10, color: Colors.purple700 },
             ]}
           >
             {i18n.t('reports.tableHeadComments')}
@@ -131,7 +131,7 @@ const ReportTable = ({ data }: TProps) => {
         ),
         cell: (info) => (
           <Text
-            style={[styles.cellTxt, { fontSize: 10, color: Colors.purple800 }]}
+            style={[styles.cellTxt, { fontSize: 10, color: Colors.purple700 }]}
           >
             {info.getValue() || ''}
           </Text>
@@ -186,7 +186,7 @@ const ReportTable = ({ data }: TProps) => {
             handleDeleteSingleReport(rowId)
             break
           case cancelButtonIndex:
-            console.log('canceled')
+            break
         }
       },
     )
@@ -203,7 +203,7 @@ const ReportTable = ({ data }: TProps) => {
           alignItems: 'center',
           justifyContent: 'center',
           gap: 4,
-          backgroundColor: Colors.black,
+          backgroundColor: Colors.primary950,
           width: 240,
           paddingHorizontal: 8,
           paddingVertical: 10,
@@ -331,7 +331,7 @@ const ReportTable = ({ data }: TProps) => {
                 </View>
                 <View style={[styles.cell, styles.column]}>
                   <Text
-                    style={[styles.subtotalText, { color: Colors.purple800 }]}
+                    style={[styles.subtotalText, { color: Colors.purple700 }]}
                   >
                     {convertFloatToTime(monthGroup.getValue('credit'))}
                   </Text>

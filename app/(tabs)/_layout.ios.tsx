@@ -13,6 +13,7 @@ import FontAwesome from '@expo/vector-icons/FontAwesome'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 import { Colors } from '@/constants/Colors'
 import { useTranslations } from '../_layout'
+import useMyStore from '@/store/store'
 
 const TAB_LABEL_SIZE = 10
 const selectedTint = Colors.emerald600
@@ -20,6 +21,7 @@ const defaultTint = Colors.primary500
 
 const TabsLayout = () => {
   const i18n = useTranslations()
+  const lang = useMyStore((state) => state.language)
   const segments = useSegments()
   const tab = segments[1] ?? 'index'
   const isFirstTab = useRef(true)
@@ -35,6 +37,7 @@ const TabsLayout = () => {
   return (
     <ThemeProvider value={DefaultTheme}>
       <NativeTabs
+        key={lang}
         blurEffect="none"
         disableTransparentOnScrollEdge
         tintColor={selectedTint}

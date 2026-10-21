@@ -9,8 +9,6 @@ export const cleanupOldReports = async () => {
 
     // Delete records older than 2 years
     await db.delete(Report).where(lt(Report.date, threeYearsAgo)).execute()
-
-    console.log('Successfully cleaned up old records')
   } catch (error) {
     console.error('Error cleaning up old records:', error)
   }

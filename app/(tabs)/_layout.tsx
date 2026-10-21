@@ -7,14 +7,17 @@ import FontAwesome5 from '@expo/vector-icons/FontAwesome5'
 import FontAwesome from '@expo/vector-icons/FontAwesome'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 import { useTranslations } from '../_layout'
+import useMyStore from '@/store/store'
 import { BlurView } from 'expo-blur'
 
 const TabsLayout = () => {
   const { bottom } = useSafeAreaInsets()
   const i18n = useTranslations()
+  const lang = useMyStore((state) => state.language)
   const { width: innerWidth } = Dimensions.get('window')
   return (
     <Tabs
+      key={lang}
       screenListeners={{
         tabPress: () => {
           Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Rigid)

@@ -17,7 +17,7 @@ import * as Link from 'expo-linking'
 import { ScrollView } from 'react-native-gesture-handler'
 
 const APP_STORE_ID = '6745219755'
-const PLAY_STORE_ID = 'YOUR_PACKAGE_NAME' // Replace with your Android package name e.g. 'com.yourcompany.appname'
+const PLAY_STORE_ID = 'com.toolboxal.fsPal'
 
 const openAppStore = () => {
   const url = Platform.select({
@@ -44,8 +44,11 @@ const settingsPage = () => {
   const handleLanguageChange = (lang: string) => {
     setLang(lang)
     storage.set('language', lang)
-    // Refresh the entire app
-    router.replace('/')
+    if (router.canDismiss()) {
+      router.dismissTo('/(tabs)')
+    } else {
+      router.replace('/(tabs)')
+    }
   }
 
   return (
@@ -111,7 +114,7 @@ const settingsPage = () => {
           marginVertical: 5,
         }}
       >
-        version 1.7.0
+        version 1.8.0
       </Text>
       {Platform.OS === 'ios' && (
         <Pressable

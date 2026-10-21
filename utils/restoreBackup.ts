@@ -50,9 +50,6 @@ const restoreBackupFunc = async (queryClient: QueryClient) => {
     const fileContent = await file.text()
     const backupData: BackupData = JSON.parse(fileContent)
 
-    // Log the entire backup data structure for debugging
-    console.log('Backup Data Structure:', JSON.stringify(backupData, null, 2))
-
     // Validate file uploaded is genuine
     if (backupData.backupID !== 'fspalbackup') {
       throw new Error('restoration failed: invalid backup file')
@@ -100,7 +97,6 @@ const restoreBackupFunc = async (queryClient: QueryClient) => {
         ...personData
       } = personRecord
 
-      console.log('Processing person data for insertion:', personData)
       // Insert the person and get the new ID
       try {
         // Convert initialVisit string back to Date object if it exists
@@ -115,16 +111,9 @@ const restoreBackupFunc = async (queryClient: QueryClient) => {
           .values(processedPersonData)
           .returning({ id: Person.id })
         const personId = insertedPerson.id
-        console.log('Successfully inserted person with ID:', personId)
 
         // Restore follow-ups linked to this person
         for (const followUpItem of followUpData) {
-          console.log(
-            'Processing follow-up data for person ID:',
-            personId,
-            'Follow-up data:',
-            followUpItem,
-          )
           try {
             const processedFollowUpItem = {
               ...followUpItem,
@@ -137,10 +126,6 @@ const restoreBackupFunc = async (queryClient: QueryClient) => {
                   : new Date(),
             }
             await db.insert(followUp).values(processedFollowUpItem)
-            console.log(
-              'Successfully inserted follow-up for person ID:',
-              personId,
-            )
           } catch (followUpError) {
             console.error(
               'Error inserting follow-up for person ID:',
@@ -155,7 +140,6 @@ const restoreBackupFunc = async (queryClient: QueryClient) => {
 
         // Restore tags and link them to this person
         for (const tagName of tagNames) {
-          console.log('Processing tag:', tagName, 'for person ID:', personId)
           // Check if tag already exists
           let tagResult = await db
             .select()
@@ -170,30 +154,17 @@ const restoreBackupFunc = async (queryClient: QueryClient) => {
                 .values({ tagName })
                 .returning({ id: tags.id })
               tagId = insertedTag[0].id
-              console.log(
-                'Successfully inserted new tag:',
-                tagName,
-                'with ID:',
-                tagId,
-              )
             } catch (tagError) {
               console.error('Error inserting tag:', tagName, 'Error:', tagError)
               continue
             }
           } else {
             tagId = tagResult[0].id
-            console.log('Tag already exists:', tagName, 'with ID:', tagId)
           }
 
           // Link tag to person via personsToTags
           try {
             await db.insert(personsToTags).values({ personId, tagId })
-            console.log(
-              'Successfully linked tag ID:',
-              tagId,
-              'to person ID:',
-              personId,
-            )
           } catch (linkError) {
             console.error(
               'Error linking tag ID:',
@@ -228,7 +199,6 @@ const restoreBackupFunc = async (queryClient: QueryClient) => {
       for (const annotationRecord of backupData.markerAnnotation) {
         try {
           await db.insert(markerAnnotation).values(annotationRecord)
-          console.log('Successfully inserted marker annotation')
         } catch (annotationError) {
           console.error('Error inserting marker annotation:', annotationError)
         }
@@ -246,7 +216,6 @@ const restoreBackupFunc = async (queryClient: QueryClient) => {
               : new Date(),
           }
           await db.insert(reminders).values(processedReminder)
-          console.log('Successfully inserted reminder')
         } catch (reminderError) {
           console.error('Error inserting reminder:', reminderError)
         }

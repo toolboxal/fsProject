@@ -30,7 +30,6 @@ const uploadRecord = async (
   i18n: I18n,
 ) => {
   try {
-    console.log('inside document picker')
     const result = await DocumentPicker.getDocumentAsync({
       type: 'application/json',
       copyToCacheDirectory: true,
@@ -54,7 +53,6 @@ const uploadRecord = async (
     }
 
     // Insert the person record and get the new ID
-    console.log('Restoring person data:', data.data)
     // Convert initialVisit string back to Date object if it exists
     const processedPersonData = {
       ...data.data,
@@ -67,17 +65,10 @@ const uploadRecord = async (
       .values(processedPersonData)
       .returning({ id: Person.id })
     const personId = insertedPerson.id
-    console.log('Successfully inserted person with ID:', personId)
 
     // Restore follow-ups if they exist in the data
     if (data.followUps && Array.isArray(data.followUps)) {
       for (const followUpItem of data.followUps) {
-        console.log(
-          'Processing follow-up for person ID:',
-          personId,
-          'Data:',
-          followUpItem,
-        )
         try {
           const processedFollowUpItem = {
             ...followUpItem,
@@ -90,10 +81,6 @@ const uploadRecord = async (
                 : new Date(),
           }
           await db.insert(followUp).values(processedFollowUpItem)
-          console.log(
-            'Successfully inserted follow-up for person ID:',
-            personId,
-          )
         } catch (followUpError) {
           console.error(
             'Error inserting follow-up for person ID:',
@@ -112,7 +99,6 @@ const uploadRecord = async (
       for (const tagItem of data.tags) {
         const tagName = tagItem.tagName
         if (!tagName) continue
-        console.log('Processing tag:', tagName, 'for person ID:', personId)
 
         // Check if tag already exists
         let tagResult = await db
@@ -128,30 +114,17 @@ const uploadRecord = async (
               .values({ tagName })
               .returning({ id: tags.id })
             tagId = insertedTag[0].id
-            console.log(
-              'Successfully inserted new tag:',
-              tagName,
-              'with ID:',
-              tagId,
-            )
           } catch (tagError) {
             console.error('Error inserting tag:', tagName, 'Error:', tagError)
             continue
           }
         } else {
           tagId = tagResult[0].id
-          console.log('Tag already exists:', tagName, 'with ID:', tagId)
         }
 
         // Link tag to person via personsToTags
         try {
           await db.insert(personsToTags).values({ personId, tagId })
-          console.log(
-            'Successfully linked tag ID:',
-            tagId,
-            'to person ID:',
-            personId,
-          )
         } catch (linkError) {
           console.error(
             'Error linking tag ID:',

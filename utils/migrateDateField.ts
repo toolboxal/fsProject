@@ -8,15 +8,11 @@ import { isNull, isNotNull, sql } from 'drizzle-orm'
  */
 export async function migrateDateField() {
   try {
-    console.log('Starting date field migration...')
-
     // Get all persons with old date field but no initialVisit
     const personsToMigrate = await db
       .select()
       .from(Person)
       .where(sql`${Person.date} IS NOT NULL AND ${Person.initialVisit} IS NULL`)
-
-    console.log(`Found ${personsToMigrate.length} records to migrate`)
 
     let successCount = 0
     let errorCount = 0
@@ -35,9 +31,6 @@ export async function migrateDateField() {
             .where(sql`${Person.id} = ${person.id}`)
 
           successCount++
-          console.log(
-            `✓ Migrated person ${person.id}: "${person.date}" -> ${new Date(timestamp).toISOString()}`,
-          )
         } else {
           errorCount++
           console.warn(
@@ -49,10 +42,6 @@ export async function migrateDateField() {
         console.error(`Error migrating person ${person.id}:`, error)
       }
     }
-
-    console.log(
-      `Migration complete: ${successCount} successful, ${errorCount} errors`,
-    )
 
     return { successCount, errorCount, total: personsToMigrate.length }
   } catch (error) {

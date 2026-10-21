@@ -55,8 +55,6 @@ const remindersPage = () => {
       db.select().from(reminders).orderBy(desc(reminders.created_at)),
   })
 
-  console.log('from remindersPage', remindersData)
-
   const {
     control,
     handleSubmit,
@@ -157,7 +155,7 @@ const remindersPage = () => {
             handleDeleteSingleReminder(reminderInfo.id)
             break
           case cancelButtonIndex:
-            console.log('canceled')
+            break
         }
       },
     )
@@ -174,7 +172,7 @@ const remindersPage = () => {
           alignItems: 'center',
           justifyContent: 'center',
           gap: 4,
-          backgroundColor: Colors.black,
+          backgroundColor: Colors.primary950,
           width: 240,
           paddingHorizontal: 8,
           paddingVertical: 10,

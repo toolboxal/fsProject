@@ -72,8 +72,6 @@ const fetchCalendarEvents = async () => {
   const startDate = new Date()
   const endDate = new Date()
   endDate.setDate(endDate.getDate() + 365)
-  const calId = storage.getString('calendar.id')
-  console.log('calId', calId)
   const calendarEvents = await Calendar.getEventsAsync(
     [storage.getString('calendar.id')!],
     startDate,
@@ -115,8 +113,6 @@ const schedulePage = () => {
     await createCalendarEvent()
     refetch()
   }, [refetch])
-
-  console.log(events)
 
   const onRefresh = useCallback(async () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)

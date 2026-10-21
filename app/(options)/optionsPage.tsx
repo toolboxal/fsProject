@@ -36,7 +36,6 @@ const optionsPage = () => {
     router.dismiss()
   }
   const handleUpload = async () => {
-    console.log('pressed handle')
     await uploadRecord(queryClient, lang, i18n)
     router.dismiss()
   }
@@ -47,8 +46,6 @@ const optionsPage = () => {
   }
 
   const handleMailComposer = async () => {
-    console.log('pressed mailComposer')
-
     MailComposer.composeAsync({
       recipients: ['contact@alvindevapps.com'],
       body: `\n\n\n\n\nDevice: ${Device.modelName}
@@ -124,7 +121,7 @@ OS Version: ${Device.osVersion}`,
                 [
                   {
                     text: i18n.t('options.cancel'),
-                    onPress: () => console.log('Cancel Pressed'),
+                    onPress: () => {},
                     style: 'cancel',
                   },
                   {
@@ -201,7 +198,7 @@ OS Version: ${Device.osVersion}`,
                 [
                   {
                     text: i18n.t('options.cancel'),
-                    onPress: () => console.log('Cancel Pressed'),
+                    onPress: () => {},
                     style: 'cancel',
                   },
                   {
@@ -217,7 +214,7 @@ OS Version: ${Device.osVersion}`,
                             alignItems: 'center',
                             justifyContent: 'center',
                             gap: 4,
-                            backgroundColor: Colors.black,
+                            backgroundColor: Colors.primary950,
                             width: 240,
                             paddingHorizontal: 8,
                             paddingVertical: 10,
@@ -265,7 +262,7 @@ OS Version: ${Device.osVersion}`,
                 [
                   {
                     text: i18n.t('options.cancel'),
-                    onPress: () => console.log('Cancel Pressed'),
+                    onPress: () => {},
                     style: 'cancel',
                   },
                   {
@@ -281,7 +278,7 @@ OS Version: ${Device.osVersion}`,
                             alignItems: 'center',
                             justifyContent: 'center',
                             gap: 4,
-                            backgroundColor: Colors.black,
+                            backgroundColor: Colors.primary950,
                             width: 240,
                             paddingHorizontal: 8,
                             paddingVertical: 10,

@@ -20,7 +20,7 @@ interface AnnoucementModalProps {
 }
 
 const APP_STORE_ID = '6745219755' // Replace with your actual App Store ID
-const PLAY_STORE_ID = 'YOUR_PACKAGE_NAME' // Replace with your Android package name e.g. 'com.yourcompany.appname'
+const PLAY_STORE_ID = 'com.toolboxal.fsPal'
 
 const openAppStore = () => {
   const url = Platform.select({

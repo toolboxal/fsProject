@@ -246,7 +246,6 @@ const EditPageForm = ({ person }: EditPageFormProps) => {
     queryClient.invalidateQueries({ queryKey: ['persons'] })
     queryClient.invalidateQueries({ queryKey: ['person', person.id] })
     queryClient.invalidateQueries({ queryKey: ['tags', person.id] })
-    console.log('edit done')
     reset()
     toast.success(i18n.t('editForm.toastSuccess'))
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
@@ -256,7 +255,6 @@ const EditPageForm = ({ person }: EditPageFormProps) => {
   const handleNewAddress = async () => {
     try {
       const [block, unit, street] = getValues(['block', 'unit', 'street'])
-      console.log(block, unit, street)
       const addressString = block ? `${block} ${street}` : `${unit} ${street}`
       const newGeoCode = await Location.geocodeAsync(addressString)
       const lat = newGeoCode[0].latitude

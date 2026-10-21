@@ -2,7 +2,7 @@
   "expo": {
     "name": "FsPal",
     "slug": "fsProject",
-    "version": "1.7.0",
+    "version": "1.8.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
@@ -22,7 +22,7 @@
         "NSLocationWhenInUseUsageDescription": "Your current location will be used to locate the nearest records you create on your phone",
         "NSLocationAlwaysUsageDescription": "Your current location will be used to locate the nearest records you create on your phone",
         "NSLocationAlwaysAndWhenInUseUsageDescription": "Your current location will be used to locate the nearest records you create on your phone",
-        "LSApplicationQueriesSchemes": ["whatsapp", "whatsapp"],
+        "LSApplicationQueriesSchemes": ["whatsapp"],
         "ITSAppUsesNonExemptEncryption": false
       }
     },
@@ -53,7 +53,7 @@
       [
         "expo-location",
         {
-          "locationAlwaysAndWhenInUsePermission": "Allow FsPal to use your location.",
+          "locationAlwaysAndWhenInUsePermission": "Your current location will be used to locate the nearest records you create on your phone",
           "isAndroidForegroundServiceEnabled": true
         }
       ],
