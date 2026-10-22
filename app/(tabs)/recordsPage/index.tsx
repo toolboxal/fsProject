@@ -58,6 +58,10 @@ const RecordsPage = () => {
       : lastBackupTimestamp && diffInDays === 0
         ? `Thank you for backing up your data. 🙏`
         : `⚠️ Frequently create backups to ${Platform.OS === 'ios' ? 'iCloud' : 'Google Drive'} to prevent data loss.\nGo to Options -> create backup`
+  const backupBannerColor =
+    !lastBackupTimestamp || diffInDays > 60
+      ? Colors.rose700
+      : Colors.primary600
 
   useEffect(() => {
     // storage.delete('last_backup_timestamp')
@@ -278,8 +282,7 @@ const RecordsPage = () => {
                 <View>
                   <View
                     style={{
-                      backgroundColor:
-                        diffInDays > 60 ? Colors.rose700 : Colors.primary600,
+                      backgroundColor: backupBannerColor,
                       paddingHorizontal: 5,
                       paddingVertical: 3,
                     }}
@@ -309,8 +312,7 @@ const RecordsPage = () => {
                 <View>
                   <View
                     style={{
-                      backgroundColor:
-                        diffInDays > 60 ? Colors.rose700 : Colors.primary600,
+                      backgroundColor: backupBannerColor,
                       paddingHorizontal: 5,
                       paddingVertical: 3,
                     }}
