@@ -1,14 +1,6 @@
-import { useMemo } from 'react'
+import { memo, useCallback } from 'react'
 import { Pressable, StyleSheet, View } from 'react-native'
 import Text from '@/components/Text'
-import {
-  useReactTable,
-  createColumnHelper,
-  getCoreRowModel,
-  flexRender,
-  getSortedRowModel,
-  getGroupedRowModel,
-} from '@tanstack/react-table'
 import { db } from '@/drizzle/db'
 import { eq } from 'drizzle-orm'
 import { Report, TReport } from '@/drizzle/schema'
@@ -24,10 +16,14 @@ import useMyStore from '@/store/store'
 import { enUS, es, ja, zhCN, ptBR, fr, ko } from 'date-fns/locale'
 import { useTranslations } from '@/app/_layout'
 
-const columnHelper = createColumnHelper<TReport>()
-
-type TProps = {
-  data: TReport[]
+const localeMap: Record<string, Locale> = {
+  en: enUS,
+  es: es,
+  ja: ja,
+  zh: zhCN,
+  ptBR: ptBR,
+  fr: fr,
+  ko: ko,
 }
 
 const fsTypeList = [
@@ -35,494 +31,393 @@ const fsTypeList = [
   { type: 'cart', label: 'cart', color: Colors.rose400 },
   { type: 'publ', label: 'public', color: Colors.sky500 },
   { type: 'inf', label: 'informal', color: Colors.lemon500 },
-]
+] as const
 
-const ReportTable = ({ data }: TProps) => {
-  const queryClient = useQueryClient()
-  const lang = useMyStore((state) => state.language)
+export type ReportTableListItem =
+  | { type: 'monthHeader'; id: string; title: string }
+  | { type: 'colHeader'; id: string }
+  | { type: 'row'; id: string; report: TReport }
+  | {
+      type: 'subtotal'
+      id: string
+      bs: number
+      hrs: number
+      credit: number
+      hhHrs: number
+      cartHrs: number
+      publHrs: number
+      infHrs: number
+    }
 
-  const localeMap: Record<string, Locale> = {
-    en: enUS,
-    es: es,
-    ja: ja,
-    zh: zhCN,
-    ptBR: ptBR,
-    fr: fr,
-    ko: ko,
+export const buildReportTableItems = (
+  data: TReport[],
+  lang: string,
+): ReportTableListItem[] => {
+  const months = new Map<string, TReport[]>()
+  const sorted = [...data].sort(
+    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
+  )
+
+  for (const report of sorted) {
+    const key = format(report.date, 'yyyy-MM')
+    const existing = months.get(key)
+    if (existing) {
+      existing.push(report)
+    } else {
+      months.set(key, [report])
+    }
   }
 
+  const items: ReportTableListItem[] = []
+  const locale = localeMap[lang] || enUS
+
+  for (const [key, reports] of [...months.entries()].sort(([a], [b]) =>
+    a.localeCompare(b),
+  )) {
+    const [year, month] = key.split('-').map(Number)
+    items.push({
+      type: 'monthHeader',
+      id: `month-${key}`,
+      title: format(new Date(year, month - 1, 1), 'MMMM yyyy', { locale }),
+    })
+    items.push({ type: 'colHeader', id: `cols-${key}` })
+    for (const report of reports) {
+      items.push({ type: 'row', id: `row-${report.id}`, report })
+    }
+
+    items.push({
+      type: 'subtotal',
+      id: `sub-${key}`,
+      bs: reports.reduce((sum, row) => sum + (row.bs || 0), 0),
+      hrs: reports.reduce((sum, row) => sum + (row.hrs || 0), 0),
+      credit: reports.reduce((sum, row) => sum + (row.credit || 0), 0),
+      hhHrs: reports.reduce(
+        (sum, row) => sum + (row.type === 'hh' ? row.hrs || 0 : 0),
+        0,
+      ),
+      cartHrs: reports.reduce(
+        (sum, row) => sum + (row.type === 'cart' ? row.hrs || 0 : 0),
+        0,
+      ),
+      publHrs: reports.reduce(
+        (sum, row) => sum + (row.type === 'publ' ? row.hrs || 0 : 0),
+        0,
+      ),
+      infHrs: reports.reduce(
+        (sum, row) => sum + (row.type === 'inf' ? row.hrs || 0 : 0),
+        0,
+      ),
+    })
+  }
+
+  return items
+}
+
+const TypeDot = ({ color }: { color: string }) => (
+  <View
+    style={{
+      backgroundColor: color,
+      width: 8,
+      height: 8,
+      borderRadius: 100,
+    }}
+  />
+)
+
+export const ReportTableItemView = memo(function ReportTableItemView({
+  item,
+}: {
+  item: ReportTableListItem
+}) {
+  const queryClient = useQueryClient()
   const i18n = useTranslations()
-
-  const columns = useMemo(() => {
-    return [
-      columnHelper.accessor('date', {
-        header: () => (
-          <Text style={styles.headerTxt}>
-            {i18n.t('reports.tableHeadDate')}
-          </Text>
-        ),
-        cell: (info) => {
-          const date = info.getValue()
-          const formattedDate = format(date!, 'dd MMM', {
-            locale: localeMap[lang] || enUS,
-          })
-          return <Text style={styles.cellTxt}>{formattedDate}</Text>
-        },
-        sortingFn: 'datetime',
-        getGroupingValue: (row) => format(row.date!, 'yyyy-MM'),
-      }),
-      columnHelper.accessor('bs', {
-        header: () => <Text style={styles.headerTxt}>BS</Text>,
-        cell: (info) => <Text style={styles.cellTxt}>{info.getValue()}</Text>,
-        aggregationFn: 'sum',
-      }),
-      columnHelper.accessor('type', {
-        header: () => <Text style={styles.headerTxt}></Text>,
-        cell: (info) => (
-          // <Text style={styles.cellTxt}>
-          //   {convertFloatToTime(info.getValue() || 0)}
-          // </Text>
-          <View
-            style={{
-              backgroundColor: fsTypeList.find(
-                (item) => item.type === info.getValue(),
-              )?.color,
-              width: 8,
-              height: 8,
-              borderRadius: 100,
-              alignSelf: 'center',
-              marginTop: 5,
-            }}
-          />
-        ),
-        // aggregationFn: 'sum',
-      }),
-      columnHelper.accessor('hrs', {
-        header: () => <Text style={styles.headerTxt}>Hrs</Text>,
-        cell: (info) => (
-          <Text style={styles.cellTxt}>
-            {convertFloatToTime(info.getValue() || 0)}
-          </Text>
-        ),
-        aggregationFn: 'sum',
-      }),
-      columnHelper.accessor('credit', {
-        header: () => (
-          <Text style={[styles.headerTxt, { color: Colors.purple700 }]}>
-            {i18n.t('reports.tableHeadCredit')}
-          </Text>
-        ),
-        cell: (info) => (
-          <Text style={[styles.cellTxt, { color: Colors.purple700 }]}>
-            {convertFloatToTime(info.getValue() || 0)}
-          </Text>
-        ),
-      }),
-      columnHelper.accessor('comment', {
-        header: () => (
-          <Text
-            style={[
-              styles.headerTxt,
-              { fontSize: 10, color: Colors.purple700 },
-            ]}
-          >
-            {i18n.t('reports.tableHeadComments')}
-          </Text>
-        ),
-        cell: (info) => (
-          <Text
-            style={[styles.cellTxt, { fontSize: 10, color: Colors.purple700 }]}
-          >
-            {info.getValue() || ''}
-          </Text>
-        ),
-      }),
-    ]
-  }, [])
-
-  const table = useReactTable({
-    columns,
-    data: data || [],
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getGroupedRowModel: getGroupedRowModel(),
-    initialState: {
-      sorting: [
-        {
-          id: 'date',
-          desc: false,
-        },
-      ],
-      grouping: ['date'],
-    },
-    enableGrouping: true,
-  })
-
-  // Group rows by month
-  const groupedRows = table
-    .getGroupedRowModel()
-    .rows.sort((a, b) => String(a.id).localeCompare(String(b.id)))
+  const lang = useMyStore((state) => state.language)
   const { showActionSheetWithOptions } = useActionSheet()
 
-  const handleActionSheet = (rowId: number, rowDate: Date) => {
-    const title = format(rowDate, 'dd MMM yyyy')
-    const options = [
-      i18n.t('reports.actionDelete'),
-      i18n.t('reports.actionCancel'),
-    ]
-    const destructiveButtonIndex = 0
-    const cancelButtonIndex = 1
-    showActionSheetWithOptions(
-      {
-        title,
-        // userInterfaceStyle: 'dark',
-        options,
-        destructiveButtonIndex,
-        cancelButtonIndex,
-      },
-      (selectedIndex: number | undefined) => {
-        switch (selectedIndex) {
-          case destructiveButtonIndex:
-            handleDeleteSingleReport(rowId)
-            break
-          case cancelButtonIndex:
-            break
-        }
-      },
-    )
-  }
-
-  const handleDeleteSingleReport = async (rowId: number) => {
-    await db.delete(Report).where(eq(Report.id, rowId))
-    queryClient.invalidateQueries({ queryKey: ['reports'] })
-    toast.custom(
-      <View
-        style={{
-          alignSelf: 'center',
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: 4,
-          backgroundColor: Colors.primary950,
-          width: 240,
-          paddingHorizontal: 8,
-          paddingVertical: 10,
-          borderRadius: 8,
-        }}
-      >
-        <MaterialCommunityIcons
-          name="delete"
-          size={23}
-          color={Colors.rose500}
-        />
-        <Text
+  const handleDeleteSingleReport = useCallback(
+    async (rowId: number) => {
+      await db.delete(Report).where(eq(Report.id, rowId))
+      queryClient.invalidateQueries({ queryKey: ['reports'] })
+      toast.custom(
+        <View
           style={{
-            fontFamily: 'IBM-Regular',
-            fontSize: 15,
-            color: Colors.white,
+            alignSelf: 'center',
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 4,
+            backgroundColor: Colors.primary950,
+            width: 240,
+            paddingHorizontal: 8,
+            paddingVertical: 10,
+            borderRadius: 8,
           }}
         >
-          {i18n.t('reportsModal.toastDelete')}
-        </Text>
-      </View>,
-      {
-        duration: 3000,
-      },
+          <MaterialCommunityIcons
+            name="delete"
+            size={23}
+            color={Colors.rose500}
+          />
+          <Text
+            style={{
+              fontFamily: 'IBM-Regular',
+              fontSize: 15,
+              color: Colors.white,
+            }}
+          >
+            {i18n.t('reportsModal.toastDelete')}
+          </Text>
+        </View>,
+        {
+          duration: 3000,
+        },
+      )
+    },
+    [i18n, queryClient],
+  )
+
+  const handleActionSheet = useCallback(
+    (rowId: number, rowDate: Date) => {
+      const title = format(rowDate, 'dd MMM yyyy')
+      const options = [
+        i18n.t('reports.actionDelete'),
+        i18n.t('reports.actionCancel'),
+      ]
+      showActionSheetWithOptions(
+        {
+          title,
+          options,
+          destructiveButtonIndex: 0,
+          cancelButtonIndex: 1,
+        },
+        (selectedIndex: number | undefined) => {
+          if (selectedIndex === 0) {
+            handleDeleteSingleReport(rowId)
+          }
+        },
+      )
+    },
+    [handleDeleteSingleReport, i18n, showActionSheetWithOptions],
+  )
+
+  if (item.type === 'monthHeader') {
+    return (
+      <View style={styles.monthWrap}>
+        <View style={styles.monthHeader}>
+          <Text style={styles.monthTitle}>{item.title}</Text>
+        </View>
+      </View>
     )
   }
 
-  return (
-    <View style={styles.container}>
-      {groupedRows.map((monthGroup) => (
-        <View key={monthGroup.id} style={styles.monthContainer}>
-          <View style={styles.monthHeader}>
-            <Text style={styles.monthTitle}>
-              {format(new Date(monthGroup.getValue('date')), 'MMMM yyyy', {
+  if (item.type === 'colHeader') {
+    return (
+      <View style={styles.monthWrap}>
+        <View style={styles.row}>
+          <View style={[styles.headerCell, styles.column]}>
+            <Text style={styles.headerTxt}>
+              {i18n.t('reports.tableHeadDate')}
+            </Text>
+          </View>
+          <View style={[styles.headerCell, styles.typeColumn]}>
+            <Text style={styles.headerTxt}>BS</Text>
+          </View>
+          <View style={[styles.headerCell, styles.typeColumn]} />
+          <View style={[styles.headerCell, styles.column]}>
+            <Text style={styles.headerTxt}>Hrs</Text>
+          </View>
+          <View style={[styles.headerCell, styles.column]}>
+            <Text style={[styles.headerTxt, { color: Colors.purple700 }]}>
+              {i18n.t('reports.tableHeadCredit')}
+            </Text>
+          </View>
+          <View style={[styles.headerCell, styles.column]}>
+            <Text
+              style={[styles.headerTxt, { fontSize: 10, color: Colors.purple700 }]}
+            >
+              {i18n.t('reports.tableHeadComments')}
+            </Text>
+          </View>
+        </View>
+      </View>
+    )
+  }
+
+  if (item.type === 'row') {
+    const { report } = item
+    const typeColor = fsTypeList.find((t) => t.type === report.type)?.color
+    return (
+      <View style={styles.monthWrap}>
+        <Pressable
+          style={({ pressed }) => [
+            styles.row,
+            {
+              backgroundColor: pressed ? Colors.primary100 : Colors.primary50,
+            },
+          ]}
+          onLongPress={() => handleActionSheet(report.id, report.date)}
+        >
+          <View style={[styles.cell, styles.column]}>
+            <Text style={styles.cellTxt}>
+              {format(report.date, 'dd MMM', {
                 locale: localeMap[lang] || enUS,
               })}
             </Text>
           </View>
+          <View style={[styles.cell, styles.typeColumn]}>
+            <Text style={styles.cellTxt}>{report.bs}</Text>
+          </View>
+          <View style={[styles.cell, styles.typeColumn]}>
+            <View
+              style={{
+                backgroundColor: typeColor,
+                width: 8,
+                height: 8,
+                borderRadius: 100,
+                alignSelf: 'center',
+                marginTop: 5,
+              }}
+            />
+          </View>
+          <View style={[styles.cell, styles.column]}>
+            <Text style={styles.cellTxt}>
+              {convertFloatToTime(report.hrs || 0)}
+            </Text>
+          </View>
+          <View style={[styles.cell, styles.column]}>
+            <Text style={[styles.cellTxt, { color: Colors.purple700 }]}>
+              {convertFloatToTime(report.credit || 0)}
+            </Text>
+          </View>
+          <View style={[styles.cell, styles.column]}>
+            <Text
+              style={[styles.cellTxt, { fontSize: 10, color: Colors.purple700 }]}
+            >
+              {report.comment || ''}
+            </Text>
+          </View>
+        </Pressable>
+      </View>
+    )
+  }
 
-          <View style={styles.table}>
-            {/* Table Headers */}
-            {table.getHeaderGroups().map((headerGroup) => (
-              <View key={headerGroup.id} style={styles.row}>
-                {headerGroup.headers.map((header) => (
-                  <View
-                    key={header.id}
-                    style={[
-                      styles.headerCell,
-                      header.id === 'type' || header.id === 'bs'
-                        ? styles.typeColumn
-                        : styles.column,
-                    ]}
-                  >
-                    {flexRender(
-                      header.column.columnDef.header,
-                      header.getContext(),
-                    )}
-                  </View>
-                ))}
-              </View>
-            ))}
-
-            {/* Table Rows */}
-            {monthGroup.subRows
-              .sort((a, b) => {
-                const dateA = new Date(a.getValue('date'))
-                const dateB = new Date(b.getValue('date'))
-                return dateA.getTime() - dateB.getTime()
-              })
-              .map((row) => (
-                <Pressable
-                  key={row.id}
-                  style={({ pressed }) => {
-                    return [
-                      styles.row,
-                      {
-                        backgroundColor: pressed
-                          ? Colors.primary100
-                          : Colors.primary50,
-                      },
-                    ]
-                  }}
-                  onLongPress={() => {
-                    const { id: rowId, date: rowDate } = row.original
-                    handleActionSheet(rowId, rowDate)
-                  }}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <View
-                      key={cell.id}
-                      style={[
-                        styles.cell,
-                        cell.column.id === 'type' || cell.column.id === 'bs'
-                          ? styles.typeColumn
-                          : styles.column,
-                      ]}
-                    >
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext(),
-                      )}
-                    </View>
-                  ))}
-                </Pressable>
-              ))}
-
-            {/* Subtotal Row */}
-            <View style={styles.subtotalContainer}>
-              <View style={styles.subtotalRow}>
-                <View style={[styles.cell, styles.column]}>
-                  <Text style={[styles.subtotalText, { fontSize: 11 }]}>
-                    {i18n.t('reports.tableSubtotalLabel')}
-                  </Text>
-                </View>
-                <View style={[styles.cell, { flex: 0.3 }]}>
-                  <Text style={styles.subtotalText}>
-                    {monthGroup.getValue('bs')}
-                  </Text>
-                </View>
-                <View style={[styles.cell, { flex: 0.3 }]} />
-                <View style={[styles.cell, styles.column]}>
-                  <Text style={styles.subtotalText}>
-                    {convertFloatToTime(monthGroup.getValue('hrs'))}
-                  </Text>
-                </View>
-                <View style={[styles.cell, styles.column]}>
-                  <Text
-                    style={[styles.subtotalText, { color: Colors.purple700 }]}
-                  >
-                    {convertFloatToTime(monthGroup.getValue('credit'))}
-                  </Text>
-                </View>
-                <View style={[styles.cell, styles.column]} />
-              </View>
-              <View
-                style={[
-                  styles.subtotalRow,
-                  { backgroundColor: Colors.primary50 },
-                ]}
-              >
-                <View
-                  style={[
-                    styles.cell,
-                    styles.column,
-                    {
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      flexDirection: 'row',
-                      gap: 2,
-                    },
-                  ]}
-                >
-                  <View
-                    style={{
-                      backgroundColor: fsTypeList[0].color,
-                      width: 8,
-                      height: 8,
-                      borderRadius: 100,
-                    }}
-                  />
-                  <Text style={{ fontSize: 11 }}>HH</Text>
-                </View>
-                <View
-                  style={[
-                    styles.cell,
-                    styles.column,
-                    {
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      flexDirection: 'row',
-                      gap: 2,
-                    },
-                  ]}
-                >
-                  <View
-                    style={{
-                      backgroundColor: fsTypeList[1].color,
-                      width: 8,
-                      height: 8,
-                      borderRadius: 100,
-                    }}
-                  />
-                  <Text style={{ fontSize: 11 }}>Cart</Text>
-                </View>
-                <View
-                  style={[
-                    styles.cell,
-                    styles.column,
-                    {
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      flexDirection: 'row',
-                      gap: 2,
-                    },
-                  ]}
-                >
-                  <View
-                    style={{
-                      backgroundColor: fsTypeList[2].color,
-                      width: 8,
-                      height: 8,
-                      borderRadius: 100,
-                    }}
-                  />
-                  <Text style={{ fontSize: 11 }}>Public</Text>
-                </View>
-                <View
-                  style={[
-                    styles.cell,
-                    styles.column,
-                    {
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      flexDirection: 'row',
-                      gap: 2,
-                    },
-                  ]}
-                >
-                  <View
-                    style={{
-                      backgroundColor: fsTypeList[3].color,
-                      width: 8,
-                      height: 8,
-                      borderRadius: 100,
-                    }}
-                  />
-                  <Text style={{ fontSize: 11 }}>Informal</Text>
-                </View>
-              </View>
-              <View
-                style={[
-                  styles.subtotalRow,
-                  {
-                    backgroundColor: Colors.primary50,
-                    borderBottomColor: Colors.primary500,
-                    borderBottomWidth: 1,
-                  },
-                ]}
-              >
-                <View
-                  style={[
-                    styles.cell,
-                    styles.column,
-                    { alignItems: 'center', justifyContent: 'center' },
-                  ]}
-                >
-                  <Text style={{ fontSize: 11 }}>
-                    {convertFloatToTime(
-                      monthGroup.subRows
-                        .filter((row) => row.original.type === 'hh')
-                        .reduce((sum, row) => sum + (row.original.hrs || 0), 0),
-                    )}
-                  </Text>
-                </View>
-                <View
-                  style={[
-                    styles.cell,
-                    styles.column,
-                    { alignItems: 'center', justifyContent: 'center' },
-                  ]}
-                >
-                  <Text style={{ fontSize: 11 }}>
-                    {convertFloatToTime(
-                      monthGroup.subRows
-                        .filter((row) => row.original.type === 'cart')
-                        .reduce((sum, row) => sum + (row.original.hrs || 0), 0),
-                    )}
-                  </Text>
-                </View>
-                <View
-                  style={[
-                    styles.cell,
-                    styles.column,
-                    { alignItems: 'center', justifyContent: 'center' },
-                  ]}
-                >
-                  <Text style={{ fontSize: 11 }}>
-                    {convertFloatToTime(
-                      monthGroup.subRows
-                        .filter((row) => row.original.type === 'publ')
-                        .reduce((sum, row) => sum + (row.original.hrs || 0), 0),
-                    )}
-                  </Text>
-                </View>
-                <View
-                  style={[
-                    styles.cell,
-                    styles.column,
-                    { alignItems: 'center', justifyContent: 'center' },
-                  ]}
-                >
-                  <Text style={{ fontSize: 11 }}>
-                    {convertFloatToTime(
-                      monthGroup.subRows
-                        .filter((row) => row.original.type === 'inf')
-                        .reduce((sum, row) => sum + (row.original.hrs || 0), 0),
-                    )}
-                  </Text>
-                </View>
-              </View>
+  return (
+    <View style={[styles.monthWrap, { paddingBottom: 20 }]}>
+      <View style={styles.subtotalContainer}>
+        <View style={styles.subtotalRow}>
+          <View style={[styles.cell, styles.column]}>
+            <Text style={[styles.subtotalText, { fontSize: 11 }]}>
+              {i18n.t('reports.tableSubtotalLabel')}
+            </Text>
+          </View>
+          <View style={[styles.cell, { flex: 0.3 }]}>
+            <Text style={styles.subtotalText}>{item.bs}</Text>
+          </View>
+          <View style={[styles.cell, { flex: 0.3 }]} />
+          <View style={[styles.cell, styles.column]}>
+            <Text style={styles.subtotalText}>
+              {convertFloatToTime(item.hrs)}
+            </Text>
+          </View>
+          <View style={[styles.cell, styles.column]}>
+            <Text style={[styles.subtotalText, { color: Colors.purple700 }]}>
+              {convertFloatToTime(item.credit)}
+            </Text>
+          </View>
+          <View style={[styles.cell, styles.column]} />
+        </View>
+        <View style={[styles.subtotalRow, { backgroundColor: Colors.primary50 }]}>
+          {fsTypeList.map((fsType) => (
+            <View
+              key={fsType.type}
+              style={[
+                styles.cell,
+                styles.column,
+                {
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexDirection: 'row',
+                  gap: 2,
+                },
+              ]}
+            >
+              <TypeDot color={fsType.color} />
+              <Text style={{ fontSize: 11 }}>
+                {fsType.type === 'hh'
+                  ? 'HH'
+                  : fsType.type === 'cart'
+                    ? 'Cart'
+                    : fsType.type === 'publ'
+                      ? 'Public'
+                      : 'Informal'}
+              </Text>
             </View>
+          ))}
+        </View>
+        <View
+          style={[
+            styles.subtotalRow,
+            {
+              backgroundColor: Colors.primary50,
+              borderBottomColor: Colors.primary500,
+              borderBottomWidth: 1,
+            },
+          ]}
+        >
+          <View
+            style={[
+              styles.cell,
+              styles.column,
+              { alignItems: 'center', justifyContent: 'center' },
+            ]}
+          >
+            <Text style={{ fontSize: 11 }}>
+              {convertFloatToTime(item.hhHrs)}
+            </Text>
+          </View>
+          <View
+            style={[
+              styles.cell,
+              styles.column,
+              { alignItems: 'center', justifyContent: 'center' },
+            ]}
+          >
+            <Text style={{ fontSize: 11 }}>
+              {convertFloatToTime(item.cartHrs)}
+            </Text>
+          </View>
+          <View
+            style={[
+              styles.cell,
+              styles.column,
+              { alignItems: 'center', justifyContent: 'center' },
+            ]}
+          >
+            <Text style={{ fontSize: 11 }}>
+              {convertFloatToTime(item.publHrs)}
+            </Text>
+          </View>
+          <View
+            style={[
+              styles.cell,
+              styles.column,
+              { alignItems: 'center', justifyContent: 'center' },
+            ]}
+          >
+            <Text style={{ fontSize: 11 }}>
+              {convertFloatToTime(item.infHrs)}
+            </Text>
           </View>
         </View>
-      ))}
+      </View>
     </View>
   )
-}
-
-export default ReportTable
+})
 
 const styles = StyleSheet.create({
-  container: {
-    width: '100%',
-    gap: 20,
-  },
-  monthContainer: {
+  monthWrap: {
     width: '90%',
     marginHorizontal: 'auto',
-    // marginBottom: 20,
   },
   monthHeader: {
     backgroundColor: Colors.primary200,
@@ -535,12 +430,6 @@ const styles = StyleSheet.create({
     fontFamily: 'IBM-Bold',
     fontSize: 16,
     fontWeight: 'bold',
-  },
-  table: {
-    // borderWidth: StyleSheet.hairlineWidth,
-    // borderColor: '#ddd',
-    borderBottomLeftRadius: 8,
-    borderBottomRightRadius: 8,
   },
   row: {
     flexDirection: 'row',

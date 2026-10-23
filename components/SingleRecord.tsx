@@ -1,11 +1,6 @@
 import { Colors } from '@/constants/Colors'
 
-import {
-  TouchableOpacity,
-  StyleSheet,
-  Pressable,
-  View,
-} from 'react-native'
+import { TouchableOpacity, StyleSheet, Pressable, View } from 'react-native'
 import Text from '@/components/Text'
 import * as Haptics from 'expo-haptics'
 import FontAwesome from '@expo/vector-icons/FontAwesome6'
@@ -79,8 +74,8 @@ const SingleRecord = (prop: TProps) => {
                 category === 'RV'
                   ? Colors.emerald600
                   : category === 'BS'
-                  ? Colors.emerald900
-                  : Colors.emerald400
+                    ? Colors.emerald900
+                    : Colors.emerald400
               }`,
             },
           ]}
@@ -110,18 +105,19 @@ export default SingleRecord
 
 const styles = StyleSheet.create({
   container: {
-    padding: 9,
-    backgroundColor: Colors.primary50,
+    padding: 8,
+    paddingLeft: 10,
+    backgroundColor: Colors.white,
     marginVertical: 3,
-    borderRadius: 5,
+    borderRadius: 12,
     position: 'relative',
     marginHorizontal: 3,
     maxHeight: 90,
     overflow: 'hidden',
   },
   houseUnit: {
-    fontFamily: 'IBM-SemiBoldItalic',
-    fontSize: 18,
+    fontFamily: 'IBM-SemiBold',
+    fontSize: 16,
     color: Colors.emerald700,
   },
   nameContainer: {
@@ -130,8 +126,8 @@ const styles = StyleSheet.create({
     gap: 5,
   },
   categoryCircle: {
-    width: 22,
-    height: 22,
+    width: 20,
+    height: 20,
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 50,
@@ -139,7 +135,7 @@ const styles = StyleSheet.create({
   },
   categoryText: {
     fontFamily: 'IBM-SemiBold',
-    fontSize: 12,
+    fontSize: 11,
     color: Colors.white,
   },
 
@@ -150,10 +146,10 @@ const styles = StyleSheet.create({
   },
   textRemarks: {
     fontFamily: 'IBM-Italic',
-    fontSize: 15,
+    fontSize: 14,
     color: Colors.primary900,
     overflow: 'hidden',
-    maxHeight: 25,
+    maxHeight: 22,
   },
   statusBox: {
     flexDirection: 'row',
@@ -163,8 +159,8 @@ const styles = StyleSheet.create({
     borderRadius: 3,
   },
   statusText: {
-    fontFamily: 'IBM-SemiBold',
-    fontSize: 10,
-    color: Colors.primary900,
+    fontFamily: 'IBM-Medium',
+    fontSize: 9.5,
+    color: Colors.primary950,
   },
 })

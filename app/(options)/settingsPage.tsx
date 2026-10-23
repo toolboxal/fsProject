@@ -114,7 +114,7 @@ const settingsPage = () => {
           marginVertical: 5,
         }}
       >
-        version 1.8.0
+        version 1.8.1
       </Text>
       {Platform.OS === 'ios' && (
         <Pressable

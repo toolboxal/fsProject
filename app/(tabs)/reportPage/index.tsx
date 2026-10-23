@@ -10,9 +10,7 @@ import {
   StyleSheet,
   View,
   Pressable,
-  ScrollView,
   Platform,
-  RefreshControl,
 } from 'react-native'
 import Text from '@/components/Text'
 import { useNavigation, useRouter, useFocusEffect } from 'expo-router'
@@ -24,7 +22,12 @@ import ModalForm from '@/components/reportComponents/ReportModal'
 import { db } from '@/drizzle/db'
 import { Report } from '@/drizzle/schema'
 import { useQuery } from '@tanstack/react-query'
-import ReportTable from '@/components/reportComponents/reportTable'
+import { FlashList, FlashListRef } from '@shopify/flash-list'
+import {
+  buildReportTableItems,
+  ReportTableItemView,
+  ReportTableListItem,
+} from '@/components/reportComponents/reportTable'
 import SvcYrDropdown from '@/components/reportComponents/SvcYrDropdown'
 import { isAfter, isBefore, formatDistanceStrict, Locale } from 'date-fns'
 import { cleanupOldReports } from '@/utils/cleanupOldReports'
@@ -58,6 +61,12 @@ const fsTypeList = [
   { type: 'inf', label: 'informal', color: Colors.lemon500 },
 ]
 
+type ReportsListItem =
+  | { type: 'stats'; id: 'stats' }
+  | { type: 'year'; id: 'year' }
+  | { type: 'empty'; id: 'empty' }
+  | ReportTableListItem
+
 const currentSvcYr = () => {
   const now = new Date()
   if (isBefore(now, new Date(now.getFullYear(), 8, 1))) {
@@ -70,7 +79,7 @@ const currentSvcYr = () => {
 const reportPage = () => {
   const { bottom, top } = useSafeAreaInsets()
   const [modalVisible, setModalVisible] = useState(false)
-  const scrollViewRef = useRef<ScrollView>(null)
+  const listRef = useRef<FlashListRef<ReportsListItem>>(null)
   const router = useRouter()
   const navigation = useNavigation()
   const i18n = useTranslations()
@@ -138,13 +147,33 @@ const reportPage = () => {
     [filteredData],
   )
 
+  const tableItems = useMemo(
+    () => buildReportTableItems(filteredData, lang),
+    [filteredData, lang],
+  )
+
+  const listData = useMemo<ReportsListItem[]>(() => {
+    if (!filteredData.length) {
+      return [
+        { type: 'stats', id: 'stats' },
+        { type: 'year', id: 'year' },
+        { type: 'empty', id: 'empty' },
+      ]
+    }
+    return [
+      { type: 'stats', id: 'stats' },
+      { type: 'year', id: 'year' },
+      ...tableItems,
+    ]
+  }, [filteredData.length, tableItems])
+
   const scrollBottomPadding = Platform.OS === 'android' ? bottom + 100 : 80
   const fabBottom = Platform.OS === 'android' ? 95 : 100
   const pendingScrollRef = useRef<'instant' | 'animated' | null>(null)
   const prevReportCountRef = useRef<number | null>(null)
 
   const scrollToBottom = (animated: boolean) => {
-    scrollViewRef.current?.scrollToEnd({ animated })
+    listRef.current?.scrollToEnd({ animated })
   }
 
   useFocusEffect(
@@ -210,302 +239,38 @@ const reportPage = () => {
     })
   }, [navigation, top, i18n, router])
 
-  return (
-    <SafeAreaView
-      style={[styles.container]}
-      collapsable={false}
-      edges={Platform.OS === 'android' ? ['bottom'] : []}
-    >
-      <ScrollView
-        ref={scrollViewRef}
-        onContentSizeChange={() => {
-          const mode = pendingScrollRef.current
-          if (!mode) return
-          scrollToBottom(mode === 'animated')
-        }}
-        contentInsetAdjustmentBehavior="automatic"
-        style={{
-          flex: 1,
-        }}
-        refreshControl={
-          <RefreshControl
-            refreshing={isRefetching}
-            onRefresh={() => {
-              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
-              refetch()
-            }}
-            tintColor={Colors.emerald300}
-            colors={[Colors.emerald300]}
-            progressBackgroundColor={Colors.emerald50}
-          />
-        }
-        contentContainerStyle={{
-          paddingBottom: scrollBottomPadding,
-          paddingTop: 10,
-          backgroundColor: Colors.primary50,
-        }}
-        showsVerticalScrollIndicator={false}
-        stickyHeaderIndices={[0]}
-      >
-        <Animated.View
-          style={[
-            styles.stickyHeader,
-            headerMinimized && styles.stickyHeaderMinimized,
-          ]}
-          layout={headerTransition}
-        >
+  const renderItem = useCallback(
+    ({ item }: { item: ReportsListItem }) => {
+      if (item.type === 'stats') {
+        return (
           <Animated.View
             style={[
-              styles.totalRow,
-              { overflow: 'hidden' },
-              headerMinimized && styles.totalRowMinimized,
+              styles.stickyHeader,
+              headerMinimized && styles.stickyHeaderMinimized,
             ]}
             layout={headerTransition}
           >
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-              }}
+            <Animated.View
+              style={[
+                styles.totalRow,
+                { overflow: 'hidden' },
+                headerMinimized && styles.totalRowMinimized,
+              ]}
+              layout={headerTransition}
             >
-              {headerMinimized ? (
-                <Animated.View
-                  key="minimized-title"
-                  entering={FadeIn.duration(280)}
-                  exiting={FadeOut.duration(200)}
-                >
-                  <Text style={[styles.totalLabel, { fontFamily: 'IBM-Bold' }]}>
-                    {i18n.t('reports.stickyHeader5')}
-                  </Text>
-                  <Text style={[styles.remainingHrs, { fontSize: 23 }]}>
-                    {convertFloatToTime(creditTotals.credit + totals.hrs)}
-                  </Text>
-                </Animated.View>
-              ) : (
-                <Animated.View
-                  key="expanded-title"
-                  entering={FadeIn.duration(280)}
-                  exiting={FadeOut.duration(200)}
-                >
-                  <Text style={styles.totalYrHeader}>
-                    {i18n.t('reports.stickyHeader1') + selectedYr}
-                  </Text>
-                </Animated.View>
-              )}
-              <Pressable
-                onPress={() => {
-                  setHeaderMinimized((prev) => !prev)
+              <View
+                style={{
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
                 }}
               >
-                <Ionicons
-                  name={headerMinimized ? 'chevron-down' : 'chevron-up'}
-                  size={23}
-                  color={Colors.primary950}
-                  style={{ marginRight: 5 }}
-                />
-              </Pressable>
-            </View>
-            {!headerMinimized && (
-              <Animated.View
-                entering={FadeIn.duration(320)}
-                exiting={FadeOut.duration(250)}
-                layout={headerTransition}
-              >
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                    marginVertical: 5,
-                    paddingHorizontal: 5,
-                  }}
-                >
-                  {/* Total FS hrs */}
-                  <View style={styles.totalValues}>
-                    <Text style={styles.totalLabel}>
-                      {i18n.t('reports.stickyHeader2')}
-                    </Text>
-                    <Text style={styles.totalText}>
-                      {convertFloatToTime(totals.hrs)}
-                    </Text>
-                  </View>
-                  {/* Total Credit hrs */}
-                  <View style={styles.totalValues}>
-                    <Text
-                      style={[
-                        styles.totalLabel,
-                        { color: Colors.purple700, textAlign: 'right' },
-                      ]}
-                    >
-                      {i18n.t('reports.stickyHeader3')}
-                    </Text>
-                    <Text
-                      style={[
-                        styles.totalText,
-                        { color: Colors.purple700, textAlign: 'right' },
-                      ]}
-                    >
-                      {convertFloatToTime(creditTotals.credit)}
-                    </Text>
-                  </View>
-                </View>
-                {/* FS hrs breakdown table */}
-                <View
-                  style={{
-                    marginVertical: 5,
-                    borderTopWidth: 1,
-                    borderBottomWidth: 1,
-                    borderColor: Colors.primary300,
-                    borderRadius: 8,
-                    // paddingVertical: 2,
-                  }}
-                >
-                  <View
-                    style={{
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                      justifyContent: 'space-around',
-                      paddingVertical: 5,
-                    }}
+                {headerMinimized ? (
+                  <Animated.View
+                    key="minimized-title"
+                    entering={FadeIn.duration(280)}
+                    exiting={FadeOut.duration(200)}
                   >
-                    <View
-                      style={{
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        gap: 5,
-                      }}
-                    >
-                      <View
-                        style={{
-                          width: 8,
-                          height: 8,
-                          borderRadius: 100,
-                          backgroundColor: fsTypeList[0].color,
-                        }}
-                      />
-                      <Text style={{ fontFamily: 'IBM-Bold', fontSize: 14 }}>
-                        HH
-                      </Text>
-                    </View>
-                    <View
-                      style={{
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        gap: 5,
-                      }}
-                    >
-                      <View
-                        style={{
-                          width: 8,
-                          height: 8,
-                          borderRadius: 100,
-                          backgroundColor: fsTypeList[1].color,
-                        }}
-                      />
-                      <Text style={{ fontFamily: 'IBM-Bold', fontSize: 14 }}>
-                        Cart
-                      </Text>
-                    </View>
-                    <View
-                      style={{
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        gap: 5,
-                      }}
-                    >
-                      <View
-                        style={{
-                          width: 8,
-                          height: 8,
-                          borderRadius: 100,
-                          backgroundColor: fsTypeList[2].color,
-                        }}
-                      />
-                      <Text style={{ fontFamily: 'IBM-Bold', fontSize: 14 }}>
-                        Public
-                      </Text>
-                    </View>
-                    <View
-                      style={{
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        gap: 5,
-                      }}
-                    >
-                      <View
-                        style={{
-                          width: 8,
-                          height: 8,
-                          borderRadius: 100,
-                          backgroundColor: fsTypeList[3].color,
-                        }}
-                      />
-                      <Text style={{ fontFamily: 'IBM-Bold', fontSize: 14 }}>
-                        Informal
-                      </Text>
-                    </View>
-                  </View>
-                  <View
-                    style={{
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                      justifyContent: 'space-around',
-                      paddingVertical: 5,
-                    }}
-                  >
-                    <Text
-                      style={{
-                        fontFamily: 'IBM-Medium',
-                        fontSize: 14,
-                        flex: 1,
-                        textAlign: 'center',
-                      }}
-                    >
-                      {convertFloatToTime(totals.hhHrs)}
-                    </Text>
-                    <Text
-                      style={{
-                        fontFamily: 'IBM-Medium',
-                        fontSize: 14,
-                        flex: 1,
-                        textAlign: 'center',
-                      }}
-                    >
-                      {convertFloatToTime(totals.cartHrs)}
-                    </Text>
-                    <Text
-                      style={{
-                        fontFamily: 'IBM-Medium',
-                        fontSize: 14,
-                        flex: 1,
-                        textAlign: 'center',
-                      }}
-                    >
-                      {convertFloatToTime(totals.publHrs)}
-                    </Text>
-                    <Text
-                      style={{
-                        fontFamily: 'IBM-Medium',
-                        fontSize: 14,
-                        flex: 1,
-                        textAlign: 'center',
-                      }}
-                    >
-                      {convertFloatToTime(totals.infHrs)}
-                    </Text>
-                  </View>
-                </View>
-                {/* total credits and Days left */}
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    alignItems: 'flex-start',
-                    justifyContent: 'space-between',
-                    marginTop: 3,
-                    paddingHorizontal: 5,
-                  }}
-                >
-                  <View>
                     <Text
                       style={[styles.totalLabel, { fontFamily: 'IBM-Bold' }]}
                     >
@@ -514,44 +279,233 @@ const reportPage = () => {
                     <Text style={[styles.remainingHrs, { fontSize: 23 }]}>
                       {convertFloatToTime(creditTotals.credit + totals.hrs)}
                     </Text>
-                  </View>
-                  <View>
-                    <Text style={[styles.totalLabel, { textAlign: 'right' }]}>
-                      {i18n.t('reports.stickyHeader4')}
+                  </Animated.View>
+                ) : (
+                  <Animated.View
+                    key="expanded-title"
+                    entering={FadeIn.duration(280)}
+                    exiting={FadeOut.duration(200)}
+                  >
+                    <Text style={styles.totalYrHeader}>
+                      {i18n.t('reports.stickyHeader1') + selectedYr}
                     </Text>
-                    <Text
-                      style={[
-                        styles.remainingHrs,
-                        { textAlign: 'right', fontSize: 16 },
-                      ]}
+                  </Animated.View>
+                )}
+                <Pressable
+                  onPress={() => {
+                    setHeaderMinimized((prev) => !prev)
+                  }}
+                >
+                  <Ionicons
+                    name={headerMinimized ? 'chevron-down' : 'chevron-up'}
+                    size={23}
+                    color={Colors.primary950}
+                    style={{ marginRight: 5 }}
+                  />
+                </Pressable>
+              </View>
+              {!headerMinimized && (
+                <Animated.View
+                  entering={FadeIn.duration(320)}
+                  exiting={FadeOut.duration(250)}
+                  layout={headerTransition}
+                >
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                      marginVertical: 5,
+                      paddingHorizontal: 5,
+                    }}
+                  >
+                    <View style={styles.totalValues}>
+                      <Text style={styles.totalLabel}>
+                        {i18n.t('reports.stickyHeader2')}
+                      </Text>
+                      <Text style={styles.totalText}>
+                        {convertFloatToTime(totals.hrs)}
+                      </Text>
+                    </View>
+                    <View style={styles.totalValues}>
+                      <Text
+                        style={[
+                          styles.totalLabel,
+                          { color: Colors.purple700, textAlign: 'right' },
+                        ]}
+                      >
+                        {i18n.t('reports.stickyHeader3')}
+                      </Text>
+                      <Text
+                        style={[
+                          styles.totalText,
+                          { color: Colors.purple700, textAlign: 'right' },
+                        ]}
+                      >
+                        {convertFloatToTime(creditTotals.credit)}
+                      </Text>
+                    </View>
+                  </View>
+                  <View
+                    style={{
+                      marginVertical: 5,
+                      borderTopWidth: 1,
+                      borderBottomWidth: 1,
+                      borderColor: Colors.primary300,
+                      borderRadius: 8,
+                    }}
+                  >
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        justifyContent: 'space-around',
+                        paddingVertical: 5,
+                      }}
                     >
-                      {selectedYr === svcYrs.previousYr
-                        ? `0${i18n.t('reports.stickyDays')}`
-                        : formatDistanceStrict(
-                            new Date(),
-                            new Date(selectedYr, 8, 1, 0, 0, 0),
-                            {
-                              unit: 'day',
-                              locale: localeMap[lang] || enUS,
-                            },
-                          )}
-                    </Text>
+                      {fsTypeList.map((fsType) => (
+                        <View
+                          key={fsType.type}
+                          style={{
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            gap: 5,
+                          }}
+                        >
+                          <View
+                            style={{
+                              width: 8,
+                              height: 8,
+                              borderRadius: 100,
+                              backgroundColor: fsType.color,
+                            }}
+                          />
+                          <Text style={{ fontFamily: 'IBM-Bold', fontSize: 14 }}>
+                            {fsType.type === 'hh'
+                              ? 'HH'
+                              : fsType.type === 'cart'
+                                ? 'Cart'
+                                : fsType.type === 'publ'
+                                  ? 'Public'
+                                  : 'Informal'}
+                          </Text>
+                        </View>
+                      ))}
+                    </View>
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        justifyContent: 'space-around',
+                        paddingVertical: 5,
+                      }}
+                    >
+                      <Text
+                        style={{
+                          fontFamily: 'IBM-Medium',
+                          fontSize: 14,
+                          flex: 1,
+                          textAlign: 'center',
+                        }}
+                      >
+                        {convertFloatToTime(totals.hhHrs)}
+                      </Text>
+                      <Text
+                        style={{
+                          fontFamily: 'IBM-Medium',
+                          fontSize: 14,
+                          flex: 1,
+                          textAlign: 'center',
+                        }}
+                      >
+                        {convertFloatToTime(totals.cartHrs)}
+                      </Text>
+                      <Text
+                        style={{
+                          fontFamily: 'IBM-Medium',
+                          fontSize: 14,
+                          flex: 1,
+                          textAlign: 'center',
+                        }}
+                      >
+                        {convertFloatToTime(totals.publHrs)}
+                      </Text>
+                      <Text
+                        style={{
+                          fontFamily: 'IBM-Medium',
+                          fontSize: 14,
+                          flex: 1,
+                          textAlign: 'center',
+                        }}
+                      >
+                        {convertFloatToTime(totals.infHrs)}
+                      </Text>
+                    </View>
                   </View>
-                </View>
-              </Animated.View>
-            )}
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'flex-start',
+                      justifyContent: 'space-between',
+                      marginTop: 3,
+                      paddingHorizontal: 5,
+                    }}
+                  >
+                    <View>
+                      <Text
+                        style={[styles.totalLabel, { fontFamily: 'IBM-Bold' }]}
+                      >
+                        {i18n.t('reports.stickyHeader5')}
+                      </Text>
+                      <Text style={[styles.remainingHrs, { fontSize: 23 }]}>
+                        {convertFloatToTime(creditTotals.credit + totals.hrs)}
+                      </Text>
+                    </View>
+                    <View>
+                      <Text
+                        style={[styles.totalLabel, { textAlign: 'right' }]}
+                      >
+                        {i18n.t('reports.stickyHeader4')}
+                      </Text>
+                      <Text
+                        style={[
+                          styles.remainingHrs,
+                          { textAlign: 'right', fontSize: 16 },
+                        ]}
+                      >
+                        {selectedYr === svcYrs.previousYr
+                          ? `0${i18n.t('reports.stickyDays')}`
+                          : formatDistanceStrict(
+                              new Date(),
+                              new Date(selectedYr, 8, 1, 0, 0, 0),
+                              {
+                                unit: 'day',
+                                locale: localeMap[lang] || enUS,
+                              },
+                            )}
+                      </Text>
+                    </View>
+                  </View>
+                </Animated.View>
+              )}
+            </Animated.View>
           </Animated.View>
-        </Animated.View>
+        )
+      }
 
-        <View style={styles.dropDownContainer}>
-          <SvcYrDropdown
-            selectedYr={selectedYr}
-            setItem={setSelectedYr}
-            svcYrs={svcYrs}
-          />
-        </View>
+      if (item.type === 'year') {
+        return (
+          <View style={styles.dropDownContainer}>
+            <SvcYrDropdown
+              selectedYr={selectedYr}
+              setItem={setSelectedYr}
+              svcYrs={svcYrs}
+            />
+          </View>
+        )
+      }
 
-        {!filteredData || filteredData.length === 0 ? (
+      if (item.type === 'empty') {
+        return (
           <View
             style={{
               flex: 1,
@@ -572,10 +526,59 @@ const reportPage = () => {
                 : i18n.t('reports.backgroundTxt2')}
             </Text>
           </View>
-        ) : (
-          <ReportTable data={filteredData} />
-        )}
-      </ScrollView>
+        )
+      }
+
+      return <ReportTableItemView item={item} />
+    },
+    [
+      creditTotals.credit,
+      headerMinimized,
+      i18n,
+      lang,
+      selectedYr,
+      svcYrs,
+      totals.cartHrs,
+      totals.hhHrs,
+      totals.hrs,
+      totals.infHrs,
+      totals.publHrs,
+    ],
+  )
+
+  const getItemType = useCallback((item: ReportsListItem) => item.type, [])
+
+  return (
+    <SafeAreaView
+      style={[styles.container]}
+      collapsable={false}
+      edges={Platform.OS === 'android' ? ['bottom'] : []}
+    >
+      <FlashList
+        ref={listRef}
+        data={listData}
+        renderItem={renderItem}
+        getItemType={getItemType}
+        keyExtractor={(item) => item.id}
+        stickyHeaderIndices={[0]}
+        contentInsetAdjustmentBehavior="automatic"
+        showsVerticalScrollIndicator={false}
+        onContentSizeChange={() => {
+          const mode = pendingScrollRef.current
+          if (!mode) return
+          scrollToBottom(mode === 'animated')
+        }}
+        refreshing={isRefetching}
+        onRefresh={() => {
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
+          refetch()
+        }}
+        contentContainerStyle={{
+          paddingBottom: scrollBottomPadding,
+          paddingTop: 10,
+          backgroundColor: Colors.primary50,
+        }}
+      />
 
       <ModalForm
         setModalVisible={setModalVisible}

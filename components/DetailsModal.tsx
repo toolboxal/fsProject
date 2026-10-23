@@ -526,11 +526,25 @@ const DetailsModal = ({
                           onPress={() => {
                             openMapsForNavigation(latitude!, longitude!)
                           }}
+                          style={{
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            gap: 1,
+                          }}
                         >
+                          <Text
+                            style={{
+                              fontFamily: 'IBM-Bold',
+                              fontSize: 7,
+                              color: Colors.white,
+                            }}
+                          >
+                            Navigate
+                          </Text>
                           <FontAwesome5
                             name="car-alt"
-                            size={22}
-                            color={Colors.primary50}
+                            size={13}
+                            color={Colors.white}
                           />
                         </Pressable>
                       </View>
@@ -559,7 +573,7 @@ const DetailsModal = ({
                           >
                             <Feather
                               name="phone-call"
-                              size={20}
+                              size={18}
                               color="white"
                             />
                           </Pressable>
@@ -606,8 +620,7 @@ const DetailsModal = ({
                               setValue('notes', followUp.notes)
                               const parsedDate = new Date(followUp.date)
                               setFollowUpDate(
-                                isValid(parsedDate) &&
-                                  parsedDate.getTime() > 0
+                                isValid(parsedDate) && parsedDate.getTime() > 0
                                   ? parsedDate
                                   : new Date(),
                               )
@@ -841,20 +854,22 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     // justifyContent: 'flex-end',
-    backgroundColor: 'rgba(0,0,0,0.3)',
+    backgroundColor: 'rgba(0,0,0,0.5)',
   },
   overlay: {
     flex: 1,
     width: '100%',
   },
   cardContainer: {
-    width: '100%',
+    width: '98%',
     // marginBottom: 100,
     marginHorizontal: 'auto',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
+    // borderTopLeftRadius: 20,
+    // borderTopRightRadius: 20,
+    borderRadius: 40,
+    marginBottom: 5,
     backgroundColor: Colors.primary950,
-    height: '55%',
+    height: '53%',
     overflow: 'hidden',
   },
   loadingContainer: {
@@ -895,12 +910,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 5,
-    backgroundColor: Colors.primary800,
+    backgroundColor: Colors.primary950,
+    // borderBottomWidth: 1,
+    borderRightWidth: 1,
+    // borderBottomColor: Colors.primary700,
+    borderRightColor: Colors.primary700,
   },
   menuTxt: {
-    fontFamily: 'IBM-Bold',
-    fontSize: 14,
-    color: Colors.primary50,
+    fontFamily: 'IBM-SemiBold',
+    fontSize: 13,
+    color: Colors.primary200,
   },
   contentContainer: {
     paddingHorizontal: 12,
@@ -946,28 +965,28 @@ const styles = StyleSheet.create({
   },
   addressTxt: {
     fontFamily: 'IBM-Bold',
-    fontSize: 16,
-    color: Colors.emerald400,
+    fontSize: 15,
+    color: Colors.emerald200,
   },
   whatsAppImage: {
-    width: 40,
+    width: 37,
     aspectRatio: 'auto',
-    height: 40,
+    height: 37,
   },
   contactText: {
     fontFamily: 'IBM-Bold',
-    fontSize: 16,
-    color: Colors.emerald400,
+    fontSize: 15,
+    color: Colors.emerald200,
   },
   dateText: {
-    fontFamily: 'IBM-Bold',
-    fontSize: 16,
-    color: Colors.primary300,
+    fontFamily: 'IBM-SemiBold',
+    fontSize: 14,
+    color: Colors.primary200,
   },
   publicationsText: {
     fontFamily: 'IBM-SemiBoldItalic',
-    fontSize: 18,
-    color: Colors.lemon100,
+    fontSize: 16,
+    color: Colors.lemon200,
     marginTop: 5,
   },
   remarksBox: {

@@ -12,7 +12,7 @@ import { StatusBar } from 'expo-status-bar'
 import { router, Stack } from 'expo-router'
 import { Colors } from '@/constants/Colors'
 
-import { useState, useEffect, useMemo, useCallback } from 'react'
+import { useState, useEffect, useMemo, useCallback, useRef, memo } from 'react'
 import { FlashList } from '@shopify/flash-list'
 import SingleRecord from '@/components/SingleRecord'
 
@@ -22,7 +22,7 @@ import { differenceInDays } from 'date-fns'
 import { useTranslations } from '../../_layout'
 
 import { db } from '@/drizzle/db'
-import { Person, TPerson, TPersonWithTags } from '@/drizzle/schema'
+import { TPersonWithTags, TTags } from '@/drizzle/schema'
 
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { checkAndRequestReview } from '@/utils/storeReview'
@@ -36,13 +36,99 @@ const filterOptions = [
   { type: 'committed', label: 'established' },
 ]
 
+type RecordsListHeaderProps = {
+  tags: TTags[] | undefined
+  selectedTags: number[]
+  backupMsg: string
+  backupBannerColor: string
+  emptyTagsText: string
+  onToggleTag: (id: number) => void
+}
+
+const RecordsListHeader = memo(function RecordsListHeader({
+  tags,
+  selectedTags,
+  backupMsg,
+  backupBannerColor,
+  emptyTagsText,
+  onToggleTag,
+}: RecordsListHeaderProps) {
+  return (
+    <View>
+      <View
+        style={{
+          backgroundColor: backupBannerColor,
+          paddingHorizontal: 5,
+          paddingVertical: 3,
+        }}
+      >
+        <Text
+          style={{
+            fontFamily: 'IBM-Regular',
+            fontSize: 12,
+            color: Colors.white,
+          }}
+        >
+          {backupMsg}
+        </Text>
+      </View>
+      {tags?.length === 0 ? (
+        <Text
+          style={{
+            color: Colors.primary600,
+            fontFamily: 'IBM-Regular',
+            fontSize: 12,
+            padding: 5,
+          }}
+        >
+          {emptyTagsText}
+        </Text>
+      ) : (
+        <ScrollView
+          style={{
+            paddingVertical: 6,
+            backgroundColor: Colors.primary50,
+          }}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{ paddingHorizontal: 4 }}
+        >
+          {tags?.map((item) => {
+            const selected = selectedTags.includes(item.id)
+            return (
+              <Pressable
+                key={item.id}
+                style={[
+                  styles.tag,
+                  selected && {
+                    backgroundColor: Colors.emerald900,
+                    borderColor: Colors.emerald900,
+                  },
+                ]}
+                onPress={() => onToggleTag(item.id)}
+              >
+                <Text
+                  style={[styles.tagText, selected && { color: Colors.white }]}
+                >
+                  {item.tagName}
+                </Text>
+              </Pressable>
+            )
+          })}
+        </ScrollView>
+      )}
+    </View>
+  )
+})
+
 const RecordsPage = () => {
   const colorScheme = Appearance.getColorScheme()
   const [refreshing, setRefreshing] = useState(false)
   const [selectedPersonId, setSelectedPersonId] = useState<number | null>(null)
   const [modalVisible, setModalVisible] = useState(false)
-  const [searchBarQuery, setSearchBarQuery] = useState('')
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('')
   const [selectedTags, setSelectedTags] = useState<number[]>([])
+  const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const queryClient = useQueryClient()
   const i18n = useTranslations()
@@ -57,15 +143,18 @@ const RecordsPage = () => {
       ? `Your last attempted backup was ${diffInDays} ${diffInDays === 1 ? 'day' : 'days'} ago.\nBackup to ${Platform.OS === 'ios' ? 'iCloud' : 'Google Drive'} ☁️ at least once a month.`
       : lastBackupTimestamp && diffInDays === 0
         ? `Thank you for backing up your data. 🙏`
-        : `⚠️ Frequently create backups to ${Platform.OS === 'ios' ? 'iCloud' : 'Google Drive'} to prevent data loss.\nGo to Options -> create backup`
+        : `⚠️ Your records is your responsibility. Frequently create a backup to your ${Platform.OS === 'ios' ? 'iCloud' : 'Google Drive'}. Go to Options --> create backup`
   const backupBannerColor =
-    !lastBackupTimestamp || diffInDays > 60
-      ? Colors.rose700
-      : Colors.primary600
+    !lastBackupTimestamp || diffInDays > 60 ? Colors.rose700 : Colors.primary600
 
   useEffect(() => {
     // storage.delete('last_backup_timestamp')
     checkAndRequestReview()
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current)
+      }
+    }
   }, [])
 
   const { data: persons } = useQuery({
@@ -93,70 +182,74 @@ const RecordsPage = () => {
     },
   })
 
-  const filteredPersons =
-    persons?.filter((person) => {
-      const matchesName = person.name
-        ?.toLowerCase()
-        .includes(searchBarQuery.toLowerCase())
-      if (selectedTags.length === 0) {
-        return matchesName
+  const { flatMapped, stickyHeaderIndices } = useMemo(() => {
+    const filteredPersons =
+      persons?.filter((person) => {
+        const matchesName = person.name
+          ?.toLowerCase()
+          .includes(debouncedSearchQuery)
+        if (selectedTags.length === 0) {
+          return matchesName
+        }
+        const personTagIds = (person.personsToTags || []).map((pt) => pt.tag.id)
+        const matchesTags = selectedTags.some((tagId) =>
+          personTagIds.includes(tagId),
+        )
+        return matchesName && matchesTags
+      }) || []
+
+    const categoryMap: { [key: string]: TPersonWithTags[] } = {}
+    filteredPersons.forEach((person) => {
+      const place = person.block || person.street
+      if (!categoryMap[place ?? '']) {
+        categoryMap[place ?? ''] = []
       }
-      const personTagIds = (person.personsToTags || []).map((pt) => pt.tag.id)
-      const matchesTags = selectedTags.some((tagId) =>
-        personTagIds.includes(tagId),
-      )
-      return matchesName && matchesTags
-    }) || []
+      categoryMap[place ?? ''].push(person)
+    })
+
+    const formattedData = Object.entries(categoryMap).map(
+      ([block, person]) => ({
+        title: block,
+        data: person,
+      }),
+    )
+
+    const sorted = formattedData.sort((a, b) =>
+      a.title.localeCompare(b.title, undefined, {
+        numeric: true,
+        sensitivity: 'base',
+      }),
+    )
+    const nextFlatMapped = sorted.flatMap((item) => [item.title, ...item.data])
+    const nextStickyHeaderIndices = nextFlatMapped
+      .map((item, index) => (typeof item === 'string' ? index : null))
+      .filter((item) => item !== null) as number[]
+
+    return {
+      flatMapped: nextFlatMapped,
+      stickyHeaderIndices: nextStickyHeaderIndices,
+    }
+  }, [persons, debouncedSearchQuery, selectedTags])
 
   const onRefresh = async () => {
     setRefreshing(true)
-    // Refetch the data
     await queryClient.invalidateQueries({ queryKey: ['persons'] })
     setRefreshing(false)
   }
-
-  // --------data formatting----------
-
-  const categoryMap: { [key: string]: TPersonWithTags[] } = {}
-
-  filteredPersons?.forEach((person) => {
-    const place = person.block || person.street
-    if (!categoryMap[place ?? '']) {
-      categoryMap[place ?? ''] = []
-    }
-    categoryMap[place ?? ''].push(person)
-  })
-
-  const formattedData = Object.entries(categoryMap).map(([block, person]) => ({
-    title: block,
-    data: person,
-  }))
-
-  const sorted = formattedData.sort((a, b) =>
-    a.title.localeCompare(b.title, undefined, {
-      numeric: true,
-      sensitivity: 'base',
-    }),
-  )
-  const flatMapped = sorted.flatMap((item) => [item.title, ...item.data])
-
-  // console.log('sorted formatted flatmap: ', flatMapped)
-
-  const stickyHeaderIndices = flatMapped
-    .map((item, index) => {
-      if (typeof item === 'string') {
-        return index
-      } else {
-        return null
-      }
-    })
-    .filter((item) => item !== null) as number[]
-  // --------end of data formatting----------
 
   // Move useCallback hooks outside conditional rendering to comply with Rules of Hooks
   const handleSelectPerson = useCallback((id: number) => {
     setSelectedPersonId(id)
     setModalVisible(true)
+  }, [])
+
+  const handleToggleTag = useCallback((id: number) => {
+    setSelectedTags((prev) => {
+      if (prev.includes(id)) {
+        return prev.filter((tagId) => tagId !== id)
+      }
+      return [...prev, id]
+    })
   }, [])
 
   const renderItem = useCallback(
@@ -205,12 +298,19 @@ const RecordsPage = () => {
               colorScheme === 'dark' ? Colors.primary300 : Colors.primary200,
             headerIconColor: Colors.emerald900,
             onChangeText: (event) => {
-              const text = event.nativeEvent.text
-              setSearchBarQuery(text)
-              // console.log(text)
+              const text = event.nativeEvent.text.trim().toLowerCase()
+              if (searchTimeoutRef.current) {
+                clearTimeout(searchTimeoutRef.current)
+              }
+              searchTimeoutRef.current = setTimeout(() => {
+                setDebouncedSearchQuery(text)
+              }, 180)
             },
             onCancelButtonPress: () => {
-              setSearchBarQuery('')
+              if (searchTimeoutRef.current) {
+                clearTimeout(searchTimeoutRef.current)
+              }
+              setDebouncedSearchQuery('')
             },
           },
           headerLeft: () => (
@@ -260,7 +360,7 @@ const RecordsPage = () => {
         <View
           style={{
             flex: 1,
-            backgroundColor: Colors.primary300,
+            backgroundColor: Colors.primary200,
             // width: '100%',
           }}
         >
@@ -278,99 +378,14 @@ const RecordsPage = () => {
             refreshing={refreshing}
             onRefresh={onRefresh}
             ListHeaderComponent={
-              tags?.length === 0 ? (
-                <View>
-                  <View
-                    style={{
-                      backgroundColor: backupBannerColor,
-                      paddingHorizontal: 5,
-                      paddingVertical: 3,
-                    }}
-                  >
-                    <Text
-                      style={{
-                        fontFamily: 'IBM-Regular',
-                        fontSize: 12,
-                        color: Colors.white,
-                      }}
-                    >
-                      {backupMsg}
-                    </Text>
-                  </View>
-                  <Text
-                    style={{
-                      color: Colors.primary600,
-                      fontFamily: 'IBM-Regular',
-                      fontSize: 12,
-                      padding: 5,
-                    }}
-                  >
-                    {i18n.t('records.emptyTagsText')}
-                  </Text>
-                </View>
-              ) : (
-                <View>
-                  <View
-                    style={{
-                      backgroundColor: backupBannerColor,
-                      paddingHorizontal: 5,
-                      paddingVertical: 3,
-                    }}
-                  >
-                    <Text
-                      style={{
-                        fontFamily: 'IBM-Regular',
-                        fontSize: 12,
-                        color: Colors.white,
-                      }}
-                    >
-                      {backupMsg}
-                    </Text>
-                  </View>
-                  <ScrollView
-                    style={{
-                      paddingVertical: 6,
-                      backgroundColor: Colors.primary50,
-                    }}
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={{ paddingHorizontal: 4 }}
-                  >
-                    {tags?.map((item) => (
-                      <Pressable
-                        key={item.id}
-                        style={[
-                          styles.tag,
-                          selectedTags.includes(item.id) && {
-                            backgroundColor: Colors.emerald900,
-                            borderColor: Colors.emerald900,
-                          },
-                        ]}
-                        onPress={() => {
-                          setSelectedTags((prev) => {
-                            if (prev.includes(item.id)) {
-                              return prev.filter((id) => id !== item.id)
-                            } else {
-                              return [...prev, item.id]
-                            }
-                          })
-                        }}
-                      >
-                        <Text
-                          style={[
-                            styles.tagText,
-                            selectedTags.includes(item.id) && {
-                              color: Colors.white,
-                            },
-                          ]}
-                        >
-                          {item.tagName}
-                        </Text>
-                      </Pressable>
-                    ))}
-                  </ScrollView>
-                </View>
-              )
+              <RecordsListHeader
+                tags={tags}
+                selectedTags={selectedTags}
+                backupMsg={backupMsg}
+                backupBannerColor={backupBannerColor}
+                emptyTagsText={i18n.t('records.emptyTagsText')}
+                onToggleTag={handleToggleTag}
+              />
             }
           />
         </View>
@@ -447,7 +462,7 @@ const styles = StyleSheet.create({
   header: {
     fontFamily: 'IBM-SemiBoldItalic',
     fontSize: 20,
-    backgroundColor: Colors.primary300,
+    backgroundColor: Colors.primary200,
     color: Colors.emerald800,
     padding: 3,
     paddingLeft: 12,
